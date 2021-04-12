@@ -1,0 +1,2 @@
+ADD_EXECUTABLE(main main.cpp global.cpp)
+SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
