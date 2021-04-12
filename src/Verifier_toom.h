@@ -3,10 +3,9 @@
 
 #include <vector>
 #include "Cipher_elg.h"
-#include "G_q.h"
+#include "global.h"
 #include "Mod_p.h"
 #include "sha256.h"
-#include "Pedersen.h"
 
 #include <NTL/ZZ.h>
 NTL_CLIENT
@@ -18,7 +17,11 @@ private:
 	long omega;	   //window size for multi-exponentiation technique
 	long omega_sw; //window size for multi-exponentiation technique sliding window and LL
 	long omega_LL; //window size for multi-exponentiation technique of LL
-	vector<long> num;
+	int mu;
+	int m_r;
+	int mu_h;
+
+	vector<int> num;
 	SHA256 sha;
 	array<string, 6> hashStr;
 
@@ -84,7 +87,7 @@ private:
 
 public:
 	Verifier_toom();
-	Verifier_toom(vector<long> num);
+	Verifier_toom(vector<int> num);
 	virtual ~Verifier_toom();
 
 	//Stores the commitments to matrix Y and sends challenges vector s_1 and s_2 to the prover

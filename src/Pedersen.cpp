@@ -10,8 +10,6 @@ NTL_CLIENT
 #include <vector>
 #include <fstream>
 
-extern double time_cm;
-
 Pedersen::Pedersen() {
 	// TODO Auto-generated constructor stub
 
@@ -438,11 +436,9 @@ vector<Mod_p>* Pedersen::get_gen()const {
 
 //Calculates the commitment to the values in t using randomness r
 Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran) {
-	double tstart, tstop, ttime;
 	ZZ temp, temp_1, mod;
 	long i;
 
-	tstart = (double)clock() / CLOCKS_PER_SEC;
 	mod = G.get_mod();
 	if ((long)t->size() > (long)gen->size())
 	{
@@ -457,20 +453,15 @@ Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran) {
 			MulMod(temp, temp, temp_1, mod);//¿€≥À
 		}
 	}
-	tstop = (double)clock() / CLOCKS_PER_SEC;
-	ttime = tstop - tstart;
-	time_cm += ttime;
 	return Mod_p(temp, mod);
 }
 
 //Calculates the commitment to the values in t using randomness r
 Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran) {
-	double tstart, tstop, ttime;
 	ZZ temp, temp_1;
 	ZZ mod = G.get_mod();
 	long i;
 
-	tstart = (double)clock() / CLOCKS_PER_SEC;
 	if ((long)t->size() > (long)gen->size())
 	{
 		cout << "too many elements to commit to" << endl;
@@ -484,21 +475,16 @@ Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran) {
 			MulMod(temp, temp, temp_1, mod);
 		}
 	}
-	tstop = (double)clock() / CLOCKS_PER_SEC;
-	ttime = tstop - tstart;
-	time_cm += ttime;
 	return Mod_p(temp, mod);
 }
 
 //Calculates the commitment to t using randomness r
 Mod_p Pedersen::commit(const vector<Mod_p>* t) {
-	double tstart, tstop, ttime;
 	ZZ temp, temp_1;
 	long i;
 	ZZ ran;
 	ZZ mod = G.get_mod();
 
-	tstart = (double)clock() / CLOCKS_PER_SEC;
 	SetSeed(to_ZZ((unsigned int)time(0)));
 	ran = RandomBnd(mod);
 	cout << "ran: " << ran << endl;
@@ -515,9 +501,6 @@ Mod_p Pedersen::commit(const vector<Mod_p>* t) {
 			MulMod(temp, temp, temp_1, mod);
 		}
 	}
-	tstop = (double)clock() / CLOCKS_PER_SEC;
-	ttime = tstop - tstart;
-	time_cm += ttime;
 	return Mod_p(temp, mod);
 }
 
@@ -577,13 +560,11 @@ Mod_p Pedersen::commit(Mod_p t) {
 
 //Calculates the commitment to the values in t using randomness r
 Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran) {
-	double tstart, tstop, ttime;
 	ZZ temp;
 	Mod_p temp_1;
 	long length = t->size();
 	long i;
 
-	tstart = (double)clock() / CLOCKS_PER_SEC;
 	if (length > (long)gen->size())
 	{
 		cout << "too many elements to commit to" << endl;
@@ -611,9 +592,6 @@ Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran) {
 		//}
 	}
 
-	tstop = (double)clock() / CLOCKS_PER_SEC;
-	ttime = tstop - tstart;
-	time_cm += ttime;
 	return Mod_p(temp, G.get_mod());
 }
 

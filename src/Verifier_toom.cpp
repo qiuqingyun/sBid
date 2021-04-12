@@ -5,7 +5,6 @@
 #include "G_q.h"
 #include "Mod_p.h"
 #include "Functions.h"
-#include "ElGammal.h"
 #include "multi_expo.h"
 #include "func_ver.h"
 #include <fstream>
@@ -18,24 +17,27 @@ NTL_CLIENT
 extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
-extern ElGammal El;
-extern long mu;
-extern long mu_h;
-extern long m_r;
+extern ElGamal El;
+extern int mu;
+extern int mu_h;
+extern int m_r;
 
 Verifier_toom::Verifier_toom()
 {
 	// TODO Auto-generated constructor stub
 }
 
-Verifier_toom::Verifier_toom(vector<long> num)
+Verifier_toom::Verifier_toom(vector<int> num)
 {
 	// sets the values of the matrix according to the input
-	m = num[1];		   //number of rows
-	n = num[2];		   //number of columns
-	omega = num[3];	   //windowsize for multi-expo-technique
-	omega_sw = num[4]; //windowsize for multi-expo-technique sliding window and LL
-	omega_LL = num[7]; //windowsize for multi-expo-technique of LL
+	m = num[0];		   //number of rows
+	n = num[1];		   //number of columns
+	omega = num[2];	   //windowsize for multi-expo-technique
+	omega_sw = num[3]; //windowsize for multi-expo-technique sliding window and LL
+	omega_LL = num[4]; //windowsize for multi-expo-technique of LL
+	mu = num[5];
+	m_r = num[6];
+	mu_h = num[7];
 	this->num = num;
 
 	c_A = new vector<Mod_p>(m + 1);					 //allocate the storage for the commitments of Y

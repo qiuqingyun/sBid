@@ -8,7 +8,6 @@
 #include "G_q.h"
 #include "Mod_p.h"
 #include "Functions.h"
-#include "ElGammal.h"
 #include "multi_expo.h"
 #include "func_pro.h"
 #include "func_ver.h"
@@ -19,10 +18,10 @@ NTL_CLIENT
 //extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
-extern ElGammal El;
-extern long mu;
-extern long mu_h;
-extern long m_r;
+extern ElGamal El;
+extern int mu;
+extern int mu_h;
+extern int m_r;
 ZZ ord;
 array<string, 6> hashStr;
 stringstream pk_ss;
@@ -33,19 +32,21 @@ Prover_toom::Prover_toom()
 	// TODO Auto-generated constructor stub
 }
 
-Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* Rin, vector<vector<vector<long>*>*>* piin, vector<long> num, ZZ gen)
+Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* Rin, vector<vector<vector<int>*>*>* piin, vector<int> num, ZZ gen)
 {
-
 	// set the dimensions of the row and columns according to the user input
-	m = num[1];			  //number of rows
-	n = num[2];			  //number of columns
-	omega = num[3];
 	C = Cin;			  //sets the reencrypted chipertexts to the input
 	R = Rin;			  //sets the random elements to the input
 	pi = piin;			  // sets the permutation to the input
-	omega_mulex = num[3]; //windowsize for sliding-window technique
-	omega_sw = num[4];	  //windowsize for multi-expo technique
-	omega_LL = num[7];	  //windowsize for multi-expo technique
+	m = num[0];			  //number of rows
+	n = num[1];			  //number of columns
+	omega_mulex = num[2]; //windowsize for sliding-window technique
+	omega_sw = num[3];	  //windowsize for multi-expo technique
+	omega_LL = num[4];	  //windowsize for multi-expo technique
+	mu= num[5];
+	m_r = num[6];
+	mu_h = num[7];
+
 
 	//Creates the matrices A，内容为pi
 	A = new vector<vector<ZZ>*>(m);
@@ -514,13 +515,7 @@ void Prover_toom::round_9a()
 	func_pro::calculate_rho_a_bar(rho_a, chal_x8, rho_bar);
 }
 
-int Prover_toom::round_9()
-{
-	this->round_1();
-	this->round_3();//生成一个挑战
-	this->round_5();//生成两个挑战
-	this->round_7();//生成两个挑战
-
+void Prover_toom::round_9() {
 	// 用hash生成随机挑战x
 	string hashValueStr = sha.hash(hashStr[5]);
 	ZZ hashValueZZ;
@@ -541,72 +536,80 @@ int Prover_toom::round_9()
 	{
 		ost << D_h_bar->at(i) << endl;
 	}
-	
+
 	//24 r_Dh_bar
 	ost << r_Dh_bar << endl;
-	
+
 	//25 d_bar
 	for (int i = 0; i < n; i++)
 	{
 		ost << d_bar->at(i) << endl;
 	}
-	
+
 	//26 r_d_bar
 	ost << r_d_bar << endl;
-	
+
 	//27 Delta_bar
 	for (int i = 0; i < n; i++)
 	{
 		ost << Delta_bar->at(i) << endl;
 	}
-	
+
 	//28 r_Delta_bar
 	ost << r_Delta_bar << endl;
-	
+
 	//29 A_bar
 	for (int i = 0; i < n; i++)
 	{
 		ost << A_bar->at(i) << endl;
 	}
-	
+
 	//30 r_A_bar
 	ost << r_A_bar << endl;
-	
+
 	//31 D_s_bar
 	for (int i = 0; i < n; i++)
 	{
 		ost << D_s_bar->at(i) << endl;
 	}
-	
+
 	//32 r_Ds_bar
 	ost << r_Ds_bar << endl;
-	
+
 	//33 r_Dl_bar
 	ost << r_Dl_bar << endl;
-	
+
 	//34 B_bar
 	for (int i = 0; i < n; i++)
 	{
 		ost << B_bar->at(i) << endl;
 	}
-	
+
 	//35 r_B_bar
 	ost << r_B_bar << endl;
-	
+
 	//36 a_bar
 	ost << a_bar << endl;
-	
+
 	//37 r_a_bar
 	ost << r_a_bar << endl;
-	
+
 	//38 rho_bar
 	ost << rho_bar << endl;
-	
+
 	//39 chal_x8_temp
 	ost << chal_x8_temp << endl;
-	
-	ost.close();
 
+	ost.close();
+}
+
+int Prover_toom::prove()
+{
+	this->round_1();
+	this->round_3();//生成一个挑战
+	this->round_5();//生成两个挑战
+	this->round_7();//生成两个挑战
+	this->round_9();//生成一个挑战
 	return 0;
 }
 

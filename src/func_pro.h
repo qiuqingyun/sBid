@@ -18,11 +18,11 @@ public:
 
 	//Help functions to generate X and Y
 	static void set_X(vector<vector<ZZ>*>* X, long m, long n);
-	static void set_A(vector<vector<ZZ>*>* Y, vector<vector<vector<long>* >* >* pi, long m, long n);
+	static void set_A(vector<vector<ZZ>*>* Y, vector<vector<vector<int>* >* >* pi, long m, long n);
 
 	static void set_x2(vector<vector<ZZ>*>* chal_x2, ZZ x2, long m, long n);
-	static void set_B_op(vector<vector<ZZ>*>* B, vector<vector<vector<long>* >* >* basis_B, vector<vector<ZZ>*>* chal_x2, vector<vector<vector<long>* >*>* pi, long omega_mulex);
-	static void set_B(vector<vector<ZZ>*>* B, vector<vector<ZZ>*>* chal_x2, vector<vector<vector<long>* >*>* pi);
+	static void set_B_op(vector<vector<ZZ>*>* B, vector<vector<vector<long>* >* >* basis_B, vector<vector<ZZ>*>* chal_x2, vector<vector<vector<int>* >*>* pi, long omega_mulex);
+	static void set_B(vector<vector<ZZ>*>* B, vector<vector<ZZ>*>* chal_x2, vector<vector<vector<int>* >*>* pi);
 
 	static void set_D(vector<vector<ZZ>*>* D, vector<vector<ZZ>*>* A, vector<vector<ZZ>*>* B, ZZ chal_z, ZZ chal_y);
 	static void set_D_h(vector<vector<ZZ>*>* D_h, vector<vector<ZZ>*>* D);

@@ -1,7 +1,6 @@
 #ifndef CIPHER_ELG_H_
 #define CIPHER_ELG_H_
 
-
 #include <NTL/ZZ.h>
 NTL_CLIENT
 

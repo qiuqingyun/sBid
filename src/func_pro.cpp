@@ -3,7 +3,7 @@
 #include "G_q.h"
 #include "Mod_p.h"
 #include "Functions.h"
-#include "ElGammal.h"
+#include "global.h"
 #include "multi_expo.h"
 #include "fft.h"
 #include <stdio.h>
@@ -17,12 +17,12 @@ NTL_CLIENT
 extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
-/*extern ElGammal El;
+/*extern ElGamal El;
 extern double time_rw_p;
 extern double time_cm;
-extern long mu;
-extern long mu_h;
-extern long m_r;*/
+extern int mu;
+extern int mu_h;
+extern int m_r;*/
 
 func_pro::func_pro() {
 	// TODO Auto-generated constructor stub
@@ -51,7 +51,7 @@ void func_pro::set_X(vector<vector<ZZ>*>* X, long m, long n) {
 }
 
 //Permutes the matrix X regarding the permutation pi, to set the matrix A
-void func_pro::set_A(vector<vector<ZZ>*>* A, vector<vector<vector<long>* >* >* pi, long m, long n) {
+void func_pro::set_A(vector<vector<ZZ>*>* A, vector<vector<vector<int>* >* >* pi, long m, long n) {
 	long i, j, row, col;
 	vector<vector<ZZ>* >* X = 0;
 	//Creates the matrixs X, containing 1 to N
@@ -119,7 +119,7 @@ void func_pro::set_x2(vector<vector<ZZ>* >* chal_x2, ZZ x2, long m, long n) {
 
 }
 
-void func_pro::set_B_op(vector<vector<ZZ>* >* B, vector<vector<vector<long>* >* >* basis_B, vector<vector<ZZ>* >* chal_x2, vector<vector<vector<long>* >*>* pi, long omega_mulex) {
+void func_pro::set_B_op(vector<vector<ZZ>* >* B, vector<vector<vector<long>* >* >* basis_B, vector<vector<ZZ>* >* chal_x2, vector<vector<vector<int>* >*>* pi, long omega_mulex) {
 	long i, j;
 	long row, col;
 	vector<ZZ>* r = 0;
@@ -145,7 +145,7 @@ void func_pro::set_B_op(vector<vector<ZZ>* >* B, vector<vector<vector<long>* >* 
 
 }
 
-void func_pro::set_B(vector<vector<ZZ>* >* B, vector<vector<ZZ>* >* chal_x2, vector<vector<vector<long>* >*>* pi) {
+void func_pro::set_B(vector<vector<ZZ>* >* B, vector<vector<ZZ>* >* chal_x2, vector<vector<vector<int>* >*>* pi) {
 	long i, j;
 	long row, col;
 	vector<ZZ>* r = 0;

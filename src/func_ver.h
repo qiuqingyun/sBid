@@ -1,11 +1,10 @@
 #ifndef FUNC_VER_H_
 #define FUNC_VER_H_
-
+#include "global.h"
 #include<vector>
 #include "Cipher_elg.h"
 #include "G_q.h"
 #include "Mod_p.h"
-#include "Pedersen.h"
 
 #include <NTL/ZZ.h>
 NTL_CLIENT

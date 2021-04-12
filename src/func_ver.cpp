@@ -4,7 +4,6 @@
 #include "G_q.h"
 #include "Mod_p.h"
 #include "Functions.h"
-#include "ElGammal.h"
 #include "multi_expo.h"
 #include <fstream>
 
@@ -16,7 +15,7 @@ NTL_CLIENT
 extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
-extern ElGammal El;
+extern ElGamal El;
 
 func_ver::func_ver() {
 	// TODO Auto-generated constructor stub

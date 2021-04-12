@@ -3,11 +3,11 @@
 
 
 #include<vector>
-#include "G_q.h"
+#include "ElGamal.h"
 #include <NTL/ZZ.h>
 #include "Mod_p.h"
 #include "Cipher_elg.h"
-#include "Permutation.h"
+
 #include <NTL/ZZ.h>
 NTL_CLIENT
 

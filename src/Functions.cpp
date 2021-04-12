@@ -12,7 +12,7 @@ using namespace std;
 
 extern G_q G;
 extern G_q H;
-extern ElGammal El;
+extern ElGamal El;
 extern Pedersen Ped;
 vector<vector<Cipher_elg>*>* c = 0;	  //原始输入的密文
 vector<vector<Cipher_elg>*>* C = 0;	  //重加密的密文
@@ -61,15 +61,15 @@ void Functions::read_config(vector<long>& num, ZZ& genq)
 	}
 	ist.close();
 	// cout<<NumBits(pq->at(1))<<" "<<NumBits(pq->at(0))<<endl;
-	G = G_q(pq->at(2), pq->at(1), pq->at(0)); //ElGammal参数：生成元h 阶数q 模数p
+	G = G_q(pq->at(2), pq->at(1), pq->at(0)); //ElGamal参数：生成元h 阶数q 模数p
 	H = G_q(pq->at(2), pq->at(1), pq->at(0));
 	genq = pq->at(3);
 
 	El.set_group(H);
-	ist.open("ElGammal.txt", ios::in);
+	ist.open("ElGamal.txt", ios::in);
 	if (!ist)
 	{
-		cout << "Can't open ElGammal.txt" << endl;
+		cout << "Can't open ElGamal.txt" << endl;
 		exit(1);
 	}
 	string sk_str, pk_str;
@@ -115,7 +115,7 @@ string Functions::tostring(ZZ n)
 }
 
 //Creates a matrix of N random elements, if N<n*m 1 is encrypted in the last elements
-vector<vector<Cipher_elg>*>* Functions::createCipher(vector<long> num)
+vector<vector<Cipher_elg>*>* Functions::createCipher(vector<int> num)
 {
 	long N = num[0];
 	long m = num[1];
@@ -162,7 +162,7 @@ vector<vector<Cipher_elg>*>* Functions::createCipher(vector<long> num)
 	return C;
 }
 
-void Functions::createCipher(vector<vector<Cipher_elg>*>* C, vector<long> num)
+void Functions::createCipher(vector<vector<Cipher_elg>*>* C, vector<int> num)
 {
 	long N = num[0];
 	long m = num[1]; //行
@@ -238,7 +238,7 @@ void Functions::createCipher(vector<vector<Cipher_elg>*>* C, vector<long> num)
 	}
 }
 
-void Functions::inputCipher(vector<vector<Cipher_elg>*>*& Cipher, vector<long> num)
+void Functions::inputCipher(vector<vector<Cipher_elg>*>*& Cipher, vector<int> num)
 {
 	long m = num[1]; //行
 	long n = num[2]; //列
@@ -254,7 +254,7 @@ void Functions::inputCipher(vector<vector<Cipher_elg>*>*& Cipher, vector<long> n
 	ist.close();
 }
 
-void Functions::readCipher(vector<vector<Cipher_elg>*>*& Cipher, ifstream& ist, vector<long> num)
+void Functions::readCipher(vector<vector<Cipher_elg>*>*& Cipher, ifstream& ist, vector<int> num)
 {
 	int m, n, amount, index_m = 0, index_n = 0, index = 0;
 	string in_temp, u_str, v_str;
@@ -294,7 +294,7 @@ void Functions::readCipher(vector<vector<Cipher_elg>*>*& Cipher, ifstream& ist, 
 	return;
 }
 
-void Functions::decryptCipher(vector<vector<Cipher_elg>*>* C, vector<long> num, int flag)
+void Functions::decryptCipher(vector<vector<Cipher_elg>*>* C, vector<int> num, int flag)
 {
 	long m = num[1]; //行
 	long n = num[2]; //列
@@ -314,7 +314,7 @@ void Functions::decryptCipher(vector<vector<Cipher_elg>*>* C, vector<long> num, 
 }
 
 //Creates a matrix of random numbers
-vector<vector<ZZ>*>* Functions::randomEl(vector<long> num)
+vector<vector<ZZ>*>* Functions::randomEl(vector<int> num)
 {
 	long m = num[1];
 	long n = num[2];
@@ -336,7 +336,7 @@ vector<vector<ZZ>*>* Functions::randomEl(vector<long> num)
 	return R;
 }
 
-void Functions::randomEl(vector<vector<ZZ>*>* R, vector<long> num)
+void Functions::randomEl(vector<vector<ZZ>*>* R, vector<int> num)
 {
 	long m = num[1];
 	long n = num[2];
@@ -361,9 +361,9 @@ void Functions::randomEl(vector<vector<ZZ>*>* R, vector<long> num)
 	}
 	// ost.close();
 }
-
+/*
 //reencrypts the ciphertexts e using the permutation pi and the random elements R
-vector<vector<Cipher_elg>*>* Functions::reencryptCipher(vector<vector<Cipher_elg>*>* e, vector<vector<vector<long>*>*>* pi, vector<vector<ZZ>*>* R, vector<long> num)
+vector<vector<Cipher_elg>*>* Functions::reencryptCipher(vector<vector<Cipher_elg>*>* e, vector<vector<vector<long>*>*>* pi, vector<vector<ZZ>*>* R, vector<int> num)
 {
 	long n, m;
 	m = num[1];
@@ -389,7 +389,7 @@ vector<vector<Cipher_elg>*>* Functions::reencryptCipher(vector<vector<Cipher_elg
 	return C;
 }
 
-void Functions::reencryptCipher(vector<vector<Cipher_elg>*>* C, vector<vector<Cipher_elg>*>* e, vector<vector<vector<long>*>*>* pi, vector<vector<ZZ>*>* R, vector<long> num)
+void Functions::reencryptCipher(vector<vector<Cipher_elg>*>* C, vector<vector<Cipher_elg>*>* e, vector<vector<vector<long>*>*>* pi, vector<vector<ZZ>*>* R, vector<int> num)
 {
 	long n, m;
 	m = num[1]; //行
@@ -418,7 +418,7 @@ void Functions::reencryptCipher(vector<vector<Cipher_elg>*>* C, vector<vector<Ci
 	}
 	ost.close();
 }
-
+*/
 //Returns the Hadamard product of x and y
 void Functions::Hadamard(vector<ZZ>* ret, vector<ZZ>* x, vector<ZZ>* y)
 {

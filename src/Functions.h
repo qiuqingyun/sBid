@@ -5,8 +5,7 @@
 #include "G_q.h"
 #include "Mod_p.h"
 #include "Cipher_elg.h"
-#include "Permutation.h"
-#include "ElGammal.h"
+#include "ElGamal.h"
 #include "Pedersen.h"
 
 #include <NTL/ZZ.h>
@@ -24,17 +23,17 @@ public:
 	static void read_config(vector<long>& num, ZZ& genq);
 
 	//generates N=num[0] different ciphertexts
-	static vector<vector<Cipher_elg>* >* createCipher(vector<long> num);
-	static void createCipher(vector<vector<Cipher_elg>* >* e, vector<long> num);
-	static void  inputCipher(vector<vector<Cipher_elg>* >*& C, vector<long> num);
-	static void readCipher(vector<vector<Cipher_elg>*>*& C, ifstream& ist, vector<long> num);
-	static void decryptCipher(vector<vector<Cipher_elg>* >* C, vector<long> num, int flag);
+	static vector<vector<Cipher_elg>* >* createCipher(vector<int> num);
+	static void createCipher(vector<vector<Cipher_elg>* >* e, vector<int> num);
+	static void  inputCipher(vector<vector<Cipher_elg>* >*& C, vector<int> num);
+	static void readCipher(vector<vector<Cipher_elg>*>*& C, ifstream& ist, vector<int> num);
+	static void decryptCipher(vector<vector<Cipher_elg>* >* C, vector<int> num, int flag);
 	//generates a matrix of random elements
-	static vector<vector<ZZ>* >* randomEl(vector<long> num);
-	static void randomEl(vector<vector<ZZ>*>* R, vector<long> num);
+	static vector<vector<ZZ>* >* randomEl(vector<int> num);
+	static void randomEl(vector<vector<ZZ>*>* R, vector<int> num);
 	//reencrypts the ciphertexts e using the permutation pi and random elements R
-	static vector<vector<Cipher_elg>* >* reencryptCipher(vector<vector<Cipher_elg>* >* e, vector<vector<vector<long>* >* >* pi, vector<vector<ZZ>*>* R, vector<long> num);
-	static  void reencryptCipher(vector<vector<Cipher_elg>* >* E, vector<vector<Cipher_elg>* >* e, vector<vector<vector<long>* >* >* pi, vector<vector<ZZ>*>* R, vector<long> num);
+	static vector<vector<Cipher_elg>* >* reencryptCipher(vector<vector<Cipher_elg>* >* e, vector<vector<vector<int>* >* >* pi, vector<vector<ZZ>*>* R, vector<int> num);
+	static  void reencryptCipher(vector<vector<Cipher_elg>* >* E, vector<vector<Cipher_elg>* >* e, vector<vector<vector<int>* >* >* pi, vector<vector<ZZ>*>* R, vector<int> num);
 	//returns the Hadamard product of x and y
 	static void Hadamard(vector<ZZ>* ret, vector<ZZ>* x, vector<ZZ>* y);
 	//Calculates the bilinear map Z^n x Z^ -> Z: x(y¡t)^T

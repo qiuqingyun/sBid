@@ -1,6 +1,6 @@
 #ifndef MOD_P_H_
 #define MOD_P_H_
-
+#include "global.h"
 #include "G_mem.h"
 #include <NTL/ZZ.h>
 NTL_CLIENT

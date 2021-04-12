@@ -1,6 +1,5 @@
 #include "multi_expo.h"
 #include "G_q.h"
-#include "ElGammal.h"
 #include "Pedersen.h"
 #include "Cipher_elg.h"
 #include <NTL/ZZ.h>
@@ -13,7 +12,7 @@ using namespace std;
 
 extern G_q G;
 extern G_q H;
-extern ElGammal El;
+extern ElGamal El;
 extern Pedersen Ped;
 
 multi_expo::multi_expo() {
