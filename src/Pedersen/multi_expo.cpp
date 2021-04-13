@@ -4,8 +4,6 @@ using namespace std;
 
 extern G_q G;
 extern G_q H;
-extern ElGamal El;
-extern Pedersen Ped;
 
 multi_expo::multi_expo() {
 	// TODO Auto-generated constructor stub

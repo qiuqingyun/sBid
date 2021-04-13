@@ -1,8 +1,7 @@
 #ifndef G_MEM_H_
 #define G_MEM_H_
 
-#include <NTL/ZZ.h>
-#include <iostream>
+#include "base.h"
 NTL_CLIENT
 
 class G_mem {

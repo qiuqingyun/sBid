@@ -1,11 +1,7 @@
 #ifndef VERIFIER_TOOM_H_
 #define VERIFIER_TOOM_H_
 
-#include "../base/Cipher_elg.h"
-#include "../base/global.h"
-#include "../base/Mod_p.h"
-#include "../base/sha256.h"
-#include "../base/multi_expo.h"
+#include "../global.h"
 #include "Functions.h"
 #include "func_ver.h"
 NTL_CLIENT

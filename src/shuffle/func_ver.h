@@ -1,11 +1,7 @@
 #ifndef FUNC_VER_H_
 #define FUNC_VER_H_
-#include "../base/global.h"
-#include "../base/Cipher_elg.h"
-#include "../base/G_q.h"
-#include "../base/Mod_p.h"
-#include "../base/multi_expo.h"
-#include "../base/global.h"
+
+#include "../global.h"
 #include "Functions.h"
 NTL_CLIENT
 

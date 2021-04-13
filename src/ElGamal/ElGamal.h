@@ -1,14 +1,8 @@
 #ifndef ELGAMMAL_H_
 #define ELGAMMAL_H_
-
-#include <stdio.h>
-#include <time.h>
-#include <vector>
-#include <fstream>
-#include <NTL/ZZ.h>
-#include "Cipher_elg.h"
-#include "Mod_p.h"
-#include "G_q.h"
+#include "../base/Mod_p.h"
+#include "../base/G_q.h"
+#include "../base/Cipher_elg.h"
 NTL_CLIENT
 
 class ElGamal {

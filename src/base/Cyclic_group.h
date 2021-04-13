@@ -1,9 +1,8 @@
 #ifndef CYCLIC_GROUP_H_
 #define CYCLIC_GROUP_H_
 
+#include "base.h"
 #include "G_mem.h"
-#include <NTL/ZZ.h>
-#include <iostream>
 NTL_CLIENT
 
 using namespace std;

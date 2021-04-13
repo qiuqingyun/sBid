@@ -1,7 +1,7 @@
 #ifndef MOD_P_H_
 #define MOD_P_H_
+#include "base.h"
 #include "G_mem.h"
-#include <NTL/ZZ.h>
 NTL_CLIENT
 
 class Mod_p : public G_mem {

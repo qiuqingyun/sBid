@@ -1,8 +1,5 @@
 ﻿#include "shuffle.h"
 
-ElGamal El = ElGamal();         // The class for encryption and decryption
-Pedersen Ped = Pedersen();        // Object which calculates the commitments
-
 //创建Prover角色
 void Shuffle::creatProver() {
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
