@@ -1,10 +1,9 @@
 #ifndef G_q_H_
 #define G_q_H_
 
-#include <ctime>
-#include <NTL/ZZ.h>
-#include "Cyclic_group.h"
+#include "base.h"
 #include "Mod_p.h"
+#include "Cyclic_group.h"
 NTL_CLIENT
 
 

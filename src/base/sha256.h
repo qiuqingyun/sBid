@@ -1,14 +1,6 @@
 #ifndef SHA256_H
 #define SHA256_H
-
-#include <string>
-#include <array>
-#include <cstring>
-#include <sstream>
-#include <iomanip>
-#include <iostream>
-#include <gmpxx.h>
-
+#include "base.h"
 class SHA256 {
 
 public:

@@ -1,9 +1,5 @@
 #pragma once
-#include "../base/Cipher_elg.h"
-#include "../base/ElGamal.h"
-#include "../base/G_q.h"
-#include "../base/global.h"
-#include "../base/sha256.h"
+#include "../global.h"
 #include "Functions.h"
 #include "Prover_toom.h"
 #include "Verifier_toom.h"

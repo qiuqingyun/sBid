@@ -1,13 +1,7 @@
 ﻿#ifndef PROVER_TOOM_H_
 #define PROVER_TOOM_H_
 
-#include "../base/Cipher_elg.h"
-#include "../base/global.h"
-#include "../base/Mod_p.h"
-#include "../base/Pedersen.h"
-#include "../base/sha256.h"
-#include "../base/multi_expo.h"
-#include "../base/global.h"
+#include "../global.h"
 #include "func_pro.h"
 #include "func_ver.h"
 #include "Functions.h"

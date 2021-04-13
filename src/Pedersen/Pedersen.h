@@ -1,13 +1,5 @@
 #ifndef PEDERSEN_H_
 #define PEDERSEN_H_
-#include <vector>
-#include <NTL/ZZ.h>
-#include <stdio.h>
-#include <time.h>
-#include <vector>
-#include <fstream>
-#include "G_q.h"
-#include "Mod_p.h"
 #include "multi_expo.h"
 NTL_CLIENT
 

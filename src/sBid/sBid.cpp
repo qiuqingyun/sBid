@@ -1,4 +1,4 @@
 #include "sBid.h"
 
-G_q G = G_q();                    // group used for the Pedersen commitment
-G_q H = G_q();                    // group used for the the encryption
+extern G_q G;               // group used for the Pedersen commitment
+extern G_q H;               // group used for the the encryption

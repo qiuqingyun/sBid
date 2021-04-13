@@ -1,22 +1,22 @@
 ADD_EXECUTABLE(main 
  "main.cpp"
- "base/global.cpp"
+ "global.cpp"
  "base/Cipher_elg.cpp"
  "base/Cyclic_group.cpp"
- "base/ElGamal.cpp"
+ "ElGamal/ElGamal.cpp"
  "base/G_mem.cpp"
  "base/G_q.cpp"
  "base/Mod_p.cpp"
- "base/Pedersen.cpp"
+ "Pedersen/Pedersen.cpp"
  "base/sha256.cpp"
- "base/multi_expo.cpp"
+ "Pedersen/multi_expo.cpp"
  "shuffle/shuffle.cpp"
  "shuffle/func_pro.cpp"
  "shuffle/func_ver.cpp"
  "shuffle/Functions.cpp"
  "shuffle/Prover_toom.cpp"
  "shuffle/Verifier_toom.cpp" 
- "sBid/sBid.cpp")
+ "sBid/sBid.cpp" "base/base.h")
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

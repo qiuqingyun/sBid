@@ -1,11 +1,8 @@
 #ifndef MULTI_EXPO_H_
 #define MULTI_EXPO_H_
-#include<vector>
-#include <NTL/ZZ.h>
-#include "global.h"
-#include "Cipher_elg.h"
-#include "ElGamal.h"
-#include "Pedersen.h"
+#include "../base/Mod_p.h"
+#include "../base/G_q.h"
+#include "../base/Cipher_elg.h"
 NTL_CLIENT
 
 class multi_expo {

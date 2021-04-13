@@ -1,12 +1,7 @@
 ﻿#ifndef FUNCTIONS_H_
 #define FUNCTIONS_H_
 
-#include "../base/G_q.h"
-#include "../base/Mod_p.h"
-#include "../base/Cipher_elg.h"
-#include "../base/ElGamal.h"
-#include "../base/Pedersen.h"
-#include "../base/global.h"
+#include "../global.h"
 NTL_CLIENT
 extern vector<vector<Cipher_elg>*>* c;	  //原始输入的密文
 extern vector<vector<Cipher_elg>*>* C;	  //重加密的密文

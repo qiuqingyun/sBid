@@ -1,12 +1,7 @@
 #ifndef FUNC_PRO_H_
 #define FUNC_PRO_H_
 
-#include "../base/Cipher_elg.h"
-#include "../base/G_q.h"
-#include "../base/Mod_p.h"
-#include "../base/Pedersen.h"
-#include "../base/global.h"
-#include "../base/multi_expo.h"
+#include "../global.h"
 #include "Functions.h"
 NTL_CLIENT
 

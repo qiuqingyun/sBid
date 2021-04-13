@@ -1,9 +1,8 @@
 #ifndef CIPHER_ELG_H_
 #define CIPHER_ELG_H_
-
+#include "base.h"
 #include "Mod_p.h"
 #include "G_q.h"
-#include "global.h"
 NTL_CLIENT
 
 class Cipher_elg {
