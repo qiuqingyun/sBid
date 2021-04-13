@@ -1,6 +1,10 @@
-#include "shuffle.h"
+#include "./sBid/sBid.h"
+#include "./shuffle/shuffle.h"
 int main(int argc, char** argv)
 {
+	SBid sbid;
+	sbid.readPlaintext();
+	return 0;
 	int role = -1;
 	if (argc < 2)
 	{
