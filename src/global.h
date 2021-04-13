@@ -1,11 +1,11 @@
 #pragma once
-#include "./base/base.h"
-#include "./base/Mod_p.h"
-#include "./base/G_q.h"
-#include "./base/Cyclic_group.h"
-#include "./base/sha256.h"
-#include "./ElGamal/ElGamal.h"
-#include "./Pedersen/Pedersen.h"
+#include "./0base/base.h"
+#include "./0base/Mod_p.h"
+#include "./0base/G_q.h"
+#include "./0base/Cyclic_group.h"
+#include "./0base/sha256.h"
+#include "./1ElGamal/ElGamal.h"
+#include "./1Pedersen/Pedersen.h"
 
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption

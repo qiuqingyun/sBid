@@ -1,5 +1,4 @@
-#include "./sBid/sBid.h"
-#include "./shuffle/shuffle.h"
+#include "./3sBid/sBid.h"
 int main(int argc, char** argv)
 {
 	SBid sbid;
