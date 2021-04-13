@@ -1,5 +1,5 @@
 #pragma once
-#include "../shuffle/shuffle.h"
+#include "../2shuffle/shuffle.h"
 
 class SBid {
 private:

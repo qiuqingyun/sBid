@@ -1,8 +1,8 @@
 #ifndef MULTI_EXPO_H_
 #define MULTI_EXPO_H_
-#include "../base/Mod_p.h"
-#include "../base/G_q.h"
-#include "../base/Cipher_elg.h"
+#include "../0base/Mod_p.h"
+#include "../0base/G_q.h"
+#include "../0base/Cipher_elg.h"
 NTL_CLIENT
 
 class multi_expo {
