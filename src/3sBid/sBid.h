@@ -168,7 +168,7 @@ public:
 
 	//»ìÏý
 	void shuffleOp() {
-		Shuffle prover(coCode);
+		Shuffle prover(codes,coCode);
 		prover.creatProver();
 		prover.shuffle();
 		prover.prove();
@@ -176,7 +176,7 @@ public:
 	}
 	void shuffleOp2() {
 		//test
-		Shuffle verifier(coCode);
+		Shuffle verifier(codes, coCode);
 		verifier.creatVerifier();
 		verifier.verify();
 	}

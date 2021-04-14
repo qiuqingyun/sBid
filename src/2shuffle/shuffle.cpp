@@ -1,6 +1,7 @@
 ﻿#include "shuffle.h"
 
-Shuffle::Shuffle(string codeName) {
+Shuffle::Shuffle(array< string, 2> codes, string codeName) {
+	this->codes = codes;
 	this->codeName = codeName;
 }
 //创建Prover角色
@@ -10,12 +11,18 @@ void Shuffle::creatProver() {
 	/*readParameters();
 	creatElGamal();*/
 	//读取未shuffle的密文
-	string fileName = "cipherAns"+ codeName +".txt";
+	//作为第一轮shuffle者
+	string fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
 	ist.open(fileName, ios::in);
 	if (!ist)
-	{
-		cout << "Can't open " << fileName << endl;
-		exit(1);
+	{//作为第二轮shuffle者
+		fileName = "cipherSR" + codes[1] + ".txt";//shuffe过一轮的密文
+		ist.open(fileName, ios::in);
+		if (!ist)
+		{
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
 	}
 	readCipher(cipher_in);
 	ist.close();
@@ -27,17 +34,23 @@ void Shuffle::creatVerifier() {
 	/*readParameters();
 	creatElGamal();*/
 	//读取未shuffle的密文
-	string fileName = "cipherAns" + codeName + ".txt";
+	//作为第一轮shuffle者
+	string fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
 	ist.open(fileName, ios::in);
 	if (!ist)
-	{
-		cout << "Can't open " << fileName << endl;
-		exit(1);
+	{//作为第二轮shuffle者
+		fileName = "cipherSR" + codes[1] + ".txt";//shuffe过一轮的密文
+		ist.open(fileName, ios::in);
+		if (!ist)
+		{
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
 	}
 	readCipher(cipher_in);
 	ist.close();
 	//读取shuffle过的密文
-	fileName = "cipherAnsShuffled" + codeName + ".txt";
+	fileName = "cipherSR" + codes[0] + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -83,6 +96,7 @@ void Shuffle::creatVerifier() {
 //	El.set_key(sk, pk);
 //	ist.close();
 //}
+
 //读取文件中的密文，保存为16×2的矩阵形式
 void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 	string in_temp, u_str, v_str;
@@ -113,7 +127,7 @@ void Shuffle::shuffle() {
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
 	randomEl(R);//生成用于重加密的随机数矩阵R，内容为32个随机数
 	//使用pi和R对密文cipher_in进行重新加密，生成32个(u,v)密文组，并输出
-	string fileName = "cipherAnsShuffled" + codeName + ".txt";
+	string fileName = "cipherSR" + codes[0] + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -210,11 +224,10 @@ void Shuffle::reencryptCipher() {
 //生成承诺
 void Shuffle::prove() {
 	clock_t tstart = clock();
-	Ped = Pedersen(n, G);
-	Ped.set_omega(omega_mulex, omega_LL, omega_sw);
+
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
-	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, genq);
-	P->prove();
+	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
+	P->prove(codes[0]);
 	delete P;
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
@@ -223,31 +236,11 @@ void Shuffle::prove() {
 //正确性验证
 void Shuffle::verify() {
 	clock_t tstart = clock();
-	//读取Pedersen参数
-	string fileName = "Pedersen.txt";
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	vector<Mod_p> gen_in;
-	ZZ gen_temp;
-	for (int i = 0; i <= n; i++)
-	{
-		string gen_str;
-		ist >> gen_str;
-		conv(gen_temp, gen_str.c_str());
-		gen_in.push_back(Mod_p(gen_temp, H.get_mod()));
-	}
-	ist.close();
-	Ped = Pedersen(n, G, gen_in);
-	Ped.set_omega(omega_mulex, omega_LL, omega_sw);
 
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 
 	Verifier_toom* V = new Verifier_toom(num);
-	ans = V->verify(cipher_in, cipher_out);
+	ans = V->verify(codes[0],cipher_in, cipher_out);
 	delete V;
 
 	clock_t tstop = clock();

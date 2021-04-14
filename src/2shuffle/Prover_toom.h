@@ -18,6 +18,10 @@ private:
 	int m_r;
 	int mu_h;
 	double time_di;	 //time to calculate the Di's
+	ofstream ost;
+	ZZ ord;
+	array<string, 6> hashStr;
+	stringstream pk_ss;
 	SHA256 sha;
 
 	vector<vector<ZZ>*>* A;			   //Matrix containing the numbers 1 to N after the permutation
@@ -117,7 +121,7 @@ private:
 
 public:
 	Prover_toom();
-	Prover_toom(vector<vector<Cipher_elg>*>* E, vector<vector<ZZ>*>* R, vector<vector<vector<int>*>*>* pi, vector<int> num, ZZ genq);
+	Prover_toom(vector<vector<Cipher_elg>*>* E, vector<vector<ZZ>*>* R, vector<vector<vector<int>*>*>* pi, vector<int> num, string code);
 	virtual ~Prover_toom();
 
 	//round_1 calculates and returns the commitment to the row in Y
@@ -142,7 +146,7 @@ public:
 	// string round_7_red();
 	void round_9a();
 	void round_9();
-	int prove();
+	int prove(string codeName);
 
 	void commit_ac();
 	void calculate_Cc(vector<vector<Cipher_elg>*>* C, vector<vector<vector<long>*>*>* B);

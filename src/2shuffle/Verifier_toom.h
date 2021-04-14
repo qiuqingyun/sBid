@@ -86,7 +86,7 @@ public:
 	Verifier_toom(vector<int> num);
 	virtual ~Verifier_toom();
 
-	int verify(vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
+	int verify(string codeName,vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
 
 	void calculate_c(Cipher_elg& c, vector<vector<Cipher_elg>*>* enc);
 	void calculate_ac(Mod_p& com);

@@ -16,32 +16,25 @@ Pedersen::Pedersen(long n, G_q H) {
 	int count = 0;
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ofstream ost;
-	ost.open("Pedersen.txt", ios::out);
-	/*	string name = "example.txt";
-		ofstream ost;
-		ost.open(name.c_str(),ios::app);
-		ost<<"ck for pedersen ";*/
+	/*ofstream ost;
+	ost.open("Pedersen.txt", ios::out);*/
 	for (i = 0; i <= n; i++)
 	{//生成n+1个G的生成元(g^r)作为公钥，存放在gen中，第一个给随机数，后面的n个给要进行承诺的数
 		b = true;
 		while (b) {
 			ran = RandomBnd(G.get_ord());
 			temp = G.get_gen().expo(ran);
-			// cout<<++count<<": "<<temp<<endl;
 			if (G.is_generator(temp))
 			{
 				(*gen).at(i) = temp;
-				//	ost<<temp<<" ";
 				b = false;
 			}
 		}
-		ost << (*gen).at(i) << endl;
+		//ost << (*gen).at(i) << endl;
 	}
-	//	ost<<endl;
 }
 
-Pedersen::Pedersen(long n, G_q H, vector<Mod_p> gen_in) {
+Pedersen::Pedersen(long n, G_q H, vector<Mod_p>* gen_in) {
 	long i;
 	bool b;
 	ZZ ran;
@@ -51,9 +44,8 @@ Pedersen::Pedersen(long n, G_q H, vector<Mod_p> gen_in) {
 	this->gen = new vector<Mod_p>(n + 1);
 	for (i = 0; i <= n; i++)
 	{//生成n+1个G的生成元(g^r)作为公钥，存放在gen中，第一个给随机数，后面的n个给要进行承诺的数
-		this->gen->at(i) = gen_in.at(i);
+		this->gen->at(i) = gen_in->at(i);
 	}
-	//	ost<<endl;
 }
 
 /*Generates an instance of Pedersen with group G_q subset of Z_p and order o and generator g,

@@ -2,7 +2,7 @@
 int main(int argc, char** argv)
 {
 	SBid sbid;
-	array<int, 2> codes{ 1,2 };
+	array<int, 2> codes{ 2,1 };
 	sbid.prepare(codes);
 	//sbid.shuffleOp();
 	sbid.shuffleOp2();
