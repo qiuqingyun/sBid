@@ -1,16 +1,10 @@
 #include "Prover_toom.h"
 NTL_CLIENT
 
-//extern G_q G;
+extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
 extern ElGamal El;
-extern int mu;
-extern int mu_h;
-extern int m_r;
-ZZ ord;
-array<string, 6> hashStr;
-stringstream pk_ss;
 
 
 Prover_toom::Prover_toom()
@@ -18,7 +12,7 @@ Prover_toom::Prover_toom()
 	// TODO Auto-generated constructor stub
 }
 
-Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* Rin, vector<vector<vector<int>*>*>* piin, vector<int> num, ZZ gen)
+Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* Rin, vector<vector<vector<int>*>*>* piin, vector<int> num, string code)
 {
 	// set the dimensions of the row and columns according to the user input
 	C = Cin;			  //sets the reencrypted chipertexts to the input
@@ -32,7 +26,6 @@ Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* 
 	mu= num[5];
 	m_r = num[6];
 	mu_h = num[7];
-
 
 	//Creates the matrices A，内容为pi
 	A = new vector<vector<ZZ>*>(m);
@@ -152,11 +145,20 @@ Prover_toom::~Prover_toom()
 //round_1 picks random elements and commits to the rows of A
 void Prover_toom::round_1()
 {
+	Ped = Pedersen(n, G);
+	Ped.set_omega(omega_mulex, omega_LL, omega_sw);
+
 	//对向量pi的每一行进行承诺
 	Functions::commit_op(A, r_A, c_A);
 
-	ofstream ost("prove.pro", ios::out);
+	
 	stringstream ss;
+	//0 pedersen
+	vector<Mod_p>* pedGen = Ped.get_gen();
+	for (int i = 0; i <= n; i++)
+	{
+		ost << pedGen->at(i) << endl;
+	}
 	//1 c_A
 	for (int i = 0; i < m; i++)
 	{
@@ -167,7 +169,6 @@ void Prover_toom::round_1()
 	pk_ss << El.get_pk().get_val();
 	hashStr[0] = ss.str() + pk_ss.str();
 	
-	ost.close();
 }
 
 //round_3, permuted the exponents in s,  picks random elements and commits to values
@@ -194,7 +195,7 @@ void Prover_toom::round_3()
 	//对B的每一行生成随机数和承诺
 	Functions::commit_op(B, r_B, c_B);
 
-	ofstream ost("prove.pro", ios::app);
+	//ofstream ost("prove.pro", ios::app);
 	stringstream ss1, ss2;
 	//2 c_B
 	for (int i = 0; i < m; i++)
@@ -210,7 +211,7 @@ void Prover_toom::round_3()
 	
 	hashStr[1] = ss1.str() + pk_ss.str();
 	hashStr[2] = ss2.str() + pk_ss.str();
-	ost.close();
+	//ost.close();
 
 	Functions::delete_vector(chal_x2);
 }
@@ -285,7 +286,7 @@ void Prover_toom::round_5()
 
 	round_5a();//构建矩阵D，并对向量chal_z和D_h做承诺
 
-	ofstream ost("prove.pro", ios::app);
+	//ofstream ost("prove.pro", ios::app);
 	stringstream ss1, ss2;
 	//4 c_z
 	ost << c_z << endl;
@@ -324,7 +325,7 @@ void Prover_toom::round_5()
 	hashStr[3] = ss1.str() + pk_ss.str();
 	hashStr[4] = ss2.str() + pk_ss.str();
 
-	ost.close();
+	//ost.close();
 }
 
 void Prover_toom::round_7a()
@@ -395,7 +396,7 @@ void Prover_toom::round_7()
 
 	round_7a();
 
-	ofstream ost("prove.pro", ios::app);
+	//ofstream ost("prove.pro", ios::app);
 	stringstream ss;
 	//10 c_Dl
 	for (int i = 0; i <= 2 * m; i++)
@@ -466,7 +467,7 @@ void Prover_toom::round_7()
 	
 	hashStr[5] = ss.str() + pk_ss.str();
 
-	ost.close();
+	//ost.close();
 }
 
 void Prover_toom::round_9a()
@@ -525,7 +526,7 @@ void Prover_toom::round_9() {
 
 	round_9a();
 
-	ofstream ost("prove.pro", ios::app);
+	//ofstream ost("prove.pro", ios::app);
 	//23 D_h_bar
 	for (int i = 0; i < n; i++)
 	{
@@ -595,16 +596,24 @@ void Prover_toom::round_9() {
 	//39 chal_x8_temp
 	ost << chal_x8_temp << endl;
 
-	ost.close();
+	//ost.close();
 }
 
-int Prover_toom::prove()
+int Prover_toom::prove(string codeName)
 {
+	string fileName = "proveShuffle" + codeName + ".txt";
+	ost.open(fileName, ios::out);
+	if (!ost)
+	{
+		cout << "Can't creat " << fileName << endl;
+		exit(1);
+	}
 	this->round_1();
 	this->round_3();//生成一个挑战
 	this->round_5();//生成两个挑战
 	this->round_7();//生成两个挑战
 	this->round_9();//生成一个挑战
+	ost.close();
 	return 0;
 }
 

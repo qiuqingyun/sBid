@@ -18,6 +18,7 @@ private:
 	vector<vector<vector<int>*>*>* pi;        //Permutation，用于shuffle
 	vector<vector<ZZ>*>* R;			           //用于重加密的随机数
 	string codeName;
+	array< string, 2> codes;
 	int mu = 4;                      // number of rows after reduction
 	int m_r = 4;                     // number of rows after reduction
 	int mu_h = 7;					  // 2*mu-1, number of extra elements in the reduction
@@ -47,7 +48,7 @@ private:
 	//重加密
 	void reencryptCipher();
 public:
-	Shuffle(string codeName);
+	Shuffle(array< string, 2> codes,string codeName);
 	//创建Prover角色
 	void creatProver();
 	//创建Verifier角色

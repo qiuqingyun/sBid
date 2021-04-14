@@ -5,9 +5,6 @@ extern G_q G;
 extern G_q H;
 extern Pedersen Ped;
 extern ElGamal El;
-extern int mu;
-extern int mu_h;
-extern int m_r;
 
 Verifier_toom::Verifier_toom()
 {
@@ -86,23 +83,34 @@ Verifier_toom::~Verifier_toom()
 	delete C_c;
 }
 
-int Verifier_toom::verify(vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
+int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
 {
 	int b;
 	long i;
 	ifstream ist;
 	stringstream pk_ss;
-	ist.open("prove.pro", ios::in);
+
+	ZZ ord = H.get_ord();
+	string container1 = "\0", container2;
+	string fileName = "proveShuffle" + codeName + ".txt";
+	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open prove.pro" << endl;
+		cout << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	//reads the values out of the file name
-
+	//0 pedersen
+	vector<Mod_p>* pedGen = new vector<Mod_p>(n + 1);
+	for (int i = 0; i <= n; i++)
+	{
+		ist >> container2;
+		pedGen->at(i).toModP(container2, H.get_mod());
+	}
+	Ped = Pedersen(n, G, pedGen);
+	Ped.set_omega(omega, omega_LL, omega_sw);
 	//round 2
-	ZZ ord = H.get_ord();
-	string container1 = "\0", container2;
+
 	//1 c_A
 	for (int i = 0; i < m; i++)
 	{ //接收round_1中Prover的承诺
@@ -407,7 +415,7 @@ int Verifier_toom::verify(vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_
 	string ans = (flag) ? "PASS" : "FAIL";
 	cout << ans << endl;
 	ofstream ost;
-	ost.open("ans.txt", ios::out);
+	ost.open("ansShuffle" + codeName + ".txt", ios::out);
 	ost << ans << endl;
 	ost.close();
 	string errorStr[] = { "Dh","D","Ds","Dl" ,"d" ,"Delta" ,"B" ,"a" ,"c" ,"E" ,"ac" ,"hash" };
