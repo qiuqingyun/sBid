@@ -17,9 +17,10 @@ private:
 	vector<vector<Cipher_elg>*>* cipher_out;   //重加密的密文
 	vector<vector<vector<int>*>*>* pi;        //Permutation，用于shuffle
 	vector<vector<ZZ>*>* R;			           //用于重加密的随机数
+	string codeName;
 	int mu = 4;                      // number of rows after reduction
-	int m_r = 7;                     // number of rows after reduction
-	int mu_h = 4;					  // 2*mu-1, number of extra elements in the reduction
+	int m_r = 4;                     // number of rows after reduction
+	int mu_h = 7;					  // 2*mu-1, number of extra elements in the reduction
 	int omega_mulex = 7;			  //windowsize for sliding-window technique
 	int omega_sw = 6;				  //windowsize for multi-expo technique
 	int omega_LL = 5;				  //windowsize for multi-expo technique
@@ -32,9 +33,9 @@ private:
 	ZZ genq;  // generator of Z_q，用于验证的生成元
 
 	//读取群的参数并生成群
-	void readParameters();
+	//void readParameters();
 	//设置ElGamal公私钥
-	void creatElGamal();
+	//void creatElGamal();
 	//读取文件中的密文，保存为16×2的矩阵形式
 	void readCipher(vector<vector<Cipher_elg>*>* Cipher);
 	//生成随机替换序列
@@ -46,6 +47,7 @@ private:
 	//重加密
 	void reencryptCipher();
 public:
+	Shuffle(string codeName);
 	//创建Prover角色
 	void creatProver();
 	//创建Verifier角色

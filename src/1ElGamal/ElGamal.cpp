@@ -231,6 +231,10 @@ G_q ElGamal::get_group()const {
 	return G;
 }
 
+Mod_p ElGamal::get_pk_1() const {
+
+	return pk_1;
+}
 Mod_p ElGamal::get_pk() const {
 
 	return pk;
@@ -256,30 +260,19 @@ void ElGamal::set_sk(long s) {
 void ElGamal::set_sk(ZZ s) {
 
 	sk = s;//私钥x
-	pk = G.get_gen().expo(s);//生成公钥，y=g^x
-	string name = "ElGamal.txt";
-	ofstream ost;
-	ost.open(name.c_str(), ios::app);
-	ost << sk << "\n" << pk << endl;//输出公私钥
-	ost.close();
-}
-void ElGamal::keyGen() {
-	ZZ sk1 = RandomBnd(this->G.get_ord());
-	ZZ sk2 = RandomBnd(this->G.get_ord());
-	sk = AddMod(sk1, sk2, this->G.get_mod());
-	pk = G.get_gen().expo(sk);//生成公钥，y=g^x
-	string name = "ElGamal.txt";
-	ofstream ost;
-	ost.open(name.c_str(), ios::out);
-	ost << pk << "\n" << sk1 << "\n" << sk2 << endl;//输出公私钥
-	ost.close();
-}
-void ElGamal::set_key(ZZ s, ZZ p) {
-	sk = s;//私钥
-	pk = Mod_p(G.get_mod());
-	pk.set_val(p);//公钥
+	pk_1 = G.get_gen().expo(s);//生成公钥，y=g^x
 }
 
+void ElGamal::set_key(ZZ s, ZZ p) {
+	sk = s;//私钥
+	pk_1 = Mod_p(p, G.get_mod());//公钥
+}
+//生成ElGamal主公钥
+void ElGamal::keyGen(string pk_2_str) {
+	ZZ pk_2;
+	conv(pk_2, pk_2_str.c_str());
+	pk = Mod_p(MulMod(pk_1.get_val(), pk_2, G.get_mod()), G.get_mod());
+}
 //functions to encrypt value/element
 Cipher_elg ElGamal::encrypt(Mod_p el) {
 	Cipher_elg c;
@@ -336,7 +329,14 @@ Cipher_elg ElGamal::encrypt(Mod_p el, ZZ ran) {
 	c = Cipher_elg(temp_1, temp_2);//得到(u,v)密文组，u = h^r，v = m×y^r
 	return c;
 }
-
+Cipher_elg ElGamal::encrypt(ZZ m, ZZ ran) {
+	Cipher_elg c;
+	Mod_p temp_1, temp_2;
+	temp_1 = G.get_gen().expo(ran);
+	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	c = Cipher_elg(temp_1, temp_2);
+	return c;
+}
 Cipher_elg ElGamal::encrypt(long m, ZZ ran) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
@@ -348,15 +348,6 @@ Cipher_elg ElGamal::encrypt(long m, ZZ ran) {
 
 
 Cipher_elg ElGamal::encrypt(ZZ m, long ran) {
-	Cipher_elg c;
-	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
-	c = Cipher_elg(temp_1, temp_2);
-	return c;
-}
-
-Cipher_elg ElGamal::encrypt(ZZ m, ZZ ran) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
 	temp_1 = G.get_gen().expo(ran);

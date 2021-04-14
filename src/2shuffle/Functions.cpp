@@ -7,9 +7,9 @@ extern G_q G;
 extern G_q H;
 extern ElGamal El;
 extern Pedersen Ped;
-vector<vector<Cipher_elg>*>* c = 0;	  //原始输入的密文
-vector<vector<Cipher_elg>*>* C = 0;	  //重加密的密文
-int Threshold = 100;
+//vector<vector<Cipher_elg>*>* c = 0;	  //原始输入的密文
+//vector<vector<Cipher_elg>*>* C = 0;	  //重加密的密文
+int threshold = 100;
 int exitMax = 10;
 
 #define DEBUG 1
@@ -234,7 +234,7 @@ vector<vector<Cipher_elg>*>* Functions::createCipher(vector<int> num)
 //		C->at(i) = r;
 //	}
 //}
-//
+
 //void Functions::inputCipher(vector<vector<Cipher_elg>*>*& Cipher, vector<int> num)
 //{
 //	long m = num[1]; //行
@@ -500,7 +500,7 @@ int Functions::find_group(vector<ZZ>* pq, long lq, long lp, long m)
 				bo = new_p(p, q1, q, l);
 				//bo=new_p(p,q1, q2,q,l);
 				cout << "." << flush;
-				if (index++ > Threshold)
+				if (index++ > threshold)
 					return 1;
 			}
 			logl = 20 * log(l);
@@ -644,7 +644,7 @@ int Functions::find_groups(vector<ZZ>* pq, long lq, long lp, long lp1, long m)
 		{
 			bo = new_p(p1, q1, q, l);
 			cout << "." << flush;
-			if (index++ > Threshold)
+			if (index++ > threshold)
 				return 1;
 		}
 		logl = log(l);

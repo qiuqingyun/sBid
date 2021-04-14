@@ -86,181 +86,7 @@ Verifier_toom::~Verifier_toom()
 	delete C_c;
 }
 
-//void Verifier_toom::round_2()
-//{
-//	ord = H.get_ord();
-//	string container = "\0", in_temp;
-//	for (int i = 0; i < m; i++)
-//	{ //接收round_1中Prover的承诺
-//		ist >> in_temp;
-//		c_A->at(i).toModP(in_temp);
-//		cout << c_A->at(i) << endl;
-//		container += in_temp;
-//	}
-//	pk_ss << El.get_pk().get_val();
-//	container += pk_ss.str();
-//	cout << "\n" << container << endl;
-//	hashStr[0] = sha.hash(container);
-//}
-
-//void Verifier_toom::round_4()
-//{
-//	string container1 = "\0", container2;
-//	for (int i = 0; i < m; i++)
-//	{ //接收round_3中Prover的承诺
-//		ist >> c_B->at(i);
-//		container1 += container2;
-//	}
-//
-//	ist >> chal_x2;
-//
-//	while (!ist.eof())
-//	{ //接收round_1中Prover的承诺
-//		ist >> container2;
-//		if (!ist.eof())
-//			container1 += container2;
-//	}
-//	stringstream pk_ss;
-//	pk_ss << El.get_pk().get_val();
-//	container1 += pk_ss.str();
-//	container2 += pk_ss.str();
-//	ist.close();
-//	hashStr[1] = sha.hash(container1);
-//	hashStr[2] = sha.hash(container2);
-//
-//}
-
-//void Verifier_toom::round_6()
-//{
-//	ZZ tem;
-//	ZZ ord = H.get_ord();
-//	long i, l;
-//	string name;
-//	time_t rawtime;
-//	time(&rawtime);
-//
-//	//reads the values out of the file name
-//	//ifstream ist(in_name.c_str());
-//	/*if (!ist)
-//		cout << "Can't open " << in_name;*/
-//	ist >> c_z;
-//	// cout<<c_z<<endl;
-//	// cout<<endl;
-//	for (i = 0; i < m; i++)
-//	{
-//		ist >> c_Dh->at(i);
-//		// cout<<"c_Dh: " << c_Dh->at(i) << " ";
-//	}
-//	// cout << endl;
-//	for (i = 0; i < mu_h; i++)
-//	{
-		//ist >> C_c->at(i);
-//		// cout << C_c->at(i) << " ";
-//	}
-//	// cout << endl;
-//	for (i = 0; i < mu_h; i++)
-//	{
-//		ist >> c_a_c->at(i);
-//		// cout << c_a_c->at(i) << " ";
-//	}
-//	ist >> chal_y4;
-//	ist >> chal_z4;
-//	//ist.close();
-//
-//	string container1 = "\0", container2;
-//	//ist.open(in_name.c_str(), ios::in);
-//	while (!ist.eof())
-//	{ //接收round_1中Prover的承诺
-//		ist >> container2;
-//		if (!ist.eof())
-//			container1 += container2;
-//	}
-//	stringstream pk_ss;
-//	pk_ss << El.get_pk().get_val();
-//	container1 += pk_ss.str();
-//	container2 += pk_ss.str();
-//	//ist.close();
-//	hashStr[3] = sha.hash(container1);
-//	hashStr[4] = sha.hash(container2);
-//
-//}
-
-//void Verifier_toom::round_8()
-//{
-//	long i, l;
-//	string name;
-//	time_t rawtime;
-//	time(&rawtime);
-//	//reads the values out of the file name
-//
-//	/*ifstream ist(in_name.c_str());
-//	if (!ist)
-//		cout << "Can't open " << in_name;*/
-//
-//	for (i = 0; i <= 2 * m; i++)
-//	{ //33
-//		ist >> c_Dl->at(i);
-//		// cout << c_Dl->at(i) << " ";
-//	}
-//	// cout << endl;
-//	ist >> c_D0;
-//	// cout << c_D0 << endl;
-//	ist >> c_Dm;
-//	// cout << c_Dm << endl;
-//	ist >> c_d;
-//	// cout << c_d << endl;
-//	ist >> c_Delta;
-//	// cout << c_Delta << endl;
-//	ist >> c_dh;
-//	// cout << c_dh << endl;
-//	ist >> a_c_bar;
-//	// cout << a_c_bar << endl;
-//	ist >> r_ac_bar;
-//	// cout << r_ac_bar << endl;
-//	for (i = 0; i < 8; i++)
-//	{
-//		ist >> E->at(i);
-//		// cout << E->at(i) << " ";
-//	}
-//	// cout << endl;
-//	ist >> c_B0;
-//	// cout << c_B0 << endl;
-//	for (i = 0; i < 8; i++)
-//	{
-//		ist >> c_a->at(i);
-//		// cout << c_a->at(i) << " ";
-//	}
-//	// cout << endl;
-//	l = 2 * m;
-//	for (i = 0; i < l; i++)
-//	{
-//		ist >> chal_x6->at(i);
-//		// cout << chal_x6->at(i) << " ";
-//	}
-//	// cout << endl;
-//
-//	for (i = 0; i < n; i++)
-//	{
-//		ist >> chal_y6->at(i);
-//		// cout << chal_y6->at(i) << " ";
-//	}
-//	// cout << endl;
-//	//ist.close();
-//	string container = "\0", in_temp;
-//	//ist.open(in_name.c_str(), ios::in);
-//	while (ist >> in_temp)
-//	{
-//		container += in_temp;
-//	}
-//	stringstream pk_ss;
-//	pk_ss << El.get_pk().get_val();
-//	container += pk_ss.str();
-//	//ist.close();
-//	hashStr[5] = sha.hash(container);
-//
-//}
-
-int Verifier_toom::round_10(vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
+int Verifier_toom::verify(vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
 {
 	int b;
 	long i;
@@ -313,7 +139,10 @@ int Verifier_toom::round_10(vector<vector<Cipher_elg>*>* cc, vector<vector<Ciphe
 	container2.clear();
 	//4 c_z
 	ist >> container2;
-	conv(c_z, container2.c_str());
+	/*ZZ c_z_ZZ;
+	conv(c_z_ZZ, container2.c_str());
+	c_z = Mod_p(c_z_ZZ, H.get_mod());*/
+	c_z.toModP(container2, H.get_mod());
 	container1 += container2;
 	//5 c_Dh
 	for (int i = 0; i < m; i++)
@@ -362,23 +191,28 @@ int Verifier_toom::round_10(vector<vector<Cipher_elg>*>* cc, vector<vector<Ciphe
 	}
 	//11 c_D0
 	ist >> container2;
-	conv(c_D0, container2.c_str());
+	//conv(c_D0, container2.c_str());
+	c_D0.toModP(container2, H.get_mod());
 	container1 += container2;
 	//12 c_Dm
 	ist >> container2;
-	conv(c_Dm, container2.c_str());
+	//conv(c_Dm, container2.c_str());
+	c_Dm.toModP(container2, H.get_mod());
 	container1 += container2;
 	//13 c_d
 	ist >> container2;
-	conv(c_d, container2.c_str());
+	//conv(c_d, container2.c_str());
+	c_d.toModP(container2, H.get_mod());
 	container1 += container2;
 	//14 c_Delta
 	ist >> container2;
-	conv(c_Delta, container2.c_str());
+	//conv(c_Delta, container2.c_str());
+	c_Delta.toModP(container2, H.get_mod());
 	container1 += container2;
 	//15 c_d_h
 	ist >> container2;
-	conv(c_dh, container2.c_str());
+	//conv(c_dh, container2.c_str());
+	c_dh.toModP(container2, H.get_mod());
 	container1 += container2;
 	//16 a_c_bar
 	ist >> container2;
@@ -397,7 +231,8 @@ int Verifier_toom::round_10(vector<vector<Cipher_elg>*>* cc, vector<vector<Ciphe
 	}
 	//19 c_B0
 	ist >> container2;
-	conv(c_B0, container2.c_str());
+	//conv(c_B0, container2.c_str());
+	c_B0.toModP(container2, H.get_mod());
 	container1 += container2;
 	//20 c_a
 	for (i = 0; i < 8; i++)
@@ -538,7 +373,7 @@ int Verifier_toom::round_10(vector<vector<Cipher_elg>*>* cc, vector<vector<Ciphe
 									++errorCode;
 									//Check that E_c->at(mu-1) contains c and D->at(4) = C
 									//b = check_c(c); //Both commitments shoud be com(0,0)
-									if (check_c(c) & (c_a->at(4) == c_a_c->at(3)))
+									if (check_c(cc) & (c_a->at(4) == c_a_c->at(3)))
 									{//8
 										++errorCode;
 										//Check correctness of the chiphertexts

@@ -251,6 +251,15 @@ void Prover_toom::round_5a()
 	delete v_z;
 	func_pro::set_Rb(B, R, R_b);//b_ij × R_ij的结果累加
 	commit_ac();
+
+	/*for (int i = 0; i < basis_B->size(); i++) {
+		for (int j = 0; j < basis_B->at(0)->size(); j++){
+			for (int k = 0; k < basis_B->at(0)->at(0)->size(); k++)
+				cout << basis_B->at(i)->at(j)->at(k) << " ";
+			cout << endl;
+		}
+		cout << endl;
+	}*/
 	calculate_Cc(C, basis_B);
 }
 

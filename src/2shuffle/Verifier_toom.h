@@ -86,16 +86,7 @@ public:
 	Verifier_toom(vector<int> num);
 	virtual ~Verifier_toom();
 
-	//Stores the commitments to matrix Y and sends challenges vector s_1 and s_2 to the prover
-	void round_2();
-	//round_4 stores the in output a of round_1 and outputs the challenges for round 3
-	void round_4();
-	//round_6 outputs the challenge t, t^2,..
-	void round_6();
-	//round 6 stores the output com of round 1 and outputs the challenges for round 7
-	void round_8();
-	//round 8 stores the input and checks the first set of equation, if all is true return challenges e, else -1
-	int round_10(vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
+	int verify(vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
 
 	void calculate_c(Cipher_elg& c, vector<vector<Cipher_elg>*>* enc);
 	void calculate_ac(Mod_p& com);
@@ -103,12 +94,9 @@ public:
 	void calculate_C(Cipher_elg& C, vector<Cipher_elg>* E_c, vector<ZZ>* x);
 
 	int check_B();
-	int check_B_red();
 	int check_a();
 	int check_c(vector<vector<Cipher_elg>*>* enc);
-	int check_c_red();
 	int check_E(vector<vector<Cipher_elg>*>* E);
-	int check_E_red(vector<vector<Cipher_elg>*>* E);
 	int check_ac();
 	int check_hash(array<ZZ, 6> hashChk);
 };

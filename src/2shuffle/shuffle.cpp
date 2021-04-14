@@ -1,13 +1,16 @@
 ﻿#include "shuffle.h"
 
+Shuffle::Shuffle(string codeName) {
+	this->codeName = codeName;
+}
 //创建Prover角色
 void Shuffle::creatProver() {
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
-	readParameters();
-	creatElGamal();
+	/*readParameters();
+	creatElGamal();*/
 	//读取未shuffle的密文
-	string fileName = "cipher_in.txt";
+	string fileName = "cipherAns"+ codeName +".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -21,10 +24,10 @@ void Shuffle::creatProver() {
 void Shuffle::creatVerifier() {
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
-	readParameters();
-	creatElGamal();
+	/*readParameters();
+	creatElGamal();*/
 	//读取未shuffle的密文
-	string fileName = "cipher_in.txt";
+	string fileName = "cipherAns" + codeName + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -34,7 +37,7 @@ void Shuffle::creatVerifier() {
 	readCipher(cipher_in);
 	ist.close();
 	//读取shuffle过的密文
-	fileName = "cipher_out.txt";
+	fileName = "cipherAnsShuffled" + codeName + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -44,47 +47,46 @@ void Shuffle::creatVerifier() {
 	readCipher(cipher_out);
 	ist.close();
 }
-//读取群的参数并生成群
-void Shuffle::readParameters() {
-	string fileName = "parameters.txt";
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	ist >> mod;
-	ist >> ord;
-	ist >> gen;
-	ist >> genq;
-	ist.close();
-	H = G_q(gen, ord, mod); //生成元h 阶数q 模数p
-	G = G_q(gen, ord, mod);
-}
-//设置ElGamal公私钥
-void Shuffle::creatElGamal() {
-	El.set_group(H);
-	string fileName = "ElGamal.txt";
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	ZZ sk, pk;
-	string sk_str, pk_str;
-	getline(ist, sk_str);
-	getline(ist, pk_str);
-	conv(sk, sk_str.c_str());
-	conv(pk, pk_str.c_str());
-	El.set_key(sk, pk);
-	ist.close();
-}
+////读取群的参数并生成群
+//void Shuffle::readParameters() {
+//	string fileName = "parameters.txt";
+//	ist.open(fileName, ios::in);
+//	if (!ist)
+//	{
+//		cout << "Can't open " << fileName << endl;
+//		exit(1);
+//	}
+//	ist >> mod;
+//	ist >> ord;
+//	ist >> gen;
+//	ist >> genq;
+//	ist.close();
+//	H = G_q(gen, ord, mod); //生成元h 阶数q 模数p
+//	G = G_q(gen, ord, mod);
+//}
+////设置ElGamal公私钥
+//void Shuffle::creatElGamal() {
+//	El.set_group(H);
+//	string fileName = "ElGamal.txt";
+//	ist.open(fileName, ios::in);
+//	if (!ist)
+//	{
+//		cout << "Can't open " << fileName << endl;
+//		exit(1);
+//	}
+//	ZZ sk, pk;
+//	string sk_str, pk_str;
+//	getline(ist, sk_str);
+//	getline(ist, pk_str);
+//	conv(sk, sk_str.c_str());
+//	conv(pk, pk_str.c_str());
+//	El.set_key(sk, pk);
+//	ist.close();
+//}
 //读取文件中的密文，保存为16×2的矩阵形式
 void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 	string in_temp, u_str, v_str;
 	size_t pos_start, pos_mid, pos_end;
-	Cipher = new vector<vector<Cipher_elg>*>(m);
 	for (int row = 0; row < m; row++) {
 		vector<Cipher_elg>* r = new vector<Cipher_elg>(n);
 		for (int col = 0; col < n; col++) {
@@ -111,8 +113,8 @@ void Shuffle::shuffle() {
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
 	randomEl(R);//生成用于重加密的随机数矩阵R，内容为32个随机数
 	//使用pi和R对密文cipher_in进行重新加密，生成32个(u,v)密文组，并输出
-	string fileName = "cipher_out.txt";
-	ost.open(fileName, ios::in);
+	string fileName = "cipherAnsShuffled" + codeName + ".txt";
+	ost.open(fileName, ios::out);
 	if (!ost)
 	{
 		cout << "Can't creat " << fileName << endl;
@@ -245,7 +247,7 @@ void Shuffle::verify() {
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 
 	Verifier_toom* V = new Verifier_toom(num);
-	ans = V->round_10(cipher_in, cipher_out);
+	ans = V->verify(cipher_in, cipher_out);
 	delete V;
 
 	clock_t tstop = clock();
