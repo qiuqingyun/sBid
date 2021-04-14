@@ -2,8 +2,13 @@
 int main(int argc, char** argv)
 {
 	SBid sbid;
-	sbid.readPlaintext();
+	array<int, 2> codes{ 1,2 };
+	sbid.prepare(codes);
+	//sbid.shuffleOp();
+	sbid.shuffleOp2();
+	//sbid.parametersGen();
 	return 0;
+
 	int role = -1;
 	if (argc < 2)
 	{
@@ -44,7 +49,7 @@ int main(int argc, char** argv)
 	}
 	cout << "You are " << (role ? "Verifier" : "Prover") << "." << endl;
 
-	if (role == 0) {
+	/*if (role == 0) {
 		Shuffle prover;
 		prover.creatProver();
 		prover.shuffle();
@@ -54,6 +59,6 @@ int main(int argc, char** argv)
 		Shuffle verifier;
 		verifier.creatVerifier();
 		verifier.verify();
-	}
+	}*/
 	return 0;
 }

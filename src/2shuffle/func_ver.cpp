@@ -388,6 +388,7 @@ int func_ver::check_D_op(Mod_p c_D0, Mod_p c_z, vector<Mod_p>* c_A, vector<Mod_p
 	vector<ZZ>* v_1 = new vector<ZZ>(n);
 
 	t_D = c_D0;
+	//cout << c_z << endl;
 	Mod_p::inv(inv, c_z);
 	for (i = 1; i < m; i++) {
 		Mod_p::expo(temp, c_A->at(i), chal_2);

@@ -17,7 +17,8 @@ ADD_EXECUTABLE(main
  "2shuffle/Functions.cpp"
  "2shuffle/Prover_toom.cpp"
  "2shuffle/Verifier_toom.cpp" 
- "3sBid/sBid.cpp" )
+ "2paraGen/paraGen.cpp"
+ "3sBid/sBid.cpp"  )
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

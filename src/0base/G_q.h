@@ -10,7 +10,7 @@ NTL_CLIENT
 class G_q : public Cyclic_group {
 private:
 	Mod_p generator;  //generator of the group
-	Mod_p gen_g;  //generator of the group
+	Mod_p g;  //generator of the group
 	ZZ order; //order of the group
 	ZZ mod;  //value of p such that G_q subset of Z_p
 public:
@@ -33,9 +33,12 @@ public:
 	virtual ~G_q();
 
 	//Access to the variables
+	const void set_g(ZZ gen_g_val);
 	Mod_p get_gen() const;
+	Mod_p get_g() const;
 	ZZ get_ord() const;
 	ZZ get_mod()const;
+
 
 	//operators
 	void operator =(const G_q& H);

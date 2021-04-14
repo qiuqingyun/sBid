@@ -69,7 +69,6 @@ G_q::G_q(ZZ val, ZZ o, ZZ p) {
 	mod = p;
 
 }
-
 //Constructor creates an instance of G_q subset Z_p with order o and generator value val
 G_q::G_q(long val, long o, long p) {
 
@@ -170,11 +169,19 @@ G_q::~G_q() {
 	// TODO Auto-generated destructor stub
 }
 
-
+const void G_q::set_g(ZZ gen_g_val) {
+	g = Mod_p(gen_g_val, mod);
+}
 //return the generator
 Mod_p G_q::get_gen()const {
 
 	return generator;
+}
+
+//return the generator_g
+Mod_p G_q::get_g()const {
+	
+	return g;
 }
 
 //return the order o

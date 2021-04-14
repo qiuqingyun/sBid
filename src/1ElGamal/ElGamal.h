@@ -9,6 +9,7 @@ class ElGamal {
 private:
 	G_q G;  //Group used for encryption
 	ZZ sk;	//secret key
+	Mod_p pk_1; //public key
 	Mod_p pk; //public key
 public:
 	//Constructor & destructor
@@ -41,6 +42,7 @@ public:
 
 	//Access to the variables
 	G_q get_group() const;
+	Mod_p get_pk_1() const;
 	Mod_p get_pk() const;
 	ZZ get_sk() const;
 
@@ -49,7 +51,7 @@ public:
 	void set_sk(ZZ s);
 	void set_sk(long s);
 	void set_key(ZZ s, ZZ p);
-	void keyGen();
+	void keyGen(string pk_2);
 
 	//encryption and decryption functions
 	Cipher_elg encrypt(Mod_p m);
