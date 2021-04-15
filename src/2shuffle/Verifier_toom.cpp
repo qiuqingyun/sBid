@@ -411,7 +411,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 			}
 		}
 	}
-	cout << "Validation results: " << flush;
+	cout << "[" << codeName << "] - " << "shuffle results: " << flush;
 	string ans = (flag) ? "PASS" : "FAIL";
 	cout << ans << endl;
 	ofstream ost;
@@ -420,7 +420,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 	ost.close();
 	string errorStr[] = { "Dh","D","Ds","Dl" ,"d" ,"Delta" ,"B" ,"a" ,"c" ,"E" ,"ac" ,"hash" };
 	if (!flag)
-		cout << "ERROR: " << errorStr[errorCode] << endl;
+		cout << "[" << codeName << "] - " << "ERROR: " << errorStr[errorCode] << endl;
 	return flag;
 }
 

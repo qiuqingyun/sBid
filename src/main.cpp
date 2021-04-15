@@ -1,14 +1,23 @@
 #include "./3sBid/sBid.h"
+extern ZZ sk_debug;
 int main(int argc, char** argv)
 {
-	SBid sbid;
-	array<int, 2> codes{ 2,1 };
-	sbid.prepare(codes);
-	//sbid.shuffleOp();
-	sbid.shuffleOp2();
+	
+	SBid sbid1;
+	array<int, 2> codes1{ 2,1 };
+	SBid sbid2;
+	array<int, 2> codes2{ 1,2 };
+	sbid1.prepare(codes1);
+	sbid2.prepare(codes2);
+
+	sbid1.compare();
+	sbid2.shuffleOp();
+	sbid1.shuffleOp();
+
+	sbid1.shuffleVerify();
+	sbid2.shuffleVerify();
 	//sbid.parametersGen();
 	return 0;
-
 	int role = -1;
 	if (argc < 2)
 	{

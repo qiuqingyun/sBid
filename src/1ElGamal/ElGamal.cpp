@@ -1,6 +1,7 @@
 #include "ElGamal.h"
 NTL_CLIENT
-
+#define DEBUG true
+ZZ sk_main_debug = conv<ZZ>("817266138476070071680325283");
 
 ElGamal::ElGamal() {
 	// TODO Auto-generated constructor stub
@@ -247,8 +248,7 @@ ZZ ElGamal::get_sk()const {
 
 //functions to change parameters
 void ElGamal::set_group(G_q H) {
-
-	G = H;
+	this->G = H;
 }
 
 void ElGamal::set_sk(long s) {
@@ -345,7 +345,13 @@ Cipher_elg ElGamal::encrypt(long m, ZZ ran) {
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
-
+Cipher_elg ElGamal::encrypt_g(ZZ m, ZZ ran) {
+	Mod_p temp_1, temp_2, temp_m;
+	temp_1 = G.get_gen().expo(ran);//h^r
+	temp_m = G.get_g().expo(m);//g^m
+	temp_2 = pk.expo(ran) * temp_m;//g^m¡Áy^r
+	return Cipher_elg(temp_1, temp_2);
+}
 
 Cipher_elg ElGamal::encrypt(ZZ m, long ran) {
 	Cipher_elg c;
@@ -388,7 +394,53 @@ ZZ ElGamal::decrypt(Cipher_elg c, int flag) {
 	// cout<<temp<<" "<<flush;
 	return temp;
 }
-
+ZZ ElGamal::decrypt_debug(Cipher_elg c) {
+	ZZ temp{ 0 };
+	if (DEBUG)
+	{
+		ZZ mod = G.get_mod();
+		temp = InvMod(c.get_u(), mod);
+		temp = PowerMod(temp, sk_main_debug, mod);
+		temp = MulMod(temp, c.get_v(), mod);
+		if (temp == 1) {
+			temp = ZZ(0);
+		}
+		else if (temp == G.get_g().get_val()) {
+			temp = ZZ(1);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 2, G.get_mod())) {
+			temp = ZZ(2);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 3, G.get_mod())) {
+			temp = ZZ(3);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 4, G.get_mod())) {
+			temp = ZZ(4);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 5, G.get_mod())) {
+			temp = ZZ(5);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 6, G.get_mod())) {
+			temp = ZZ(6);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 7, G.get_mod())) {
+			temp = ZZ(7);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 8, G.get_mod())) {
+			temp = ZZ(8);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), 9, G.get_mod())) {
+			temp = ZZ(9);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), -1, G.get_mod())) {
+			temp = ZZ(-1);
+		}
+		else if (temp == PowerMod(G.get_g().get_val(), -2, G.get_mod())) {
+			temp = ZZ(-2);
+		}
+	}
+	return temp;
+}
 //Assigment operator
 void ElGamal::operator=(const ElGamal& el) {
 

@@ -64,11 +64,12 @@ public:
 	Cipher_elg encrypt(ZZ m, ZZ ran);
 	Cipher_elg encrypt(long m, long ran);
 	Cipher_elg encrypt(long m, ZZ ran);
+	Cipher_elg encrypt_g(ZZ m, ZZ ran);
 
 	//decryption function
 	Mod_p decrypt(Cipher_elg c);
 	ZZ decrypt(Cipher_elg c, int flag);
-
+	ZZ decrypt_debug(Cipher_elg c);
 	//Assigment operator
 	void operator =(const ElGamal& el);
 

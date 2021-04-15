@@ -115,6 +115,15 @@ Cipher_elg Cipher_elg::operator *(const Cipher_elg& el)const {
 	return Cipher_elg(temp_1, temp_2, mod);
 }
 
+//Multiplicative operator and multiplication functions
+Cipher_elg Cipher_elg::operator *(const int el)const {
+	ZZ temp_1, temp_2;
+
+	MulMod(temp_1, u, el, mod);
+	MulMod(temp_2, v, el, mod);
+	return Cipher_elg(temp_1, temp_2, mod);
+}
+
 void Cipher_elg::mult(Cipher_elg& a, const Cipher_elg& b, const Cipher_elg& c) {
 	ZZ temp_1, temp_2;
 	ZZ mod = b.get_mod();

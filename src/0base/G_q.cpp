@@ -288,7 +288,7 @@ Mod_p G_q::element(long v) {
 
 
 void G_q::operator =(const G_q& H) {
-
+	g = H.get_g();
 	generator = H.get_gen();
 	order = H.get_ord();
 	mod = H.get_mod();

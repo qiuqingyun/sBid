@@ -4,8 +4,8 @@
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
-//A 00111000100001101100100001110110 948357238
-//B 00111000100101101100100001110110 949405814
+//A 00111000100001101100100001110110 948357238 第11,13位不同
+//B 00111000100100101100100001110110 949143670
 class SBid {
 private:
 	ifstream ist;
@@ -14,7 +14,10 @@ private:
 	string pkFileName;
 	string coCode;
 	bitset<32> plaintext;//竞价二进制明文
-	array<Cipher_elg, 32> ciphertext;    //原始输入的密文
+	array<Cipher_elg, 32> ciphertext;    //密文
+	array<Cipher_elg, 32> ciphertext_2;  //对方的密文
+	array<Cipher_elg, 33> Wj;
+	array<Cipher_elg, 32> compareResults;
 	ZZ mod;
 	ZZ ord;
 	ZZ gen_h;
@@ -135,18 +138,28 @@ private:
 			cout << "Can't creat " << fileName << endl;
 			exit(1);
 		}
-		for (int i = 0; i < cipherNum; i++)
-		{
-			ZZ m;
-			ZZ r = RandomBnd(ord);						//随机数r，也被称作临时密钥
-			conv(m, plaintext[i]);						//明文m
-			m = PowerMod(H.get_g().get_val(), m, mod);  //g^m
-			//cout << m <<" | "<< H.get_g().get_val()<< endl;
-			Cipher_elg temp = El.encrypt(m, r);			//得到(u,v)密文组，u = h^r，v = g^m×y^r，y为公钥
-			ciphertext[i] = temp;
-			ost << temp << endl;
+		for (int i = cipherNum - 1; i >= 0; i--)
+		{//逆序读入
+			ZZ r = RandomBnd(ord);							    //随机数r，也被称作临时密钥
+			Cipher_elg temp = El.encrypt_g(ZZ(plaintext[i]), r);//得到(u,v)密文组，u = h^r，v = g^m×y^r，y为公钥
+			ciphertext[cipherNum - i - 1] = temp;			    //顺序读入
+			ost << temp << endl;								//输出密文
 		}
 		ost.close();
+	}
+	//读取对方的密文
+	void readCipher() {
+		string fileName = "ciphertext" + codes[1] + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < cipherNum; i++) {
+			string temp;
+			ist >> ciphertext_2[i];
+		}
+		ist.close();
 	}
 
 public:
@@ -164,17 +177,52 @@ public:
 		readPlaintext();
 		createCipher();
 	}
-	//TODO:比较
-
-	//混淆
+	//从高到低逐位比较
+	void compare() {
+		readCipher();
+		clock_t tstart = clock();
+		string fileName = "cipherCR" + codes[0] + ".txt";
+		ost.open(fileName, ios::out);
+		if (!ost)
+		{
+			cout << "Can't creat " << fileName << endl;
+			exit(1);
+		}
+		Cipher_elg a, b, aPb, aTb, twoTaTb, minus2TaTb, b_minus, aMbM1;
+		ZZ r = RandomBnd(ord);
+		Cipher_elg ONE = El.encrypt_g(ZZ(1), r);//g^0
+		r = RandomBnd(ord);
+		Wj[0] = El.encrypt_g(ZZ(0), r);//g^0
+		Cipher_elg Wj_sum = Wj[0];
+		for (int i = 0; i < cipherNum; i++) {
+			a = ciphertext[i];
+			b = ciphertext_2[i];
+			aPb = a * b;//a+b
+			aTb = Cipher_elg::expo(b, ZZ(plaintext[cipherNum - i - 1]));//a*b 明文参与
+			twoTaTb = Cipher_elg::expo(aTb, ZZ(2));//2*a*b
+			minus2TaTb = Cipher_elg::inverse(twoTaTb);//-2*a*b
+			Wj[i + 1] = aPb * minus2TaTb;//a+b-2*a*b
+			Wj_sum = Wj_sum * Wj[i];
+			b_minus = Cipher_elg::inverse(b);//-b
+			aMbM1 = a * b_minus * ONE;//a-b+1
+			compareResults[i] = aMbM1 * Wj_sum;
+			ost << compareResults[i];
+		}
+		ost.close();
+		clock_t  tstop = clock();
+		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+		cout << "[" << codes[0] << "] - " << "compare " << ttime << " ms" << endl;
+	}
+	//混淆并生成验证
 	void shuffleOp() {
-		Shuffle prover(codes,coCode);
+		Shuffle prover(codes, coCode);
 		prover.creatProver();
 		prover.shuffle();
 		prover.prove();
-		
+
 	}
-	void shuffleOp2() {
+	//验证混淆
+	void shuffleVerify() {
 		//test
 		Shuffle verifier(codes, coCode);
 		verifier.creatVerifier();
@@ -182,4 +230,12 @@ public:
 	}
 
 	//TODO:解密
+	void test() {
+		int m = 2;
+		Cipher_elg ans = Cipher_elg::expo(ciphertext[2], ZZ(m));
+		Cipher_elg ans_minus = Cipher_elg::inverse(ans);//g^-2
+		Cipher_elg ans2 = ciphertext[2] * ciphertext[2] * ciphertext[2] * ans_minus;
+		cout << "3 - 2 = ";
+		cout << El.decrypt_debug(ans2) << endl;
+	}
 };
