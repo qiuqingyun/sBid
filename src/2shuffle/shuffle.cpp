@@ -140,7 +140,7 @@ void Shuffle::shuffle() {
 	Functions::decryptCipher(C, num, 1);*/
 	clock_t  tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "To shuffle the ciphertexts took " << ttime << " ms." << endl;
+	cout << "[" << codes[0] << "] - " << "shuffle " << ttime << " ms" << endl;
 }
 //生成随机替换序列
 void Shuffle::permutation(vector<int>* v, int N)
@@ -231,7 +231,7 @@ void Shuffle::prove() {
 	delete P;
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "To prove the proof took " << ttime << " ms." << endl;
+	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
 }
 //正确性验证
 void Shuffle::verify() {
@@ -240,10 +240,10 @@ void Shuffle::verify() {
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 
 	Verifier_toom* V = new Verifier_toom(num);
-	ans = V->verify(codes[0],cipher_in, cipher_out);
+	ans = V->verify(codes[0], cipher_in, cipher_out);
 	delete V;
 
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "To verify the proof took " << ttime << " ms." << endl;
+	cout << "[" << codes[0] << "] - " << "verify shuffle " << ttime << " ms" << endl;
 }

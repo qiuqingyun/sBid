@@ -31,6 +31,7 @@ public:
 	//Operators functionality
 	void operator =(const Cipher_elg& c);
 	Cipher_elg operator *(const Cipher_elg& el)const;
+	Cipher_elg operator *(const int el)const;
 	bool operator ==(const Cipher_elg& b) const;
 
 	static void mult(Cipher_elg& a, const Cipher_elg& b, const Cipher_elg& c);
