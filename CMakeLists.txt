@@ -1,5 +1,5 @@
 ﻿cmake_minimum_required (VERSION 3.8)
-add_definitions(-std=c++17)
+
 project ("sBid" CXX)
 
 SET(CMAKE_CXX_FLAGS "-std=c++17 -g")

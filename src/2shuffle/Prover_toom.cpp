@@ -30,7 +30,7 @@ Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* 
 	//Creates the matrices A£¬ÄÚÈÝÎªpi
 	A = new vector<vector<ZZ>*>(m);
 	func_pro::set_A(A, pi, m, n);
-
+	SetSeed(to_ZZ((unsigned int)time(0) + clock()));
 	//Allocate the storage needed for the vectors
 	chal_x6 = new vector<ZZ>(2 * m);	 //x6, x6^2, ... challenges from round 6
 	chal_y6 = new vector<ZZ>(n);		 //y6, y6^2, ... challenges form round 6
@@ -605,7 +605,7 @@ int Prover_toom::prove(string codeName)
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't creat " << fileName << endl;
+		cout << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	this->round_1();

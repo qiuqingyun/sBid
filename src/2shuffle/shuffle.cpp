@@ -131,7 +131,7 @@ void Shuffle::shuffle() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't creat " << fileName << endl;
+		cout << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	reencryptCipher();
@@ -222,7 +222,7 @@ void Shuffle::reencryptCipher() {
 	}
 }
 //生成承诺
-void Shuffle::prove() {
+void Shuffle::prove() {//prove内容有问题
 	clock_t tstart = clock();
 
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };

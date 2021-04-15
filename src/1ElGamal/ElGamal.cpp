@@ -394,6 +394,44 @@ ZZ ElGamal::decrypt(Cipher_elg c, int flag) {
 	// cout<<temp<<" "<<flush;
 	return temp;
 }
+ZZ ElGamal::get_m(ZZ temp) {
+	if (temp == 1) {
+		return ZZ(0);
+	}
+	else if (temp == G.get_g().get_val()) {
+		return ZZ(1);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 2, G.get_mod())) {
+		return ZZ(2);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 3, G.get_mod())) {
+		return ZZ(3);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 4, G.get_mod())) {
+		return ZZ(4);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 5, G.get_mod())) {
+		return ZZ(5);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 6, G.get_mod())) {
+		return ZZ(6);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 7, G.get_mod())) {
+		return ZZ(7);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 8, G.get_mod())) {
+		return ZZ(8);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 9, G.get_mod())) {
+		return ZZ(9);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), -1, G.get_mod())) {
+		return ZZ(-1);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), -2, G.get_mod())) {
+		return ZZ(-2);
+	}
+}
 ZZ ElGamal::decrypt_debug(Cipher_elg c) {
 	ZZ temp{ 0 };
 	if (DEBUG)
@@ -402,42 +440,7 @@ ZZ ElGamal::decrypt_debug(Cipher_elg c) {
 		temp = InvMod(c.get_u(), mod);
 		temp = PowerMod(temp, sk_main_debug, mod);
 		temp = MulMod(temp, c.get_v(), mod);
-		if (temp == 1) {
-			temp = ZZ(0);
-		}
-		else if (temp == G.get_g().get_val()) {
-			temp = ZZ(1);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 2, G.get_mod())) {
-			temp = ZZ(2);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 3, G.get_mod())) {
-			temp = ZZ(3);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 4, G.get_mod())) {
-			temp = ZZ(4);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 5, G.get_mod())) {
-			temp = ZZ(5);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 6, G.get_mod())) {
-			temp = ZZ(6);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 7, G.get_mod())) {
-			temp = ZZ(7);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 8, G.get_mod())) {
-			temp = ZZ(8);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), 9, G.get_mod())) {
-			temp = ZZ(9);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), -1, G.get_mod())) {
-			temp = ZZ(-1);
-		}
-		else if (temp == PowerMod(G.get_g().get_val(), -2, G.get_mod())) {
-			temp = ZZ(-2);
-		}
+		temp = get_m(temp);
 	}
 	return temp;
 }

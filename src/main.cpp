@@ -2,20 +2,57 @@
 extern ZZ sk_debug;
 int main(int argc, char** argv)
 {
-	
-	SBid sbid1;
-	array<int, 2> codes1{ 2,1 };
+	array<int, 2> codes;
+	int op;
+	switch (argc)
+	{
+		case 1: {
+			cout << "Input your code:" << flush;
+			cin >> codes[0];
+			cout << "Input your opponent's code:" << flush;
+			cin >> codes[1];
+			break;
+		}
+		case 2: {
+			//Verify
+			cout << "You are Verifier" << endl;
+			return 0;
+		}
+		case 3: {
+			codes[0] = atoi(argv[1]);
+			codes[1] = atoi(argv[2]);
+			break;
+		}
+		default: {
+			cout << "parameters error" << endl;
+			return 0;
+		}
+	}
+	SBid sbid;
+	sbid.prepare(codes);
+	sbid.bid();
+
+	/*SBid sbid1;
+	array<int, 2> codes1{ 1,2 };
 	SBid sbid2;
-	array<int, 2> codes2{ 1,2 };
+	array<int, 2> codes2{ 2,1 };
 	sbid1.prepare(codes1);
 	sbid2.prepare(codes2);
 
-	sbid1.compare();
-	sbid2.shuffleOp();
+	sbid2.compare();
 	sbid1.shuffleOp();
+	sbid2.shuffleOp();
 
 	sbid1.shuffleVerify();
 	sbid2.shuffleVerify();
+
+	sbid1.prepareDecrypt();
+	sbid2.prepareDecrypt();
+
+	sbid1.decrypt();
+	sbid2.decrypt();*/
+
+	//sbid2.decrypt();
 	//sbid.parametersGen();
 	return 0;
 	int role = -1;
