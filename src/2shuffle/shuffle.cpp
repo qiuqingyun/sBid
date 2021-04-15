@@ -5,27 +5,41 @@ Shuffle::Shuffle(array< string, 2> codes, string codeName) {
 	this->codeName = codeName;
 }
 //创建Prover角色
-void Shuffle::creatProver() {
+void Shuffle::creatProver(bool bigMe) {
+	this->bigMe = bigMe;
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
-	/*readParameters();
-	creatElGamal();*/
-	//读取未shuffle的密文
-	//作为第一轮shuffle者
-	string fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{//作为第二轮shuffle者
-		fileName = "cipherSR" + codes[1] + ".txt";//shuffe过一轮的密文
-		ist.open(fileName, ios::in);
+	string fileName;
+	if (bigMe) {//大号接收小号的shuffle结果
+		string shuffleResult;
+		net.mReceive(shuffleResult);
+		vector<string> shuffleResult_str;
+		net.deserialization(shuffleResult, shuffleResult_str);
+		fileName = "cipherSR" + codes[1] + ".txt";//比较结果的密文
+		ost.open(fileName, ios::out);
 		if (!ist)
 		{
 			cout << "Can't open " << fileName << endl;
 			exit(1);
 		}
+		for (int i = 0; i < 32; i++) {
+			ost << shuffleResult_str[i] << endl;
+		}
+		ost.close();
+	}
+	else {//小号读取大号的比较结果
+		fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
+	}
+	//读入密文
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{//作为第二轮shuffle者
+		cout << "Can't open " << fileName << endl;
+		exit(1);
 	}
 	readCipher(cipher_in);
 	ist.close();
+
 }
 //创建Verifier角色
 void Shuffle::creatVerifier() {
@@ -134,13 +148,36 @@ void Shuffle::shuffle() {
 		cout << "Can't create " << fileName << endl;
 		exit(1);
 	}
-	reencryptCipher();
+	stringstream ss;
+	reencryptCipher(ss);
 	ost.close();
 	/*Functions::decryptCipher(c, num, 0);
 	Functions::decryptCipher(C, num, 1);*/
 	clock_t  tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "shuffle " << ttime << " ms" << endl;
+
+	string cipher_1, cipher_2;
+	ss >> cipher_1;
+	if (bigMe) {//大号将结果发送给小号
+		net.mSend(cipher_1);
+	}
+	else {//小号将结果发送给大号，并接收大号的结果
+		net.mSend(cipher_1);
+		net.mReceive(cipher_2);
+		vector<string> ciphertext_2_str;
+		net.deserialization(cipher_2, ciphertext_2_str);
+		fileName = "cipherSR" + codes[1] + ".txt";
+		ost.open(fileName, ios::out);
+		if (!ost)
+		{
+			cout << "Can't create " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < 32; i++)
+			ost << ciphertext_2_str[i] << endl;
+		ost.close();
+	}
 }
 //生成随机替换序列
 void Shuffle::permutation(vector<int>* v, int N)
@@ -206,7 +243,7 @@ void Shuffle::randomEl(vector<vector<ZZ>*>* R)
 	}
 }
 //重加密
-void Shuffle::reencryptCipher() {
+void Shuffle::reencryptCipher(stringstream& ss) {
 	for (int i = 0; i < m; i++)
 	{
 		vector<Cipher_elg>* r = new vector<Cipher_elg>(n);
@@ -217,6 +254,7 @@ void Shuffle::reencryptCipher() {
 			int col = pi->at(i)->at(j)->at(1);								//shuffle后需要移动的列
 			Cipher_elg::mult(r->at(j), temp, cipher_in->at(row)->at(col));  //同态乘法
 			ost << r->at(j) << endl;
+			ss << r->at(j) << ";";
 		}
 		cipher_out->at(i) = r;
 	}

@@ -18,7 +18,7 @@ ADD_EXECUTABLE(sBid
  "2shuffle/Prover_toom.cpp"
  "2shuffle/Verifier_toom.cpp" 
  "2paraGen/paraGen.cpp"
- "3sBid/sBid.cpp"  )
+ "3sBid/sBid.cpp"   "0base/network.cpp" "0base/network.h")
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

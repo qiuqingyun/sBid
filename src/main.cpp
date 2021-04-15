@@ -31,29 +31,6 @@ int main(int argc, char** argv)
 	SBid sbid;
 	sbid.prepare(codes);
 	sbid.bid();
-
-	/*SBid sbid1;
-	array<int, 2> codes1{ 1,2 };
-	SBid sbid2;
-	array<int, 2> codes2{ 2,1 };
-	sbid1.prepare(codes1);
-	sbid2.prepare(codes2);
-
-	sbid2.compare();
-	sbid1.shuffleOp();
-	sbid2.shuffleOp();
-
-	sbid1.shuffleVerify();
-	sbid2.shuffleVerify();
-
-	sbid1.prepareDecrypt();
-	sbid2.prepareDecrypt();
-
-	sbid1.decrypt();
-	sbid2.decrypt();*/
-
-	//sbid2.decrypt();
-	//sbid.parametersGen();
 	return 0;
 	int role = -1;
 	if (argc < 2)

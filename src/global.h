@@ -4,6 +4,7 @@
 #include "./0base/G_q.h"
 #include "./0base/Cyclic_group.h"
 #include "./0base/sha256.h"
+#include "./0base/network.h"
 #include "./1ElGamal/ElGamal.h"
 #include "./1Pedersen/Pedersen.h"
 

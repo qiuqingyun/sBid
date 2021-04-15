@@ -431,6 +431,7 @@ ZZ ElGamal::get_m(ZZ temp) {
 	else if (temp == PowerMod(G.get_g().get_val(), -2, G.get_mod())) {
 		return ZZ(-2);
 	}
+	return ZZ(0);
 }
 ZZ ElGamal::decrypt_debug(Cipher_elg c) {
 	ZZ temp{ 0 };
