@@ -8,6 +8,7 @@ extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;              // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
 extern Pedersen Ped;        // Object which calculates the commitments
+extern Network net;
 
 class Shuffle {
 private:
@@ -28,6 +29,7 @@ private:
 	int m = 16;//行数
 	int n = 2;//列数
 	int ans = 0;//验证结果
+	bool bigMe;
 	ZZ mod;
 	ZZ ord;
 	ZZ gen;
@@ -46,11 +48,11 @@ private:
 	//生成随机数矩阵
 	void randomEl(vector<vector<ZZ>*>* R);
 	//重加密
-	void reencryptCipher();
+	void reencryptCipher(stringstream& ss);
 public:
-	Shuffle(array< string, 2> codes,string codeName);
+	Shuffle(array< string, 2> codes, string codeName);
 	//创建Prover角色
-	void creatProver();
+	void creatProver(bool bigMe);
 	//创建Verifier角色
 	void creatVerifier();
 	//进行shuffle操作
