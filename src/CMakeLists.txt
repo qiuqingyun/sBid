@@ -1,4 +1,4 @@
-ADD_EXECUTABLE(main 
+ADD_EXECUTABLE(sBid 
  "main.cpp"
  "global.cpp"
  "0base/base.h"
@@ -32,5 +32,4 @@ find_library(GMPXX_LIBRARIES NAMES gmpxx libgmpxx)
 find_path(NTL_INCLUDE_DIR NAMES NTL)
 find_library(NTL_LIBRARIES NAMES ntl libntl)
 
-target_link_libraries(main ntl gmp gmpxx)
-add_definitions(-std=c++17)
+target_link_libraries(sBid ntl gmp gmpxx)

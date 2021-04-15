@@ -11,17 +11,23 @@ private:
 	ifstream ist;
 	ofstream ost;
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
+	string codeBig, codeSmall;
 	string pkFileName;
 	string coCode;
 	bitset<32> plaintext;//竞价二进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<Cipher_elg, 32> ciphertext_2;  //对方的密文
+	array<Cipher_elg, 32> cipherAns;	 //经过两轮混淆的密文
 	array<Cipher_elg, 33> Wj;
-	array<Cipher_elg, 32> compareResults;
+	array<Cipher_elg, 32> compareResults;//比较结果密文
+	array<ZZ, 32> dk_1;    //自己的解密份额
+	array<ZZ, 32> dk_2;  //对方的解密份额
+	array<ZZ, 32> ans;    //总解密份额
 	ZZ mod;
 	ZZ ord;
 	ZZ gen_h;
 	ZZ gen_g;
+	ZZ sk, pk;
 	int cipherNum = 32;
 	int pBits = 100;
 	int qBits = 90;
@@ -58,7 +64,7 @@ private:
 			ost.open(fileName, ios::out);
 			if (!ost)
 			{
-				cout << "Can't creat " << fileName << endl;
+				cout << "Can't create " << fileName << endl;
 				exit(1);
 			}
 			ost << El.get_pk_1() << endl;
@@ -67,7 +73,7 @@ private:
 			ost.open(fileName, ios::out);
 			if (!ost)
 			{
-				cout << "Can't creat " << fileName << endl;
+				cout << "Can't create " << fileName << endl;
 				exit(1);
 			}
 			ost << El.get_sk() << endl;
@@ -75,7 +81,6 @@ private:
 		}
 		else
 		{//读取公私钥
-			ZZ sk, pk;
 			string sk_str, pk_str;
 			getline(ist, pk_str);
 			conv(pk, pk_str.c_str());
@@ -113,7 +118,7 @@ private:
 		ost.open(fileName, ios::out);
 		if (!ist)
 		{
-			cout << "Can't creat " << fileName << endl;
+			cout << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		ost << El.get_pk() << endl;
@@ -135,7 +140,7 @@ private:
 		string fileName = "ciphertext" + codes[0] + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost) {
-			cout << "Can't creat " << fileName << endl;
+			cout << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		for (int i = cipherNum - 1; i >= 0; i--)
@@ -156,13 +161,58 @@ private:
 			exit(1);
 		}
 		for (int i = 0; i < cipherNum; i++) {
-			string temp;
 			ist >> ciphertext_2[i];
+		}
+		ist.close();
+	}
+	//读取经过两轮混淆的密文
+	void readCipherShuffled() {
+		codeBig = (codes[0] > codes[1]) ? codes[0] : codes[1];
+		codeSmall = (codes[0] < codes[1]) ? codes[0] : codes[1];
+		string fileName = "cipherSR" + codeBig + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> cipherAns[i];
+		}
+		ist.close();
+	}
+	//创建解密份额
+	void createDk() {
+		string fileName = "dk" + codes[0] + ".txt";
+		ost.open(fileName, ios::out);
+		if (!ost) {
+			cout << "Can't create " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < cipherNum; i++) {
+			ZZ u = cipherAns[i].get_u();
+			dk_1[i] = PowerMod(u, sk, mod);
+			ost << dk_1[i] << endl;
+		}
+		ost.close();
+	}
+	//读取对方的解密份额
+	void readDk() {
+		string fileName = "dk" + codes[1] + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> dk_2[i];
 		}
 		ist.close();
 	}
 
 public:
+	~SBid() {
+
+	}
 	//生成参数
 	void parametersGen() {
 		ParaGen paraGen;
@@ -177,6 +227,12 @@ public:
 		readPlaintext();
 		createCipher();
 	}
+	void bid() {
+		compare();
+		shuffleOp();
+		prepareDecrypt();
+		decrypt();
+	}
 	//从高到低逐位比较
 	void compare() {
 		readCipher();
@@ -185,7 +241,7 @@ public:
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't creat " << fileName << endl;
+			cout << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		Cipher_elg a, b, aPb, aTb, twoTaTb, minus2TaTb, b_minus, aMbM1;
@@ -206,14 +262,14 @@ public:
 			b_minus = Cipher_elg::inverse(b);//-b
 			aMbM1 = a * b_minus * ONE;//a-b+1
 			compareResults[i] = aMbM1 * Wj_sum;
-			ost << compareResults[i];
+			ost << compareResults[i] << endl;
 		}
 		ost.close();
 		clock_t  tstop = clock();
 		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 		cout << "[" << codes[0] << "] - " << "compare " << ttime << " ms" << endl;
 	}
-	//混淆并生成验证
+	//混淆并生成证明
 	void shuffleOp() {
 		Shuffle prover(codes, coCode);
 		prover.creatProver();
@@ -223,19 +279,38 @@ public:
 	}
 	//验证混淆
 	void shuffleVerify() {
-		//test
 		Shuffle verifier(codes, coCode);
 		verifier.creatVerifier();
 		verifier.verify();
 	}
-
-	//TODO:解密
-	void test() {
-		int m = 2;
-		Cipher_elg ans = Cipher_elg::expo(ciphertext[2], ZZ(m));
-		Cipher_elg ans_minus = Cipher_elg::inverse(ans);//g^-2
-		Cipher_elg ans2 = ciphertext[2] * ciphertext[2] * ciphertext[2] * ans_minus;
-		cout << "3 - 2 = ";
-		cout << El.decrypt_debug(ans2) << endl;
+	//解密准备
+	void prepareDecrypt() {
+		readCipherShuffled();
+		createDk();
+	}
+	//解密并输出结果,0为(小号)等于(大号)，1为(小号)小于(大号)，2为(小号)大于(大号)
+	void decrypt() {
+		readDk();
+		ZZ dk, dk_inv;
+		int result;
+		for (int i = 0; i < cipherNum; i++)
+		{
+			dk = MulMod(dk_1[i], dk_2[i], mod);//加法同态
+			dk_inv = InvMod(dk, mod);//取逆
+			ans[i] = El.get_m(MulMod(cipherAns[i].get_v(), dk_inv, mod));//解密
+			if (ans[i] == 0)
+			{//大号胜
+				cout << "[" << codes[0] << "] - " << "No." << codeBig << " WIN" << endl;
+				return;
+			}
+			else if (ans[i] == 1)
+				continue;
+			else
+			{//小号胜
+				cout << "[" << codes[0] << "] - " << "No." << codeSmall << " WIN" << endl;
+				return;
+			}
+		}
+		cout << "[" << codes[0] << "] - " << "DRAW" << endl;
 	}
 };

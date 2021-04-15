@@ -19,7 +19,7 @@ int ParaGen::parametersGen(int lp, int lq) {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't creat " << fileName << endl;
+		cout << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	ost << pq->at(0) << endl;//p
