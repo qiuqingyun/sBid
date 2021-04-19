@@ -1,6 +1,7 @@
 #pragma once
-#include "../2shuffle/shuffle.h"
 #include "../2paraGen/paraGen.h"
+#include "../2cipherGen/cipherGen.h"
+#include "../2shuffle/shuffle.h"
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
@@ -22,7 +23,8 @@ private:
 	array<Cipher_elg, 33> Wj;
 	array<Cipher_elg, 32> compareResults;//比较结果密文
 	array<ZZ, 32> dk_1;    //自己的解密份额
-	array<ZZ, 32> dk_2;  //对方的解密份额
+	array<ZZ, 32> dk_2;  //对方的解密份额]
+	CipherGen* cipherGen;
 	bool bigMe;
 	ZZ mod;
 	ZZ ord;
@@ -137,7 +139,7 @@ private:
 		ost << El.get_pk() << endl;
 		ost.close();
 	}
-	//读取明文
+	/*//读取明文
 	void readPlaintext() {
 		string fileName = "plaintext" + codes[0] + ".txt";
 		ist.open(fileName, ios::in);
@@ -165,7 +167,7 @@ private:
 			ist >> plaintext;
 			ist.close();
 			cout << "[" << codes[0] << "] - " << "Amount: " << plaintext.to_ulong() << endl;
-			
+
 		}
 	}
 	//生成密文
@@ -209,7 +211,7 @@ private:
 		for (int i = 0; i < cipherNum; i++)
 			ost << ciphertext_2_str[i] << endl;
 		ost.close();
-	}
+	}*/
 	//读取对方的密文
 	void readCipher() {
 		string fileName = "ciphertext" + codes[1] + ".txt";
@@ -292,9 +294,6 @@ private:
 	}
 
 public:
-	~SBid() {
-
-	}
 	//生成参数
 	void parametersGen() {
 		ParaGen paraGen;
@@ -315,14 +314,20 @@ public:
 		net.init(codes[0], bigMe, port);
 		readParameters();
 		creatElGamal();
-		readPlaintext();
-		createCipher();
+
+		//生成密文( h^r , g^m × y^r )
+		CipherGen* cipherGen = new CipherGen(codes, bigMe);
+		ciphertext = cipherGen->gen();
+		//生成密文证明
+		cipherGen->prove();
+		//test
+		CipherGen* cipherGenVerify = new CipherGen(codes, bigMe);
+		cout << ((cipherGenVerify->verify()) ? "PASS" : "FAIL") << endl;
 	}
 	//开始竞标
 	void bid() {
 		compare();
 		shuffleOp();
-		prepareDecrypt();
 		decrypt();
 	}
 	//从高到低逐位比较
@@ -397,13 +402,10 @@ public:
 		verifier.creatVerifier();
 		verifier.verify();
 	}
-	//解密准备
-	void prepareDecrypt() {
-		readCipherShuffled();
-		createDk();
-	}
 	//解密并输出结果,0为(小号)等于(大号)，1为(小号)小于(大号)，2为(小号)大于(大号)
 	void decrypt() {
+		readCipherShuffled();
+		createDk();
 		readDk();
 		//ZZ dk, dk_inv;
 		int result = 0, flag = 0;

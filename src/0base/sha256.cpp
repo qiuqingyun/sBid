@@ -24,7 +24,7 @@ void SHA256::update(const uint8_t* data, size_t length) {
 	}
 }
 
-void SHA256::update(const std::string& data) {
+void SHA256::update(const string& data) {
 	update(reinterpret_cast<const uint8_t*> (data.c_str()), data.size());
 }
 
@@ -138,25 +138,36 @@ void SHA256::revert(uint8_t* hash) {
 	}
 }
 
-std::string SHA256::toString(const uint8_t* digest) {
-	std::stringstream s;
-	s << std::setfill('0') << std::hex;
+string SHA256::toString(const uint8_t* digest) {
+	stringstream s;
+	s << setfill('0') << hex;
 
 	for (uint8_t i = 0; i < 32; i++) {
-		s << std::setw(2) << (unsigned int)digest[i];
+		s << setw(2) << (unsigned int)digest[i];
 	}
-	std::stringstream ss;
-	ss << std::hex << s.str();
+	stringstream ss;
+	ss << hex << s.str();
 	mpz_class aa;
 	mpz_set_str(aa.get_mpz_t(), ss.str().c_str(), 16);
 
 	return aa.get_str();
 }
 
-std::string SHA256::hash(std::string m) {
+string SHA256::hash(string m) {
 	this->update(m);
 	uint8_t* digest = this->digest();
-	std::string hashValue = this->toString(digest);
+	string hashValue = this->toString(digest);
 	delete[] digest;
 	return hashValue;
+}
+
+ZZ SHA256::hash(string str, G_q G)
+{// 用hash生成随机挑战x
+	string hashValueStr = hash(str);
+	ZZ hashValueZZ;
+	conv(hashValueZZ, hashValueStr.c_str());
+	Mod_p hashValueModP = Mod_p(hashValueZZ, G.get_mod());
+	while (hashValueModP.get_val() > G.get_ord())
+		hashValueModP.set_val(hashValueModP.get_val() - G.get_ord());
+	return hashValueModP.get_val();
 }

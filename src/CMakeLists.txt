@@ -8,17 +8,21 @@ ADD_EXECUTABLE(sBid
  "0base/G_q.cpp"
  "0base/Mod_p.cpp"
  "0base/sha256.cpp"
+ "0base/network.cpp" 
  "1ElGamal/ElGamal.cpp"
  "1Pedersen/Pedersen.cpp"
  "1Pedersen/multi_expo.cpp"
+ "2paraGen/paraGen.cpp"
+ "2cipherGen/cipherGen.cpp" 
+ "2compare/compare.cpp"
  "2shuffle/shuffle.cpp"
  "2shuffle/func_pro.cpp"
  "2shuffle/func_ver.cpp"
  "2shuffle/Functions.cpp"
  "2shuffle/Prover_toom.cpp"
  "2shuffle/Verifier_toom.cpp" 
- "2paraGen/paraGen.cpp"
- "3sBid/sBid.cpp"   "0base/network.cpp" "0base/network.h")
+ "3sBid/sBid.cpp"   
+ )
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

@@ -1,16 +1,18 @@
 #ifndef SHA256_H
 #define SHA256_H
 #include "base.h"
+#include "G_q.h"
 class SHA256 {
 
 public:
 	SHA256();
 	void update(const uint8_t* data, size_t length);
-	void update(const std::string& data);
+	void update(const string& data);
 	uint8_t* digest();
 
-	static std::string toString(const uint8_t* digest);
-	std::string hash(std::string m);
+	static string toString(const uint8_t* digest);
+	string hash(string m);
+	ZZ hash(string str, G_q G);
 
 private:
 	uint8_t  m_data[64];
@@ -18,7 +20,7 @@ private:
 	uint64_t m_bitlen;
 	uint32_t m_state[8]; //A, B, C, D, E, F, G, H
 
-	static constexpr std::array<uint32_t, 64> K = {
+	static constexpr array<uint32_t, 64> K = {
 		0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,
 		0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
 		0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,

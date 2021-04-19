@@ -9,7 +9,7 @@ class ElGamal {
 private:
 	G_q G;  //Group used for encryption
 	ZZ sk;	//secret key
-	Mod_p pk_1; //public key
+	Mod_p pk_1; //public key self
 	Mod_p pk; //public key
 public:
 	//Constructor & destructor
