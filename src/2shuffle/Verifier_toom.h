@@ -5,7 +5,7 @@
 #include "Functions.h"
 #include "func_ver.h"
 NTL_CLIENT
-
+extern G_q* Group;
 class Verifier_toom
 {
 private:
@@ -16,7 +16,6 @@ private:
 	int mu;
 	int m_r;
 	int mu_h;
-
 	vector<int> num;
 	SHA256 sha;
 	array<string, 6> hashStr;
@@ -86,7 +85,7 @@ public:
 	Verifier_toom(vector<int> num);
 	virtual ~Verifier_toom();
 
-	int verify(string codeName,vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
+	int verify(string codeName, vector<vector<Cipher_elg>*>* e, vector<vector<Cipher_elg>*>* E);
 
 	void calculate_c(Cipher_elg& c, vector<vector<Cipher_elg>*>* enc);
 	void calculate_ac(Mod_p& com);

@@ -56,6 +56,7 @@ private:
 		H = G_q(gen_h, ord, mod); //生成元h 阶数q 模数p
 		G = G_q(gen_h, ord, mod);
 		H.set_g(gen_g);
+		G.set_g(gen_g);
 	}
 	//设置初始化ElGamal
 	void creatElGamal() {

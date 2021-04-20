@@ -70,6 +70,15 @@ G_q::G_q(ZZ val, ZZ o, ZZ p) {
 
 }
 //Constructor creates an instance of G_q subset Z_p with order o and generator value val
+G_q::G_q(ZZ g, ZZ val, ZZ o, ZZ p) {
+	this->g = Mod_p(g, p);
+	generator = Mod_p(val, p);
+	order = o;
+	mod = p;
+
+}
+
+//Constructor creates an instance of G_q subset Z_p with order o and generator value val
 G_q::G_q(long val, long o, long p) {
 
 	generator = Mod_p(val, p);

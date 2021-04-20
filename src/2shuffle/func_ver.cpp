@@ -2,7 +2,7 @@
 NTL_CLIENT
 
 
-extern G_q G;
+extern G_q *Group;
 extern G_q H;
 extern Pedersen Ped;
 extern ElGamal El;
@@ -92,7 +92,7 @@ int func_ver::check_Ds(vector<Mod_p>* c_Ds, vector<Mod_p>* c_Dh, Mod_p c_Dm, vec
 		c_Ds->at(l) = temp;
 	}
 	else {
-		c_Ds->at(l) = Mod_p(1, G.get_mod());
+		c_Ds->at(l) = Mod_p(1, Group->get_mod());
 	}
 
 	c_Ds->at(m) = c_Dm;
@@ -120,7 +120,7 @@ int func_ver::check_Dl(vector<Mod_p>* c_Dl, vector<ZZ>* chal_1, vector<ZZ>* A, v
 	ZZ temp_1;
 	long l = c_Dl->size();
 	long pos = (l - 1) / 2 + 1;
-	ZZ mod = G.get_mod();
+	ZZ mod = Group->get_mod();
 	t_Dl = c_Dl->at(0);
 	for (i = 1; i < l; i++) {
 		Mod_p::expo(temp, c_Dl->at(i), chal_1->at(i - 1));
@@ -432,7 +432,7 @@ int func_ver::check_Ds_op(vector<Mod_p>* c_Ds, vector<Mod_p>* c_Dh, Mod_p c_Dm, 
 		c_Ds->at(l) = temp;
 	}
 	else {
-		c_Ds->at(l) = Mod_p(1, G.get_mod());
+		c_Ds->at(l) = Mod_p(1, Group->get_mod());
 	}
 
 	c_Ds->at(m) = c_Dm;
@@ -456,8 +456,7 @@ int func_ver::check_Dl_op(vector<Mod_p>* c_Dl, vector<ZZ>* chal, vector<ZZ>* A_b
 	ZZ temp_1;
 	long l = c_Dl->size();
 	long pos = (l - 1) / 2 + 1;
-	ZZ mod = G.get_mod();
-
+	ZZ mod = Group->get_mod();
 	t_Dl = c_Dl->at(0);
 	for (i = 1; i < l; i++) {
 		Mod_p::expo(temp, c_Dl->at(i), chal->at(i - 1));

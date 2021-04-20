@@ -23,7 +23,7 @@ Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* 
 	omega_mulex = num[2]; //windowsize for sliding-window technique
 	omega_sw = num[3];	  //windowsize for multi-expo technique
 	omega_LL = num[4];	  //windowsize for multi-expo technique
-	mu= num[5];
+	mu = num[5];
 	m_r = num[6];
 	mu_h = num[7];
 
@@ -151,8 +151,13 @@ void Prover_toom::round_1()
 	//对向量pi的每一行进行承诺
 	Functions::commit_op(A, r_A, c_A);
 
-	
+
 	stringstream ss;
+	//-1 group
+	ost << G.get_g() << endl;
+	ost << G.get_gen() << endl;
+	ost << G.get_ord() << endl;
+	ost << G.get_mod() << endl;
 	//0 pedersen
 	vector<Mod_p>* pedGen = Ped.get_gen();
 	for (int i = 0; i <= n; i++)
@@ -168,7 +173,7 @@ void Prover_toom::round_1()
 	ord = H.get_ord();
 	pk_ss << El.get_pk().get_val();
 	hashStr[0] = ss.str() + pk_ss.str();
-	
+
 }
 
 //round_3, permuted the exponents in s,  picks random elements and commits to values
@@ -203,12 +208,12 @@ void Prover_toom::round_3()
 		ost << c_B->at(i) << "\n";
 		ss1 << c_B->at(i).get_val();
 	}
-	
+
 	//3 x2
 	ost << x2 << endl;
 	ss1 << x2;
 	ss2 << x2;
-	
+
 	hashStr[1] = ss1.str() + pk_ss.str();
 	hashStr[2] = ss2.str() + pk_ss.str();
 	//ost.close();
@@ -291,37 +296,37 @@ void Prover_toom::round_5()
 	//4 c_z
 	ost << c_z << endl;
 	ss1 << c_z;
-	
+
 	//5 c_D_h
 	for (int i = 0; i < m; i++)
 	{
 		ost << c_D_h->at(i) << endl;
 		ss1 << c_D_h->at(i);
 	}
-	
+
 	//6 C_c
 	for (int i = 0; i < mu_h; i++)
 	{
 		ost << C_c->at(i) << endl;
 		ss1 << C_c->at(i);
 	}
-	
+
 	//7 c_a_c
 	for (int i = 0; i < mu_h; i++)
 	{
 		ost << c_a_c->at(i) << endl;
 		ss1 << c_a_c->at(i);
 	}
-	
+
 	//8 chal_y4
 	ost << chal_y4 << endl;
 	ss1 << chal_y4;
-	
+
 	//9 chal_z4
 	ost << chal_z4 << endl;
 	ss1 << chal_z4;
 	ss2 << chal_z4;
-	
+
 	hashStr[3] = ss1.str() + pk_ss.str();
 	hashStr[4] = ss2.str() + pk_ss.str();
 
@@ -404,67 +409,67 @@ void Prover_toom::round_7()
 		ost << c_Dl->at(i) << endl;
 		ss << c_Dl->at(i);
 	}
-	
+
 	//11 c_D0
 	ost << c_D0 << endl;
 	ss << c_D0;
-	
+
 	//12 c_Dm
 	ost << c_Dm << endl;
 	ss << c_Dm;
-	
+
 	//13 c_d
 	ost << c_d << endl;
 	ss << c_d;
-	
+
 	//14 c_Delta
 	ost << c_Delta << endl;
 	ss << c_Delta;
-	
+
 	//15 c_d_h
 	ost << c_d_h << endl;
 	ss << c_d_h;
-	
+
 	//16 a_c_bar
 	ost << a_c_bar << endl;
 	ss << a_c_bar;
-	
+
 	//17 r_ac_bar
 	ost << r_ac_bar << endl;
 	ss << r_ac_bar;
-	
+
 	//18 E
 	for (int i = 0; i < 8; i++)
 	{
 		ost << E->at(i) << endl;
 		ss << E->at(i);
 	}
-	
+
 	//19 c_B0
 	ost << c_B0 << endl;
 	ss << c_B0;
-	
+
 	//20 c_a
 	for (int i = 0; i < 8; i++)
 	{
 		ost << c_a->at(i) << endl;
 		ss << c_a->at(i);
 	}
-	
+
 	//21 chal_x6
 	for (int i = 0; i < chal_x6->size(); i++)
 	{
 		ost << chal_x6->at(i) << endl;
 		ss << chal_x6->at(i);
 	}
-	
+
 	//22 chal_y6
 	for (int i = 0; i < chal_y6->size(); i++)
 	{
 		ost << chal_y6->at(i) << endl;
 		ss << chal_y6->at(i);
 	}
-	
+
 	hashStr[5] = ss.str() + pk_ss.str();
 
 	//ost.close();

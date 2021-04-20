@@ -1,7 +1,8 @@
 #include "Verifier_toom.h"
 NTL_CLIENT
 
-extern G_q G;
+
+G_q* Group;
 extern G_q H;
 extern Pedersen Ped;
 extern ElGamal El;
@@ -100,6 +101,14 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 		exit(1);
 	}
 	//reads the values out of the file name
+	//-1 group
+	ZZ g_in, gen_in, ord_in, mod_in;
+	ist >> g_in;
+	ist >> gen_in;
+	ist >> ord_in;
+	ist >> mod_in;
+
+	Group = new G_q(g_in, gen_in, ord_in, mod_in);
 	//0 pedersen
 	vector<Mod_p>* pedGen = new vector<Mod_p>(n + 1);
 	for (int i = 0; i <= n; i++)
@@ -107,7 +116,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 		ist >> container2;
 		pedGen->at(i).toModP(container2, H.get_mod());
 	}
-	Ped = Pedersen(n, G, pedGen);
+	Ped = Pedersen(n, *Group, pedGen);
 	Ped.set_omega(omega, omega_LL, omega_sw);
 	//round 2
 
@@ -503,7 +512,7 @@ int Verifier_toom::check_B()
 {
 	long i, j;
 	Mod_p temp, temp_1, t_B, co_B;
-	ZZ mod = G.get_mod();
+	ZZ mod = Group->get_mod();
 	vector<Mod_p>* c_B_small = new vector<Mod_p>(5);
 	vector<Mod_p>* c_B_temp = new vector<Mod_p>(4);
 

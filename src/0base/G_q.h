@@ -22,6 +22,7 @@ public:
 	G_q(ZZ gen_val, long o, long mod);
 	G_q(ZZ gen_val, long o, ZZ mod);
 	G_q(ZZ gen_val, ZZ o, ZZ mod);
+	G_q(ZZ g, ZZ val, ZZ o, ZZ p);
 	G_q(long gen_val, long o, long mod);
 	G_q(long gen_val, long o, ZZ mod);
 	G_q(long gen_val, ZZ o, ZZ mod);
