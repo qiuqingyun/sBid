@@ -12,6 +12,7 @@ ADD_EXECUTABLE(sBid
  "1ElGamal/ElGamal.cpp"
  "1Pedersen/Pedersen.cpp"
  "1Pedersen/multi_expo.cpp"
+ "1commitment/commitment.cpp"
  "2paraGen/paraGen.cpp"
  "2cipherGen/cipherGen.cpp" 
  "2compare/compare.cpp"
@@ -22,7 +23,7 @@ ADD_EXECUTABLE(sBid
  "2shuffle/Prover_toom.cpp"
  "2shuffle/Verifier_toom.cpp" 
  "3sBid/sBid.cpp"   
- )
+  )
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

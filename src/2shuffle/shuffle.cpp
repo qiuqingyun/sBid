@@ -74,43 +74,6 @@ void Shuffle::creatVerifier() {
 	readCipher(cipher_out);
 	ist.close();
 }
-////读取群的参数并生成群
-//void Shuffle::readParameters() {
-//	string fileName = "parameters.txt";
-//	ist.open(fileName, ios::in);
-//	if (!ist)
-//	{
-//		cout << "Can't open " << fileName << endl;
-//		exit(1);
-//	}
-//	ist >> mod;
-//	ist >> ord;
-//	ist >> gen;
-//	ist >> genq;
-//	ist.close();
-//	H = G_q(gen, ord, mod); //生成元h 阶数q 模数p
-//	G = G_q(gen, ord, mod);
-//}
-////设置ElGamal公私钥
-//void Shuffle::creatElGamal() {
-//	El.set_group(H);
-//	string fileName = "ElGamal.txt";
-//	ist.open(fileName, ios::in);
-//	if (!ist)
-//	{
-//		cout << "Can't open " << fileName << endl;
-//		exit(1);
-//	}
-//	ZZ sk, pk;
-//	string sk_str, pk_str;
-//	getline(ist, sk_str);
-//	getline(ist, pk_str);
-//	conv(sk, sk_str.c_str());
-//	conv(pk, pk_str.c_str());
-//	El.set_key(sk, pk);
-//	ist.close();
-//}
-
 //读取文件中的密文，保存为16×2的矩阵形式
 void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 	string in_temp, u_str, v_str;
@@ -272,7 +235,7 @@ void Shuffle::prove() {//prove内容有问题
 	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
 }
 //正确性验证
-void Shuffle::verify() {
+bool Shuffle::verify() {
 	clock_t tstart = clock();
 
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
@@ -284,4 +247,5 @@ void Shuffle::verify() {
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify shuffle " << ttime << " ms" << endl;
+	return ans;
 }

@@ -411,9 +411,9 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 			}
 		}
 	}
-	cout << "[" << codeName << "] - " << "shuffle results: " << flush;
+	//cout << "[" << codeName << "] - " << "shuffle results: " << flush;
 	string ans = (flag) ? "PASS" : "FAIL";
-	cout << ans << endl;
+	//cout << ans << endl;
 	ofstream ost;
 	ost.open("ansShuffle" + codeName + ".txt", ios::out);
 	ost << ans << endl;

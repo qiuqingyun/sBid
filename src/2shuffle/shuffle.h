@@ -60,6 +60,6 @@ public:
 	//生成承诺
 	void prove();
 	//正确性验证
-	void verify();
+	bool verify();
 };
 

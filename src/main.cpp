@@ -31,6 +31,7 @@ int main(int argc, char** argv)
 	SBid sbid;
 	sbid.prepare(codes);
 	sbid.bid();
+	sbid.verify();
 	return 0;
 	int role = -1;
 	if (argc < 2)
