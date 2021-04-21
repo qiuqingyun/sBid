@@ -58,13 +58,13 @@ public:
 	Cipher_elg encrypt(ZZ m);
 	Cipher_elg encrypt(long m);
 
-	Cipher_elg encrypt(Mod_p m, long ran);
-	Cipher_elg encrypt(Mod_p m, ZZ ran);
-	Cipher_elg encrypt(ZZ m, long ran);
-	Cipher_elg encrypt(ZZ m, ZZ ran);
-	Cipher_elg encrypt(long m, long ran);
-	Cipher_elg encrypt(long m, ZZ ran);
-	Cipher_elg encrypt_g(ZZ m, ZZ ran);
+	Cipher_elg encrypt(Mod_p m, long ran_1);
+	Cipher_elg encrypt(Mod_p m, ZZ ran_1);
+	Cipher_elg encrypt(ZZ m, long ran_1);
+	Cipher_elg encrypt(ZZ m, ZZ ran_1);
+	Cipher_elg encrypt(long m, long ran_1);
+	Cipher_elg encrypt(long m, ZZ ran_1);
+	Cipher_elg encrypt_g(ZZ m, ZZ ran_1);
 
 	//decryption function
 	Mod_p decrypt(Cipher_elg c);

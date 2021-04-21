@@ -19,8 +19,8 @@ public:
 	static vector<vector<vector<long>* >* >* to_basis_vec(vector<vector<ZZ>* >* T, long num_b, int omega);
 
 
-	static ZZ expo_mult(const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod_p>* gen);
-	static void expo_mult(ZZ& ret, const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod_p>* gen);
+	static ZZ expo_mult(const vector<ZZ>* e, ZZ ran_1, int omega_expo, vector<Mod_p>* gen);
+	static void expo_mult(ZZ& ret, const vector<ZZ>* e, ZZ ran_1, int omega_expo, vector<Mod_p>* gen);
 	static Cipher_elg expo_mult(const vector<Cipher_elg>* a, vector<ZZ>* e, int omega);
 	static void expo_mult(Cipher_elg& ret, const vector<Cipher_elg>* a, vector<ZZ>* e, int omega);
 	static ZZ expo_mult(const vector<ZZ>* a, vector<vector<ZZ>*>* e, int omega, long pos);

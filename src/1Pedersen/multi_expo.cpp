@@ -115,7 +115,7 @@ vector<vector<vector<long>* >* >* multi_expo::to_basis_vec(vector<vector<ZZ>* >*
 	return basis_vec;
 }
 
-ZZ multi_expo::expo_mult(const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod_p>* gen) {
+ZZ multi_expo::expo_mult(const vector<ZZ>* e, ZZ ran_1, int omega_expo, vector<Mod_p>* gen) {
 	long i, j, k, l, t;
 	vector<vector<long>* >* basis_vec;
 	long length;// num_b;
@@ -127,7 +127,7 @@ ZZ multi_expo::expo_mult(const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod
 	num_b = NumBits(G.get_ord());
 	l = num_b / omega_expo + 1;
 	basis_vec = new vector<vector<long>* >(length + 1);
-	basis_vec->at(0) = to_basis(ran, num_b, omega_expo);
+	basis_vec->at(0) = to_basis(ran_1, num_b, omega_expo);
 	for (i = 0; i < length; i++) {
 		basis_vec->at(i + 1) = to_basis(e->at(i), num_b, omega_expo);
 	}
@@ -190,7 +190,7 @@ ZZ multi_expo::expo_mult(const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod
 }
 
 //
-void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran, int omega_expo, vector<Mod_p>* gen) {
+void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran_1, int omega_expo, vector<Mod_p>* gen) {
 	long i, j, k, l, t;
 	vector<vector<long>* >* basis_vec;
 	long length;// num_b;
@@ -202,7 +202,7 @@ void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran, int omega_expo
 	num_b = NumBits(G.get_ord());
 	l = num_b / omega_expo + 1;
 	basis_vec = new vector<vector<long>* >(length + 1);
-	basis_vec->at(0) = to_basis(ran, num_b, omega_expo);
+	basis_vec->at(0) = to_basis(ran_1, num_b, omega_expo);
 	for (i = 0; i < length; i++) {
 		basis_vec->at(i + 1) = to_basis(e->at(i), num_b, omega_expo);
 	}

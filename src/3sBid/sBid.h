@@ -17,16 +17,16 @@ private:
 	string codeBig, codeSmall;
 	string pkFileName;
 	string coCode;
-	bitset<32> plaintext;//竞价二进制明文
+	array<ZZ, 32> plaintext;//竞价二进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
-	
+	array<ZZ, 32> ran_1;//加密的随机数
 	array<Cipher_elg, 32> cipherAns;	 //经过两轮混淆的密文
-	
-	
+
+
 	array<ZZ, 32> dk_1;    //自己的解密份额
 	array<ZZ, 32> dk_2;  //对方的解密份额]
 	CipherGen* cipherGen;
-
+	ZZ ranZero;
 	string ans[2] = { "FAIL","PASS" };
 	bool bigMe;
 	ZZ mod;
@@ -147,7 +147,7 @@ private:
 	//加密并生成证明
 	void ciphertextOp() {
 		CipherGen* cipherGen = new CipherGen(codes, bigMe);
-		cipherGen->gen(ciphertext, plaintext);//生成密文( h^r , g^m × y^r )
+		cipherGen->gen(ciphertext, plaintext, ranZero, ran_1);//生成密文( h^r , g^m × y^r )
 		cipherGen->prove();//生成密文证明
 	}
 	//验证加密
@@ -158,12 +158,15 @@ private:
 	}
 	//比较并生成证明
 	void compareOp() {
-		Compare compare(codes, plaintext, ciphertext, bigMe);
+		Compare compare(codes, plaintext, ciphertext, ran_1, ranZero, bigMe);
 		compare.compare();
+		compare.prove();
 	}
 	//验证比较
 	void compareVerify() {
-
+		Compare compare(codes, ciphertext, bigMe);
+		bool flag = compare.verify();
+		cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
 	}
 	//混淆并生成证明
 	void shuffleOp() {
@@ -308,6 +311,7 @@ public:
 	void verify() {
 		cout << "[" << codes[0] << "] - " << "=====Verify=====" << endl;
 		ciphertextVerify();
+		compareVerify();
 		shuffleVerify();
 
 		cout << "[" << codes[0] << "] - " << "======OVER======" << endl;

@@ -277,11 +277,11 @@ void ElGamal::keyGen(string pk_2_str) {
 Cipher_elg ElGamal::encrypt(Mod_p el) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	ZZ ran;
+	ZZ ran_1;
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(G.get_ord());
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * el;
+	ran_1 = RandomBnd(G.get_ord());
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * el;
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 
@@ -290,12 +290,12 @@ Cipher_elg ElGamal::encrypt(Mod_p el) {
 Cipher_elg ElGamal::encrypt(ZZ m) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	ZZ ran;
+	ZZ ran_1;
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(G.get_ord());
-	cout << ran << endl;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	ran_1 = RandomBnd(G.get_ord());
+	cout << ran_1 << endl;
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
@@ -303,70 +303,70 @@ Cipher_elg ElGamal::encrypt(ZZ m) {
 Cipher_elg ElGamal::encrypt(long m) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	ZZ ran;
+	ZZ ran_1;
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(G.get_ord());
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	ran_1 = RandomBnd(G.get_ord());
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
 
-Cipher_elg ElGamal::encrypt(Mod_p el, long ran) {
+Cipher_elg ElGamal::encrypt(Mod_p el, long ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * el;
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * el;
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
 
-Cipher_elg ElGamal::encrypt(Mod_p el, ZZ ran) {
+Cipher_elg ElGamal::encrypt(Mod_p el, ZZ ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);//h^r
-	temp_2 = pk.expo(ran) * el;//m×y^r
+	temp_1 = G.get_gen().expo(ran_1);//h^r
+	temp_2 = pk.expo(ran_1) * el;//m×y^r
 	c = Cipher_elg(temp_1, temp_2);//得到(u,v)密文组，u = h^r，v = m×y^r
 	return c;
 }
-Cipher_elg ElGamal::encrypt(ZZ m, ZZ ran) {
+Cipher_elg ElGamal::encrypt(ZZ m, ZZ ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
-Cipher_elg ElGamal::encrypt(long m, ZZ ran) {
+Cipher_elg ElGamal::encrypt(long m, ZZ ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);//h^r
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());//m×y^r
+	temp_1 = G.get_gen().expo(ran_1);//h^r
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());//m×y^r
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
-Cipher_elg ElGamal::encrypt_g(ZZ m, ZZ ran) {
+Cipher_elg ElGamal::encrypt_g(ZZ m, ZZ ran_1) {
 	Mod_p temp_1, temp_2, temp_m;
-	temp_1 = G.get_gen().expo(ran);//h^r
+	temp_1 = G.get_gen().expo(ran_1);//h^r
 	temp_m = G.get_g().expo(m);//g^m
-	temp_2 = pk.expo(ran) * temp_m;//g^m×y^r
+	temp_2 = pk.expo(ran_1) * temp_m;//g^m×y^r
 	return Cipher_elg(temp_1, temp_2);
 }
 
-Cipher_elg ElGamal::encrypt(ZZ m, long ran) {
+Cipher_elg ElGamal::encrypt(ZZ m, long ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
 
-Cipher_elg ElGamal::encrypt(long m, long ran) {
+Cipher_elg ElGamal::encrypt(long m, long ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
-	temp_1 = G.get_gen().expo(ran);
-	temp_2 = pk.expo(ran) * Mod_p(m, G.get_mod());
+	temp_1 = G.get_gen().expo(ran_1);
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }

@@ -10,12 +10,15 @@ private:
 	ifstream ist;
 	ofstream ost;
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
-	bitset<32> plaintext;//竞价二进制明文
+	array<ZZ, 32> plaintext;//竞价二进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<Cipher_elg, 32> ciphertext_2;  //对方的密文
 	array<Cipher_elg, 33> Wj;
 	array<Cipher_elg, 32> compareResults;//比较结果密文
-	//array<ZZ, 32> ran;
+	array<ZZ, 32> ran_1;
+	Cipher_elg cipherZero;
+	Cipher_elg cipherZero_2;
+	ZZ ranZero;
 	int cipherNum = 32;
 	bool bigMe;
 	ZZ mod;
@@ -32,9 +35,22 @@ private:
 			cout << "Can't open " << fileName << endl;
 			exit(1);
 		}
-		for (int i = 0; i < cipherNum; i++) {
+		for (int i = 0; i < cipherNum; i++)
 			ist >> ciphertext_2[i];
+		string temp;
+		for (int i = 0; i < cipherNum; i++)
+			ist >> temp;
+		ist >> cipherZero_2;//读取对方的0密文
+		ist.close();
+		fileName = "ciphertext" + codes[0] + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "Can't open " << fileName << endl;
+			exit(1);
 		}
+		for (int i = 0; i < cipherNum; i++)
+			ist >> temp;
+		ist >> cipherZero;//读取自己的0密文
 		ist.close();
 	}
 	//从高到低逐位比较
@@ -96,9 +112,18 @@ private:
 			ost.close();
 		}
 	}
+
 public:
-	Compare(array<string, 2> codes, bitset<32> plaintext, array<Cipher_elg, 32> ciphertext, bool bigMe) :codes(codes), plaintext(plaintext), ciphertext(ciphertext), bigMe(bigMe) {
+	Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe) :codes(codes), plaintext(plaintext), ciphertext(ciphertext), ran_1(ran_1), ranZero(ranZero), bigMe(bigMe) {
 		SetSeed(to_ZZ((long)time(0) + (long)clock()));
+		y = El.get_pk();
+		mod = El.get_group().get_mod();
+		ord = El.get_group().get_ord();
+		g = El.get_group().get_g();
+		h = El.get_group().get_gen();
+	}
+	Compare(array<string, 2> codes,array<Cipher_elg, 32> ciphertext, bool bigMe) :codes(codes), ciphertext(ciphertext), bigMe(bigMe) {
+		//SetSeed(to_ZZ((long)time(0) + (long)clock()));
 		y = El.get_pk();
 		mod = El.get_group().get_mod();
 		ord = El.get_group().get_ord();
@@ -120,8 +145,9 @@ public:
 			cout << "Can't create " << fileName << endl;
 			exit(1);
 		}
-		
 		//TODO:生成证明
+		Commitment com(codes, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
+		com.compareCommit();
 
 		ost.close();
 		clock_t tstop = clock();
@@ -142,6 +168,7 @@ public:
 		for (int i = 0; i < cipherNum; i++) {
 			ist >> ciphertext[i];
 		}
+		ist >> cipherZero;
 		ist.close();
 		//读入证明
 		fileName = "proveCompare" + codes[0] + ".txt";
@@ -153,7 +180,8 @@ public:
 		}
 
 		//TODO:验证证明
-		//flag &= checkSigma();
+		Commitment com(codes, ciphertext, bigMe, fileName);
+		flag &= com.compareCheck(cipherZero);
 
 		ist.close();
 		clock_t tstop = clock();

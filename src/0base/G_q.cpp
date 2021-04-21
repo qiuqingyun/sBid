@@ -256,11 +256,11 @@ Mod_p G_q::identity() {
 
 //returns a random element of the group
 Mod_p G_q::random_el() {
-	ZZ ran, pow;
+	ZZ ran_1, pow;
 	Mod_p temp;
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(mod);
-	temp = generator.expo(ran);
+	ran_1 = RandomBnd(mod);
+	temp = generator.expo(ran_1);
 
 	return temp;
 
@@ -268,10 +268,10 @@ Mod_p G_q::random_el() {
 
 //returns a random element of the group, without setting the seed
 Mod_p G_q::random_el(int c) {
-	ZZ ran, pow;
+	ZZ ran_1, pow;
 	Mod_p temp;
-	ran = RandomBnd(order);
-	temp = generator.expo(ran);
+	ran_1 = RandomBnd(order);
+	temp = generator.expo(ran_1);
 
 
 	return temp;

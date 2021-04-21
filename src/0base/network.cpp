@@ -147,9 +147,9 @@ bool Network::mReceive(string& recv_string)
 
 //∑¥–Ú¡–ªØ
 void Network::deserialization(string str, vector<string>& strs) {
-	size_t pos_start = 0, pos_end=0;
-	for (int i = 0; i < 32; i++) {
-		pos_end = str.find(delimiter, pos_end);
+	size_t pos_start = 0, pos_end = 0;
+	while ((pos_end = str.find(delimiter, pos_end)) != string::npos) {
+		//pos_end = str.find(delimiter, pos_end);
 		strs.push_back(str.substr(pos_start, pos_end - pos_start));
 		pos_start = ++pos_end;
 	}

@@ -43,19 +43,19 @@ public:
 	vector<Mod_p>* get_gen() const;
 
 	//Different function to calculate the commitments
-	Mod_p commit(const vector<ZZ>* t, ZZ ran);
-	Mod_p commit(const vector<Mod_p>* t, ZZ ran);
+	Mod_p commit(const vector<ZZ>* t, ZZ ran_1);
+	Mod_p commit(const vector<Mod_p>* t, ZZ ran_1);
 	Mod_p commit(const vector<Mod_p>* t);
-	Mod_p commit(ZZ t, ZZ ran);
-	Mod_p commit(Mod_p t, ZZ ran);
-	Mod_p commit(Mod_p t, long ran);
+	Mod_p commit(ZZ t, ZZ ran_1);
+	Mod_p commit(Mod_p t, ZZ ran_1);
+	Mod_p commit(Mod_p t, long ran_1);
 	Mod_p commit(Mod_p t);
 
 
-	Mod_p commit_opt(const vector<ZZ>* t, ZZ ran);
-	Mod_p commit_sw(ZZ t, ZZ ran);
-	Mod_p commit_sw(Mod_p t, ZZ ran);
-	Mod_p commit_sw(Mod_p t, long ran);
+	Mod_p commit_opt(const vector<ZZ>* t, ZZ ran_1);
+	Mod_p commit_sw(ZZ t, ZZ ran_1);
+	Mod_p commit_sw(Mod_p t, ZZ ran_1);
+	Mod_p commit_sw(Mod_p t, long ran_1);
 	Mod_p commit_sw(Mod_p t);
 
 	//Multi expo functions
@@ -63,8 +63,8 @@ public:
 	long to_long(vector<int>* bit_r);
 	void to_long(long& t, vector<int>* bit_r);
 	vector<long>* to_basis(ZZ e, long num_b);
-	ZZ expo_mult(const vector<ZZ>* e, ZZ ran);
-	void expo_mult(ZZ& ret, const vector<ZZ>* e, ZZ ran);
+	ZZ expo_mult(const vector<ZZ>* e, ZZ ran_1);
+	void expo_mult(ZZ& ret, const vector<ZZ>* e, ZZ ran_1);
 	vector<int>* to_basis_sw(ZZ e, long num_b);
 	ZZ multi_expo_sw(ZZ e_1, ZZ e_2);
 	void multi_expo_sw(ZZ& ret, ZZ e_1, ZZ e_2);

@@ -10,7 +10,7 @@ Pedersen::Pedersen() {
 Pedersen::Pedersen(long n, G_q H) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	Mod_p temp;
 	G = H;
 	int count = 0;
@@ -22,8 +22,8 @@ Pedersen::Pedersen(long n, G_q H) {
 	{//生成n+1个G的生成元(g^r)作为公钥，存放在gen中，第一个给随机数，后面的n个给要进行承诺的数
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_ord());
-			temp = G.get_gen().expo(ran);
+			ran_1 = RandomBnd(G.get_ord());
+			temp = G.get_gen().expo(ran_1);
 			if (G.is_generator(temp))
 			{
 				(*gen).at(i) = temp;
@@ -37,7 +37,7 @@ Pedersen::Pedersen(long n, G_q H) {
 Pedersen::Pedersen(long n, G_q H, vector<Mod_p>* gen_in) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	Mod_p temp;
 	G = H;
 	int count = 0;
@@ -53,7 +53,7 @@ Pedersen::Pedersen(long n, G_q H, vector<Mod_p>* gen_in) {
 Pedersen::Pedersen(Mod_p g, long o, long p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -61,10 +61,10 @@ Pedersen::Pedersen(Mod_p g, long o, long p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -77,7 +77,7 @@ Pedersen::Pedersen(Mod_p g, long o, long p, long n) {
 Pedersen::Pedersen(Mod_p g, long o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -85,10 +85,10 @@ Pedersen::Pedersen(Mod_p g, long o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -100,7 +100,7 @@ Pedersen::Pedersen(Mod_p g, long o, ZZ p, long n) {
 Pedersen::Pedersen(Mod_p g, ZZ o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -108,10 +108,10 @@ Pedersen::Pedersen(Mod_p g, ZZ o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -125,7 +125,7 @@ Pedersen::Pedersen(Mod_p g, ZZ o, ZZ p, long n) {
 Pedersen::Pedersen(long g_val, long o, long p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -133,10 +133,10 @@ Pedersen::Pedersen(long g_val, long o, long p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -150,7 +150,7 @@ Pedersen::Pedersen(long g_val, long o, long p, long n) {
 Pedersen::Pedersen(long g_val, long o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -158,10 +158,10 @@ Pedersen::Pedersen(long g_val, long o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -174,7 +174,7 @@ Pedersen::Pedersen(long g_val, long o, ZZ p, long n) {
 Pedersen::Pedersen(long g_val, ZZ o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -182,10 +182,10 @@ Pedersen::Pedersen(long g_val, ZZ o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -199,7 +199,7 @@ Pedersen::Pedersen(long g_val, ZZ o, ZZ p, long n) {
 Pedersen::Pedersen(ZZ g_val, long o, long p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -207,10 +207,10 @@ Pedersen::Pedersen(ZZ g_val, long o, long p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -223,7 +223,7 @@ Pedersen::Pedersen(ZZ g_val, long o, long p, long n) {
 Pedersen::Pedersen(ZZ g_val, long o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -231,10 +231,10 @@ Pedersen::Pedersen(ZZ g_val, long o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -247,7 +247,7 @@ Pedersen::Pedersen(ZZ g_val, long o, ZZ p, long n) {
 Pedersen::Pedersen(ZZ g_val, ZZ o, ZZ p, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g_val, o, p);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -255,10 +255,10 @@ Pedersen::Pedersen(ZZ g_val, ZZ o, ZZ p, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -271,7 +271,7 @@ Pedersen::Pedersen(ZZ g_val, ZZ o, ZZ p, long n) {
 Pedersen::Pedersen(Mod_p g, long o, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g, o);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -279,10 +279,10 @@ Pedersen::Pedersen(Mod_p g, long o, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -296,7 +296,7 @@ Pedersen::Pedersen(Mod_p g, long o, long n) {
 Pedersen::Pedersen(Mod_p g, ZZ o, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(g, o);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -304,10 +304,10 @@ Pedersen::Pedersen(Mod_p g, ZZ o, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -320,7 +320,7 @@ Pedersen::Pedersen(Mod_p g, ZZ o, long n) {
 Pedersen::Pedersen(long o, long mod, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(o, mod);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -328,10 +328,10 @@ Pedersen::Pedersen(long o, long mod, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -344,7 +344,7 @@ Pedersen::Pedersen(long o, long mod, long n) {
 Pedersen::Pedersen(long o, ZZ mod, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(o, mod);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -352,10 +352,10 @@ Pedersen::Pedersen(long o, ZZ mod, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -368,7 +368,7 @@ Pedersen::Pedersen(long o, ZZ mod, long n) {
 Pedersen::Pedersen(ZZ o, ZZ mod, long n) {
 	long i;
 	bool b;
-	ZZ ran;
+	ZZ ran_1;
 	G = G_q(o, mod);
 	gen = new vector<Mod_p>(n + 1);
 	SetSeed(to_ZZ((unsigned int)time(0)));
@@ -376,10 +376,10 @@ Pedersen::Pedersen(ZZ o, ZZ mod, long n) {
 	{
 		b = true;
 		while (b) {
-			ran = RandomBnd(G.get_mod());
-			if (G.is_generator(ran))
+			ran_1 = RandomBnd(G.get_mod());
+			if (G.is_generator(ran_1))
 			{
-				gen->at(i) = Mod_p(ran, G.get_mod());
+				gen->at(i) = Mod_p(ran_1, G.get_mod());
 				b = false;
 			}
 		}
@@ -418,7 +418,7 @@ vector<Mod_p>* Pedersen::get_gen()const {
 }
 
 //Calculates the commitment to the values in t using randomness r
-Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran) {
+Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran_1) {
 	ZZ temp, temp_1, mod;
 	long i;
 
@@ -429,7 +429,7 @@ Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran) {
 	}
 	else
 	{
-		PowerMod(temp, gen->at(0).get_val(), ran, mod);//h^r
+		PowerMod(temp, gen->at(0).get_val(), ran_1, mod);//h^r
 		for (i = 1; i <= (long)t->size(); i++)
 		{
 			PowerMod(temp_1, gen->at(i).get_val(), t->at(i - 1), mod);//g_i ^ a_i
@@ -440,7 +440,7 @@ Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran) {
 }
 
 //Calculates the commitment to the values in t using randomness r
-Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran) {
+Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran_1) {
 	ZZ temp, temp_1;
 	ZZ mod = G.get_mod();
 	long i;
@@ -451,7 +451,7 @@ Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran) {
 	}
 	else
 	{
-		PowerMod(temp, gen->at(0).get_val(), ran, mod);
+		PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 		for (i = 1; i <= (long)t->size(); i++)
 		{
 			PowerMod(temp_1, gen->at(i).get_val(), t->at(i - 1).get_val(), mod);
@@ -465,19 +465,19 @@ Mod_p Pedersen::commit(const vector<Mod_p>* t, ZZ ran) {
 Mod_p Pedersen::commit(const vector<Mod_p>* t) {
 	ZZ temp, temp_1;
 	long i;
-	ZZ ran;
+	ZZ ran_1;
 	ZZ mod = G.get_mod();
 
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(mod);
-	cout << "ran: " << ran << endl;
+	ran_1 = RandomBnd(mod);
+	cout << "ran_1: " << ran_1 << endl;
 	if ((long)t->size() > (long)gen->size())
 	{
 		cout << "too many elements to commit to" << endl;
 	}
 	else
 	{
-		PowerMod(temp, gen->at(0).get_val(), ran, mod);
+		PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 		for (i = 1; i <= (long)t->size(); i++)
 		{
 			PowerMod(temp_1, gen->at(i).get_val(), t->at(i - 1).get_val(), mod);
@@ -488,13 +488,13 @@ Mod_p Pedersen::commit(const vector<Mod_p>* t) {
 }
 
 //Calculates the commitment to  t using randomness r
-Mod_p Pedersen::commit(ZZ t, ZZ ran) {
+Mod_p Pedersen::commit(ZZ t, ZZ ran_1) {
 
 	ZZ temp, temp_1;
 	ZZ mod = G.get_mod();
 
 	//cout<<" in com ";
-	PowerMod(temp, gen->at(0).get_val(), ran, mod);
+	PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 	PowerMod(temp_1, gen->at(1).get_val(), t, mod);
 	MulMod(temp, temp, temp_1, mod);
 
@@ -502,11 +502,11 @@ Mod_p Pedersen::commit(ZZ t, ZZ ran) {
 }
 
 //Calculates the commitment to t using randomness r
-Mod_p Pedersen::commit(Mod_p t, long ran) {
+Mod_p Pedersen::commit(Mod_p t, long ran_1) {
 
 	ZZ temp, temp_1;
 	ZZ mod = G.get_mod();
-	PowerMod(temp, gen->at(0).get_val(), ran, mod);
+	PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 	PowerMod(temp_1, gen->at(1).get_val(), t.get_val(), mod);
 	MulMod(temp, temp, temp_1, mod);
 
@@ -514,10 +514,10 @@ Mod_p Pedersen::commit(Mod_p t, long ran) {
 }
 
 //Calculates the commitment to t using randomness r
-Mod_p Pedersen::commit(Mod_p t, ZZ ran) {
+Mod_p Pedersen::commit(Mod_p t, ZZ ran_1) {
 	ZZ temp, temp_1;
 	ZZ mod = G.get_mod();
-	PowerMod(temp, gen->at(0).get_val(), ran, mod);
+	PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 	PowerMod(temp_1, gen->at(1).get_val(), t.get_val(), mod);
 	MulMod(temp, temp, temp_1, mod);
 
@@ -528,13 +528,13 @@ Mod_p Pedersen::commit(Mod_p t, ZZ ran) {
 Mod_p Pedersen::commit(Mod_p t) {
 
 	ZZ temp, temp_1;
-	ZZ ran;
+	ZZ ran_1;
 	ZZ mod = G.get_mod();
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(mod);
-	cout << "ran: " << ran << endl;
+	ran_1 = RandomBnd(mod);
+	cout << "ran_1: " << ran_1 << endl;
 
-	PowerMod(temp, gen->at(0).get_val(), ran, mod);
+	PowerMod(temp, gen->at(0).get_val(), ran_1, mod);
 	PowerMod(temp_1, gen->at(1).get_val(), t.get_val(), mod);
 	MulMod(temp, temp, temp_1, mod);
 
@@ -542,7 +542,7 @@ Mod_p Pedersen::commit(Mod_p t) {
 }
 
 //Calculates the commitment to the values in t using randomness r
-Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran) {
+Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran_1) {
 	ZZ temp;
 	Mod_p temp_1;
 	long length = t->size();
@@ -556,20 +556,20 @@ Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran) {
 	{
 		/*if(length <= 1000){
 			vector<ZZ>* expo = new vector<ZZ>(length+1);
-			expo->at(0)=ran;
+			expo->at(0)=ran_1;
 			for(i=1; i<=length; i++){
 					expo->at(i) = t->at(i-1);
 			}
 			multi_expo::multi_expo_LL(temp_1, gen, expo, omega_ll);
 			temp = temp_1.get_val();
 		} else {*/
-		multi_expo::expo_mult(temp, t, ran, omega_expo, gen);
+		multi_expo::expo_mult(temp, t, ran_1, omega_expo, gen);
 		/* cout<<"\ntemp\n"<<temp<<endl;
 		cout<<"\nt\n"<<endl;
 		for(int i=0;i<t->size();i++)
 			cout<<t->at(i)<<" ";
 		cout<<endl;
-		cout<<"\nran\n"<<ran<<endl;
+		cout<<"\nran\n"<<ran_1<<endl;
 		cout<<"\nomega_expo\n"<<omega_expo<<endl;
 		cout<<"\ngen\n"<<gen<<endl; */
 		//}
@@ -579,28 +579,28 @@ Mod_p Pedersen::commit_opt(const vector<ZZ>* t, ZZ ran) {
 }
 
 //Calculates the commitment to  t using randomness r
-Mod_p Pedersen::commit_sw(ZZ t, ZZ ran) {
+Mod_p Pedersen::commit_sw(ZZ t, ZZ ran_1) {
 
 	ZZ temp;
-	multi_expo::multi_expo_sw(temp, ran, t, omega_sw, gen_prec);
+	multi_expo::multi_expo_sw(temp, ran_1, t, omega_sw, gen_prec);
 
 	return Mod_p(temp, G.get_mod());
 }
 
 //Calculates the commitment to t using randomness r
-Mod_p Pedersen::commit_sw(Mod_p t, long ran) {
+Mod_p Pedersen::commit_sw(Mod_p t, long ran_1) {
 
 	ZZ temp;
-	multi_expo::multi_expo_sw(temp, to_ZZ(ran), t.get_val(), omega_sw, gen_prec);
+	multi_expo::multi_expo_sw(temp, to_ZZ(ran_1), t.get_val(), omega_sw, gen_prec);
 
 	return Mod_p(temp, G.get_mod());
 }
 
 //Calculates the commitment to t using randomness r
-Mod_p Pedersen::commit_sw(Mod_p t, ZZ ran) {
+Mod_p Pedersen::commit_sw(Mod_p t, ZZ ran_1) {
 
 	ZZ temp;
-	multi_expo::multi_expo_sw(temp, to_ZZ(ran), t.get_val(), omega_sw, gen_prec);
+	multi_expo::multi_expo_sw(temp, to_ZZ(ran_1), t.get_val(), omega_sw, gen_prec);
 	return Mod_p(temp, G.get_mod());
 }
 
@@ -608,12 +608,12 @@ Mod_p Pedersen::commit_sw(Mod_p t, ZZ ran) {
 Mod_p Pedersen::commit_sw(Mod_p t) {
 
 	ZZ temp;
-	ZZ ran;
+	ZZ ran_1;
 	ZZ mod = G.get_mod();
 	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran = RandomBnd(mod);
+	ran_1 = RandomBnd(mod);
 
-	multi_expo::multi_expo_sw(temp, to_ZZ(ran), t.get_val(), omega_sw, gen_prec);
+	multi_expo::multi_expo_sw(temp, to_ZZ(ran_1), t.get_val(), omega_sw, gen_prec);
 
 	return Mod_p(temp, mod);
 }
