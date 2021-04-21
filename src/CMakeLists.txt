@@ -22,8 +22,9 @@ ADD_EXECUTABLE(sBid
  "2shuffle/Functions.cpp"
  "2shuffle/Prover_toom.cpp"
  "2shuffle/Verifier_toom.cpp" 
+ "2decrypt/decrypt.cpp"
  "3sBid/sBid.cpp"   
-  )
+   )
 
 SET(EXECUTABLE_OUTPUT_PATH ${sBid_SOURCE_DIR}/bin)
 

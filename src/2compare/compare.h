@@ -38,8 +38,6 @@ private:
 		for (int i = 0; i < cipherNum; i++)
 			ist >> ciphertext_2[i];
 		string temp;
-		for (int i = 0; i < cipherNum; i++)
-			ist >> temp;
 		ist >> cipherZero_2;//读取对方的0密文
 		ist.close();
 		fileName = "ciphertext" + codes[0] + ".txt";
@@ -56,7 +54,7 @@ private:
 	//从高到低逐位比较
 	void cmp() {
 		if (bigMe) {//大号进行比较操作，并将结果发送给小号
-			clock_t tstart = clock();
+			//clock_t tstart = clock();
 			string fileName = "cipherCR" + codes[0] + ".txt";
 			ost.open(fileName, ios::out);
 			if (!ost)
@@ -88,9 +86,9 @@ private:
 				ss << compareResults[i] << ";";
 			}
 			ost.close();
-			clock_t  tstop = clock();
+			/*clock_t  tstop = clock();
 			double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-			cout << "[" << codes[0] << "] - " << "compare " << ttime << " ms" << endl;
+			cout << "[" << codes[0] << "] - " << "compare " << ttime << " ms" << endl;*/
 			string CR;
 			ss >> CR;
 			net.mSend(CR);

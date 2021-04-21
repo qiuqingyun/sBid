@@ -24,6 +24,8 @@ private:
 	array<Mod_p, 32> base2;
 	Cipher_elg cipherZero_1;//自己的0加密密文
 	Cipher_elg cipherZero_2;//对方的0加密密文
+	array<ZZ, 32> c2;
+	array<ZZ, 32> dk;
 	ZZ ranZero;
 	int cipherNum = 32;
 	bool bigMe;
@@ -32,8 +34,9 @@ private:
 	ZZ ord;
 	Mod_p g;
 	Mod_p h;
-	Mod_p y;
-	Mod_p x1;
+	Mod_p y;//主公钥
+	Mod_p y1;//个人公钥
+	Mod_p x1;//私钥
 	SHA256 sha;
 	//sigma协议承诺
 	void sigma() {
@@ -438,7 +441,6 @@ private:
 			c[i] = hashValue;//hash挑战
 			//生成响应s
 			s[i] = SubMod(v, MulMod(ran[i], c[i], mod - 1), mod - 1);//s2=v-r×c
-
 		}
 		//0 c
 		for (int i = 0; i < cipherNum; i++)
@@ -684,11 +686,18 @@ public:
 		h = El.get_group().get_gen();
 		y = El.get_pk();
 	}
-
-	//验证
-	Commitment(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) :codes(codes), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {
-
+	//解密正确性证明
+	Commitment(array<string, 2> codes, array<ZZ, 32> c2, array<ZZ, 32> dk, bool bigMe, string fileName) :codes(codes), c2(c2), dk(dk), bigMe(bigMe), fileName(fileName) {
+		mod = El.get_group().get_mod();
+		ord = El.get_group().get_ord();
+		g = El.get_group().get_g();
+		h = El.get_group().get_gen();
+		y = El.get_pk();
+		y1 = El.get_pk_1();
+		x1 = Mod_p(El.get_sk(),mod);
 	}
+	//验证
+	Commitment(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) :codes(codes), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {}
 	//比较正确性证明
 	void compareCommit() {
 		ost.open(fileName, ios::out);
@@ -783,4 +792,62 @@ public:
 		ist.close();
 		return ans;
 	}
+
+	void decryptCommit() {
+		ost.open(fileName, ios::out);
+		if (!ost)
+		{
+			cout << "Can't create " << fileName << endl;
+			exit(1);
+		}
+		ost << mod << endl;
+		ost << ord << endl;
+		ost << g << endl;
+		ost << h << endl;
+		ost << y << endl;
+
+		for (int i = 0; i < cipherNum; i++) {
+			ran[i] = x1.get_val();//x1
+			ciphertext[i] = Cipher_elg(y1.get_val(), dk[i], mod);
+			base1[i] = Mod_p(c2[i], mod);
+			base2[i] = h;
+			ost << ciphertext[i] << endl;
+			ost << base1[i] << endl;
+			ost << base2[i] << endl;
+		}
+		equation();
+
+		ost.close();
+	}
+	bool decryptCheck() {
+		bool ans = true;
+		ist.open(fileName, ios::in);
+		if (!ist)
+		{
+			cout << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		string container;
+		ist >> mod;
+		ist >> ord;
+		ist >> container;
+		g.toModP(container, mod);
+		ist >> container;
+		h.toModP(container, mod);
+		ist >> container;
+		y.toModP(container, mod);
+
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> ciphertext[i];
+			ist >> container;
+			base1[i].toModP(container, mod);
+			ist >> container;
+			base2[i].toModP(container, mod);
+		}
+
+		ans &= equationCheck();
+		ist.close();
+		return ans;
+	}
+
 };

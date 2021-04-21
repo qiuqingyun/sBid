@@ -3,12 +3,11 @@
 #include "../2cipherGen/cipherGen.h"
 #include "../2compare/compare.h"
 #include "../2shuffle/shuffle.h"
+#include "../2decrypt/decrypt.h"
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
 extern Network net;
-//A 00111000100001101100100001110110 948357238 第11,13位不同
-//B 00111000100100101100100001110110 949143670
 class SBid {
 private:
 	ifstream ist;
@@ -21,8 +20,6 @@ private:
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<ZZ, 32> ran_1;//加密的随机数
 	array<Cipher_elg, 32> cipherAns;	 //经过两轮混淆的密文
-
-
 	array<ZZ, 32> dk_1;    //自己的解密份额
 	array<ZZ, 32> dk_2;  //对方的解密份额]
 	CipherGen* cipherGen;
@@ -143,7 +140,6 @@ private:
 		ost << El.get_pk() << endl;
 		ost.close();
 	}
-
 	//加密并生成证明
 	void ciphertextOp() {
 		CipherGen* cipherGen = new CipherGen(codes, bigMe);
@@ -182,74 +178,33 @@ private:
 		bool flag = verifier.verify();
 		cout << "[" << codes[0] << "] - " << "shuffle results: " << ans[flag] << endl;
 	}
-	//读取经过两轮混淆的密文
-	void readCipherShuffled() {
-		string fileName = "cipherSR" + codeBig + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> cipherAns[i];
-		}
-		ist.close();
-	}
-	//创建解密份额
-	void createDk() {
-		string fileName = "dk" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost) {
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		stringstream ss;
-		for (int i = 0; i < cipherNum; i++) {
-			ZZ u = cipherAns[i].get_u();
-			dk_1[i] = PowerMod(u, sk, mod);
-			ost << dk_1[i] << endl;
-			ss << dk_1[i] << ";";
-		}
-		ost.close();
 
-		string cipher_1, cipher_2;
-		ss >> cipher_1;
-		if (bigMe) {//大号先接收再发送
-			net.mReceive(cipher_2);
-			net.mSend(cipher_1);
-		}
-		else {//小号先发送再接收
-			net.mSend(cipher_1);
-			net.mReceive(cipher_2);
-		}
-		vector<string> ciphertext_2_str;
-		net.deserialization(cipher_2, ciphertext_2_str);
-		//保存
-		fileName = "dk" + codes[1] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
+	//解密并生成证明
+	void decryptOp() {
+		Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
+		int ans = decrypt.decrypt();
+		decrypt.prove();
+		switch (ans)
 		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
+			case 0:
+				cout << "[" << codes[0] << "] - Winner No." << codeSmall << endl;
+				break;
+			case 1:
+				cout << "[" << codes[0] << "] - - Winner DRAW" << endl;
+				break;
+			case 2:
+				cout << "[" << codes[0] << "] - Winner No." << codeBig << endl;
+				break;
+			default:
+				break;
 		}
-		for (int i = 0; i < cipherNum; i++)
-			ost << ciphertext_2_str[i] << endl;
-		ost.close();
 	}
-	//读取对方的解密份额
-	void readDk() {
-		string fileName = "dk" + codes[1] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> dk_2[i];
-		}
-		ist.close();
+	//验证解密
+	void decryptVerify() {
+		Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
+		bool flag = decrypt.verify();
+		cout << "[" << codes[0] << "] - " << "decrypt results: " << ans[flag] << endl;
 	}
-
 
 public:
 	//生成参数
@@ -278,34 +233,7 @@ public:
 	void bid() {
 		compareOp();
 		shuffleOp();
-		decrypt();
-	}
-	//解密并输出结果,0为(小号)等于(大号)，1为(小号)小于(大号)，2为(小号)大于(大号)
-	void decrypt() {
-		readCipherShuffled();
-		createDk();
-		readDk();
-		//ZZ dk, dk_inv;
-		int result = 0, flag = 0;
-		for (int i = 0; i < cipherNum; i++)
-		{
-			ZZ dk = MulMod(dk_1[i], dk_2[i], mod);//加法同态
-			ZZ dk_inv = InvMod(dk, mod);//取逆
-			ZZ ans = El.get_m(MulMod(cipherAns[i].get_v(), dk_inv, mod));//解密
-			if (ans == 0)
-			{//大号胜
-				cout << "[" << codes[0] << "] - " << "No." << codeSmall << " WIN" << endl;
-				return;
-			}
-			else if (ans == 1)
-			{//平局
-				flag++;
-			}
-		}
-		if (flag == cipherNum)
-			cout << "[" << codes[0] << "] - " << "DRAW" << endl;
-		else
-			cout << "[" << codes[0] << "] - " << "No." << codeBig << " WIN" << endl;
+		decryptOp();
 	}
 	//验证
 	void verify() {
@@ -313,8 +241,7 @@ public:
 		ciphertextVerify();
 		compareVerify();
 		shuffleVerify();
-
+		decryptVerify();
 		cout << "[" << codes[0] << "] - " << "======OVER======" << endl;
 	}
-
 };

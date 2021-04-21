@@ -98,7 +98,7 @@ void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 }
 //进行shuffle操作
 void Shuffle::shuffle() {
-	clock_t tstart = clock();
+	//clock_t tstart = clock();
 	R = new vector<vector<ZZ>*>(m);
 	pi = new vector<vector<vector<int>*>*>(m);
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
@@ -116,9 +116,9 @@ void Shuffle::shuffle() {
 	ost.close();
 	/*Functions::decryptCipher(c, num, 0);
 	Functions::decryptCipher(C, num, 1);*/
-	clock_t  tstop = clock();
+	/*clock_t  tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "shuffle " << ttime << " ms" << endl;
+	cout << "[" << codes[0] << "] - " << "shuffle " << ttime << " ms" << endl;*/
 
 	string cipher_1, cipher_2;
 	ss >> cipher_1;
