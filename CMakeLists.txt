@@ -2,7 +2,7 @@
 
 project ("sBid" CXX)
 
-SET(CMAKE_CXX_FLAGS "-std=c++17 -g")
+SET(CMAKE_CXX_FLAGS "-std=c++17 -O3")
 SET(CMAKE_BINARY_DIR ${sBid_SOURCE_DIR}/build)
 
 ADD_SUBDIRECTORY(src bin)

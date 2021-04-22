@@ -345,6 +345,7 @@ private:
 				s1[i] = SubMod(v1, MulMod(plaintext[i], c[i], mod - 1), mod - 1);//s1=v1-m×c
 				s2[i] = SubMod(v2, MulMod(ran[i], c[i], mod - 1), mod - 1);//s2=v2-r×c
 				s3[i] = SubMod(v3, MulMod(ran[i], c[i], mod - 1), mod - 1);//s3=v3-r×c
+				//cout << "\ns1: " << s1[i] << "\ns2: " << s2[i] << "\ns3: " << s3[i] << endl;
 			}
 			else {
 				//生成承诺t
@@ -418,6 +419,7 @@ private:
 				hashValue = sha.hash(ss.str(), El.get_group());
 			}
 			ans &= (temp == t[i]);
+			ans &= (s2[i] == s3[i]);
 			ans &= (c[i] == hashValue);
 		}
 		return ans;
@@ -694,10 +696,12 @@ public:
 		h = El.get_group().get_gen();
 		y = El.get_pk();
 		y1 = El.get_pk_1();
-		x1 = Mod_p(El.get_sk(),mod);
+		x1 = Mod_p(El.get_sk(), mod);
 	}
 	//验证
 	Commitment(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) :codes(codes), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {}
+	//验证
+	Commitment(array<string, 2> codes, bool bigMe, string fileName) :codes(codes), bigMe(bigMe), fileName(fileName) {}
 	//比较正确性证明
 	void compareCommit() {
 		ost.open(fileName, ios::out);

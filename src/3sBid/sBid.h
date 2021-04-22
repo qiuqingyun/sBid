@@ -132,7 +132,7 @@ private:
 		fileName = "pk" + coCode + ".txt";
 		pkFileName = fileName;
 		ost.open(fileName, ios::out);
-		if (!ist)
+		if (!ost)
 		{
 			cout << "Can't create " << fileName << endl;
 			exit(1);

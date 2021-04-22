@@ -154,19 +154,9 @@ public:
 	bool verify() {
 		clock_t tstart = clock();
 		bool flag = true;
-		//读入密文
-		string fileName = "cipherSR" + codeBig + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext[i];
-		}
 		ist.close();
 		//读入证明
-		fileName = "proveDecrypt" + codes[0] + ".txt";
+		string fileName = "proveDecrypt" + codes[0] + ".txt";
 		ist.open(fileName, ios::in);
 		if (!ist)
 		{
@@ -175,7 +165,7 @@ public:
 		}
 
 		//验证证明
-		Commitment com(codes, ciphertext, bigMe, fileName);
+		Commitment com(codes, bigMe, fileName);
 		flag &= com.decryptCheck();
 
 		ist.close();
