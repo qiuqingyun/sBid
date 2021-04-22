@@ -197,8 +197,8 @@ void multi_expo::expo_mult(ZZ& prod, const vector<ZZ>* e, ZZ ran_1, int omega_ex
 	ZZ p, temp_1, temp_2, mod;
 	double two;
 	long num_b;
-	length = e->size();//需要进行承诺的矩阵尺寸
-	mod = G.get_mod();//模数
+	length = e->size();//闇�瑕佽繘琛屾壙璇虹殑鐭╅樀灏哄
+	mod = G.get_mod();//妯℃暟
 	num_b = NumBits(G.get_ord());
 	l = num_b / omega_expo + 1;
 	basis_vec = new vector<vector<long>* >(length + 1);

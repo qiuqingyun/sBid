@@ -1,5 +1,6 @@
 #pragma once
 #include "../global.h"
+#include "../1commitment/commitment.h"
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
@@ -9,12 +10,12 @@ class Compare {
 private:
 	ifstream ist;
 	ofstream ost;
-	array<string, 2> codes;//×Ô¼ººÍ¶Ô·½µÄ±àºÅ£¬µÚÒ»¸öÊÇ×Ô¼ºµÄ£¬µÚ¶ş¸öÊÇ¶Ô·½µÄ
-	array<ZZ, 32> plaintext;//¾º¼Û¶ş½øÖÆÃ÷ÎÄ
-	array<Cipher_elg, 32> ciphertext;    //ÃÜÎÄ
-	array<Cipher_elg, 32> ciphertext_2;  //¶Ô·½µÄÃÜÎÄ
+	array<string, 2> codes;//è‡ªå·±å’Œå¯¹æ–¹çš„ç¼–å·ï¼Œç¬¬ä¸€ä¸ªæ˜¯è‡ªå·±çš„ï¼Œç¬¬äºŒä¸ªæ˜¯å¯¹æ–¹çš„
+	array<ZZ, 32> plaintext;//ç«ä»·äºŒè¿›åˆ¶æ˜æ–‡
+	array<Cipher_elg, 32> ciphertext;    //å¯†æ–‡
+	array<Cipher_elg, 32> ciphertext_2;  //å¯¹æ–¹çš„å¯†æ–‡
 	array<Cipher_elg, 33> Wj;
-	array<Cipher_elg, 32> compareResults;//±È½Ï½á¹ûÃÜÎÄ
+	array<Cipher_elg, 32> compareResults;//æ¯”è¾ƒç»“æœå¯†æ–‡
 	array<ZZ, 32> ran_1;
 	Cipher_elg cipherZero;
 	Cipher_elg cipherZero_2;
@@ -27,164 +28,18 @@ private:
 	Mod_p h;
 	Mod_p y;
 	SHA256 sha;
-	//¶ÁÈ¡¶Ô·½µÄÃÜÎÄ
-	void readCipher() {
-		string fileName = "ciphertext" + codes[1] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++)
-			ist >> ciphertext_2[i];
-		string temp;
-		ist >> cipherZero_2;//¶ÁÈ¡¶Ô·½µÄ0ÃÜÎÄ
-		ist.close();
-		fileName = "ciphertext" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++)
-			ist >> temp;
-		ist >> cipherZero;//¶ÁÈ¡×Ô¼ºµÄ0ÃÜÎÄ
-		ist.close();
-	}
-	//´Ó¸ßµ½µÍÖğÎ»±È½Ï
-	void cmp() {
-		if (bigMe) {//´óºÅ½øĞĞ±È½Ï²Ù×÷£¬²¢½«½á¹û·¢ËÍ¸øĞ¡ºÅ
-			//clock_t tstart = clock();
-			string fileName = "cipherCR" + codes[0] + ".txt";
-			ost.open(fileName, ios::out);
-			if (!ost)
-			{
-				cout << "Can't create " << fileName << endl;
-				exit(1);
-			}
-			Cipher_elg a, b, aPb, aTb, twoTaTb, minus2TaTb, b_minus, aMbM1;
-			ZZ r = RandomBnd(ord);
-			Cipher_elg ONE = El.encrypt_g(ZZ(1), r);//g^0
-			r = RandomBnd(ord);
-			Wj[0] = El.encrypt_g(ZZ(0), r);//g^0
-			Cipher_elg Wj_sum = Wj[0];
-			stringstream ss;
-
-			for (int i = 0; i < cipherNum; i++) {
-				a = ciphertext[i];
-				b = ciphertext_2[i];
-				aPb = a * b;//a+b
-				aTb = Cipher_elg::expo(b, ZZ(plaintext[i]));//a*b Ã÷ÎÄ²ÎÓë
-				twoTaTb = Cipher_elg::expo(aTb, ZZ(2));//2*a*b
-				minus2TaTb = Cipher_elg::inverse(twoTaTb);//-2*a*b
-				Wj[i + 1] = aPb * minus2TaTb;//a+b-2*a*b
-				Wj_sum = Wj_sum * Wj[i];
-				b_minus = Cipher_elg::inverse(b);//-b
-				aMbM1 = a * b_minus * ONE;//a-b+1
-				compareResults[i] = aMbM1 * Wj_sum;
-				ost << compareResults[i] << endl;
-				ss << compareResults[i] << ";";
-			}
-			ost.close();
-			/*clock_t  tstop = clock();
-			double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-			cout << "[" << codes[0] << "] - " << "compare " << ttime << " ms" << endl;*/
-			string CR;
-			ss >> CR;
-			net.mSend(CR);
-		}
-		else {//Ğ¡ºÅ½ÓÊÕ±È½Ï½á¹û
-			string CR;
-			net.mReceive(CR);
-			vector<string> CR_str;
-			net.deserialization(CR, CR_str);
-			string fileName = "cipherCR" + codes[1] + ".txt";
-			ost.open(fileName, ios::out);
-			if (!ost)
-			{
-				cout << "Can't create " << fileName << endl;
-				exit(1);
-			}
-			for (int i = 0; i < cipherNum; i++)
-				ost << CR_str[i] << endl;
-			ost.close();
-		}
-	}
+	//è¯»å–å¯¹æ–¹çš„å¯†æ–‡
+	void readCipher();
+	//ä»é«˜åˆ°ä½é€ä½æ¯”è¾ƒ
+	void cmp();
 
 public:
-	Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe) :codes(codes), plaintext(plaintext), ciphertext(ciphertext), ran_1(ran_1), ranZero(ranZero), bigMe(bigMe) {
-		SetSeed(to_ZZ((long)time(0) + (long)clock()));
-		y = El.get_pk();
-		mod = El.get_group().get_mod();
-		ord = El.get_group().get_ord();
-		g = El.get_group().get_g();
-		h = El.get_group().get_gen();
-	}
-	Compare(array<string, 2> codes,array<Cipher_elg, 32> ciphertext, bool bigMe) :codes(codes), ciphertext(ciphertext), bigMe(bigMe) {
-		//SetSeed(to_ZZ((long)time(0) + (long)clock()));
-		y = El.get_pk();
-		mod = El.get_group().get_mod();
-		ord = El.get_group().get_ord();
-		g = El.get_group().get_g();
-		h = El.get_group().get_gen();
-	}
-	//±È½Ï
-	void compare() {
-		readCipher();
-		cmp();
-	}
-	//Éú³ÉÖ¤Ã÷
-	void prove() {
-		clock_t tstart = clock();
-		string fileName = "proveCompare" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		//TODO:Éú³ÉÖ¤Ã÷
-		Commitment com(codes, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
-		com.compareCommit();
-
-		ost.close();
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
-	}
-	//ÑéÖ¤Ö¤Ã÷
-	bool verify() {
-		clock_t tstart = clock();
-		bool flag = true;
-		//¶ÁÈëÃÜÎÄ
-		string fileName = "ciphertext" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext[i];
-		}
-		ist >> cipherZero;
-		ist.close();
-		//¶ÁÈëÖ¤Ã÷
-		fileName = "proveCompare" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist)
-		{
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-
-		//TODO:ÑéÖ¤Ö¤Ã÷
-		Commitment com(codes, ciphertext, bigMe, fileName);
-		flag &= com.compareCheck(cipherZero);
-
-		ist.close();
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "verify compare " << ttime << " ms" << endl;
-		return flag;
-	}
+	Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe);
+	Compare(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe);
+	//æ¯”è¾ƒ
+	void compare();
+	//ç”Ÿæˆè¯æ˜
+	void prove();
+	//éªŒè¯è¯æ˜
+	bool verify();
 };

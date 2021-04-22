@@ -12,16 +12,16 @@ class SBid {
 private:
 	ifstream ist;
 	ofstream ost;
-	array<string, 2> codes;//×Ô¼ººÍ¶Ô·½µÄ±àºÅ£¬µÚÒ»¸öÊÇ×Ô¼ºµÄ£¬µÚ¶ş¸öÊÇ¶Ô·½µÄ
+	array<string, 2> codes;//è‡ªå·±å’Œå¯¹æ–¹çš„ç¼–å·ï¼Œç¬¬ä¸€ä¸ªæ˜¯è‡ªå·±çš„ï¼Œç¬¬äºŒä¸ªæ˜¯å¯¹æ–¹çš„
 	string codeBig, codeSmall;
 	string pkFileName;
 	string coCode;
-	array<ZZ, 32> plaintext;//¾º¼Û¶ş½øÖÆÃ÷ÎÄ
-	array<Cipher_elg, 32> ciphertext;    //ÃÜÎÄ
-	array<ZZ, 32> ran_1;//¼ÓÃÜµÄËæ»úÊı
-	array<Cipher_elg, 32> cipherAns;	 //¾­¹ıÁ½ÂÖ»ìÏıµÄÃÜÎÄ
-	array<ZZ, 32> dk_1;    //×Ô¼ºµÄ½âÃÜ·İ¶î
-	array<ZZ, 32> dk_2;  //¶Ô·½µÄ½âÃÜ·İ¶î]
+	array<ZZ, 32> plaintext;//ç«ä»·äºŒè¿›åˆ¶æ˜æ–‡
+	array<Cipher_elg, 32> ciphertext;    //å¯†æ–‡
+	array<ZZ, 32> ran_1;//åŠ å¯†çš„éšæœºæ•°
+	array<Cipher_elg, 32> cipherAns;	 //ç»è¿‡ä¸¤è½®æ··æ·†çš„å¯†æ–‡
+	array<ZZ, 32> dk_1;    //è‡ªå·±çš„è§£å¯†ä»½é¢
+	array<ZZ, 32> dk_2;  //å¯¹æ–¹çš„è§£å¯†ä»½é¢]
 	CipherGen* cipherGen;
 	ZZ ranZero;
 	string ans[2] = { "FAIL","PASS" };
@@ -36,212 +36,34 @@ private:
 	int pBits = 100;
 	int qBits = 90;
 
-	//¶ÁÈ¡ÈºµÄ²ÎÊı²¢Éú³ÉÈº
-	void readParameters() {
-		string fileName = "parameters.txt";
-		ist.open(fileName, ios::in);
-		if (!ist)
-		{
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		ist >> mod;
-		ist >> ord;
-		ist >> gen_h;
-		ist >> gen_g;
-		ist.close();
-		H = G_q(gen_h, ord, mod); //Éú³ÉÔªh ½×Êıq Ä£Êıp
-		G = G_q(gen_h, ord, mod);
-		H.set_g(gen_g);
-		G.set_g(gen_g);
-	}
-	//ÉèÖÃ³õÊ¼»¯ElGamal
-	void creatElGamal() {
-		El.set_group(H);
-		string fileName = "pk" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist)
-		{//Éú³É¹«Ë½Ô¿
-			cout << fileName << " does not exist, a new key will be generated" << endl;
-			ZZ x = RandomBnd(H.get_ord());//Ëæ»úÉú³ÉË½Ô¿
-			El.set_sk(x);//Éú³É¹«Ô¿
-			//Êä³ö¹«Ë½Ô¿
-			ost.open(fileName, ios::out);
-			if (!ost)
-			{
-				cout << "Can't create " << fileName << endl;
-				exit(1);
-			}
-			ost << El.get_pk_1() << endl;
-			ost.close();
-			fileName = "sk" + codes[0] + ".txt";
-			ost.open(fileName, ios::out);
-			if (!ost)
-			{
-				cout << "Can't create " << fileName << endl;
-				exit(1);
-			}
-			ost << El.get_sk() << endl;
-			ost.close();
-		}
-		else
-		{//¶ÁÈ¡¹«Ë½Ô¿
-			string sk_str, pk_str;
-			getline(ist, pk_str);
-			conv(pk, pk_str.c_str());
-			ist.close();
-			fileName = "sk" + codes[0] + ".txt";
-			ist.open(fileName, ios::in);
-			if (!ist)
-			{
-				cout << "Can't open " << fileName << endl;
-				exit(1);
-			}
-			getline(ist, sk_str);
-			conv(sk, sk_str.c_str());
-			El.set_key(sk, pk);
-			ist.close();
-		}
-		//½«Éú³ÉµÄ¹«Ô¿´«µİ¸ø¶Ô·½
-		string pk_1, pk_2;
-		stringstream ss;
-		ss << El.get_pk_1();
-		ss >> pk_1;
-		if (bigMe) {
-			net.mSend(pk_1);
-			net.mReceive(pk_2);
-		}
-		else {
-			net.mReceive(pk_2);
-			net.mSend(pk_1);
-		}
-		fileName = "pk" + codes[1] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		ost << pk_2 << endl;
-		ost.close();
-		//Éú³ÉÖ÷¹«Ô¿
-		El.keyGen(pk_2);
-		//Êä³öÖ÷¹«Ô¿
-		int suffixFlag = (codes[0] < codes[1]);
-		coCode = codes[!suffixFlag] + "-" + codes[suffixFlag];
-		fileName = "pk" + coCode + ".txt";
-		pkFileName = fileName;
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		ost << El.get_pk() << endl;
-		ost.close();
-	}
-	//¼ÓÃÜ²¢Éú³ÉÖ¤Ã÷
-	void ciphertextOp() {
-		CipherGen* cipherGen = new CipherGen(codes, bigMe);
-		cipherGen->gen(ciphertext, plaintext, ranZero, ran_1);//Éú³ÉÃÜÎÄ( h^r , g^m ¡Á y^r )
-		cipherGen->prove();//Éú³ÉÃÜÎÄÖ¤Ã÷
-	}
-	//ÑéÖ¤¼ÓÃÜ
-	void ciphertextVerify() {
-		CipherGen* cipherVerify = new CipherGen(codes, bigMe);
-		bool flag = cipherVerify->verify();
-		cout << "[" << codes[0] << "] - " << "ciphertext results: " << ans[flag] << endl;
-	}
-	//±È½Ï²¢Éú³ÉÖ¤Ã÷
-	void compareOp() {
-		Compare compare(codes, plaintext, ciphertext, ran_1, ranZero, bigMe);
-		compare.compare();
-		compare.prove();
-	}
-	//ÑéÖ¤±È½Ï
-	void compareVerify() {
-		Compare compare(codes, ciphertext, bigMe);
-		bool flag = compare.verify();
-		cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
-	}
-	//»ìÏı²¢Éú³ÉÖ¤Ã÷
-	void shuffleOp() {
-		Shuffle prover(codes, coCode);
-		prover.creatProver(bigMe);
-		prover.shuffle();
-		prover.prove();
-	}
-	//ÑéÖ¤»ìÏı
-	void shuffleVerify() {
-		Shuffle verifier(codes, coCode);
-		verifier.creatVerifier();
-		bool flag = verifier.verify();
-		cout << "[" << codes[0] << "] - " << "shuffle results: " << ans[flag] << endl;
-	}
-
-	//½âÃÜ²¢Éú³ÉÖ¤Ã÷
-	void decryptOp() {
-		Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
-		int ans = decrypt.decrypt();
-		decrypt.prove();
-		switch (ans)
-		{
-			case 0:
-				cout << "[" << codes[0] << "] - Winner No." << codeSmall << endl;
-				break;
-			case 1:
-				cout << "[" << codes[0] << "] - - Winner DRAW" << endl;
-				break;
-			case 2:
-				cout << "[" << codes[0] << "] - Winner No." << codeBig << endl;
-				break;
-			default:
-				break;
-		}
-	}
-	//ÑéÖ¤½âÃÜ
-	void decryptVerify() {
-		Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
-		bool flag = decrypt.verify();
-		cout << "[" << codes[0] << "] - " << "decrypt results: " << ans[flag] << endl;
-	}
+	//è¯»å–ç¾¤çš„å‚æ•°å¹¶ç”Ÿæˆç¾¤
+	void readParameters();
+	//è®¾ç½®åˆå§‹åŒ–ElGamal
+	void creatElGamal();
+	//åŠ å¯†å¹¶ç”Ÿæˆè¯æ˜
+	void ciphertextOp();
+	//éªŒè¯åŠ å¯†
+	void ciphertextVerify();
+	//æ¯”è¾ƒå¹¶ç”Ÿæˆè¯æ˜
+	void compareOp();
+	//éªŒè¯æ¯”è¾ƒ
+	void compareVerify();
+	//æ··æ·†å¹¶ç”Ÿæˆè¯æ˜
+	void shuffleOp();
+	//éªŒè¯æ··æ·†
+	void shuffleVerify();
+	//è§£å¯†å¹¶ç”Ÿæˆè¯æ˜
+	void decryptOp();
+	//éªŒè¯è§£å¯†
+	void decryptVerify();
 
 public:
-	//Éú³É²ÎÊı
-	void parametersGen() {
-		ParaGen paraGen;
-		paraGen.parametersGen(pBits, qBits);
-	}
-	//¾ºÅÄ×¼±¸²Ù×÷
-	void prepare(array<int, 2> codes_in) {
-		codes[0] = to_string(codes_in[0]);//×Ô¼ºµÄ±àºÅ
-		codes[1] = to_string(codes_in[1]);//¶Ô·½µÄ±àºÅ
-		codeBig = (stoi(codes[0]) > stoi(codes[1])) ? codes[0] : codes[1];
-		codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
-		bigMe = codes_in[0] > codes_in[1];
-		int port = 20200;
-		if (bigMe)
-			port += codes_in[0];
-		else
-			port += codes_in[1];
-		net.init(codes[0], bigMe, port);
-		readParameters();
-		creatElGamal();
-		ciphertextOp();
-	}
-	//¿ªÊ¼¾º±ê
-	void bid() {
-		compareOp();
-		shuffleOp();
-		decryptOp();
-	}
-	//ÑéÖ¤
-	void verify() {
-		cout << "[" << codes[0] << "] - " << "=====Verify=====" << endl;
-		ciphertextVerify();
-		compareVerify();
-		shuffleVerify();
-		decryptVerify();
-		cout << "[" << codes[0] << "] - " << "======OVER======" << endl;
-	}
+	//ç”Ÿæˆå‚æ•°
+	void parametersGen();
+	//ç«æ‹å‡†å¤‡æ“ä½œ
+	void prepare(array<int, 2> codes_in);
+	//å¼€å§‹ç«æ ‡
+	void bid();
+	//éªŒè¯
+	void verify();
 };

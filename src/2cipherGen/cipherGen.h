@@ -10,9 +10,9 @@ class CipherGen {
 private:
 	ifstream ist;
 	ofstream ost;
-	array<string, 2> codes;//×Ô¼ººÍ¶Ô·½µÄ±àºÅ£¬µÚÒ»¸öÊÇ×Ô¼ºµÄ£¬µÚ¶ş¸öÊÇ¶Ô·½µÄ
-	array<ZZ, 32> plaintext;//¾º¼Û¶ş½øÖÆÃ÷ÎÄ
-	array<Cipher_elg, 32> ciphertext;    //ÃÜÎÄ
+	array<string, 2> codes;//è‡ªå·±å’Œå¯¹æ–¹çš„ç¼–å·ï¼Œç¬¬ä¸€ä¸ªæ˜¯è‡ªå·±çš„ï¼Œç¬¬äºŒä¸ªæ˜¯å¯¹æ–¹çš„
+	array<ZZ, 32> plaintext;//ç«ä»·äºŒè¿›åˆ¶æ˜æ–‡
+	array<Cipher_elg, 32> ciphertext;    //å¯†æ–‡
 	array<ZZ, 32> ran_1;
 	Cipher_elg ciphertextZero;
 	ZZ ranZero;
@@ -26,140 +26,17 @@ private:
 	Mod_p y;
 	SHA256 sha;
 
-	//¶ÁÈ¡Ã÷ÎÄ
-	void readPlaintext() {
-		bitset<32> plaintext_inv;
-		string fileName = "plaintext" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			fileName = "plaintext_int" + codes[0] + ".txt";
-			ist.open(fileName, ios::in);
-			if (!ist) {
-				cout << "Can't open " << fileName << endl;
-				exit(1);
-			}
-			ist >> plaintext_int;
-			cout << "[" << codes[0] << "] - " << "Amount: " << plaintext_int << endl;
-			plaintext_inv = plaintext_int;
-			ist.close();
-			fileName = "plaintext" + codes[0] + ".txt";
-			ost.open(fileName, ios::out);
-			if (!ost) {
-				cout << "Can't create " << fileName << endl;
-				exit(1);
-			}
-			ost << plaintext_inv << endl;
-			ost.close();
-		}
-		else {
-			ist >> plaintext_inv;
-			ist.close();
-			cout << "[" << codes[0] << "] - " << "Amount: " << plaintext_inv.to_ulong() << endl;
-		}
-		for (int i = 0; i < cipherNum; i++)
-			plaintext[i] = ZZ(plaintext_inv[cipherNum - i - 1]);
-	}
-	//Éú³ÉÃÜÎÄ²¢¶ÁÈ¡¶Ô·½Éú³ÉµÄÃÜÎÄ
-	void createCipher() {
-		string fileName = "ciphertext" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost) {
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		stringstream ss;
-		for (int i = 0; i < cipherNum; i++)
-		{
-			ran_1[i] = RandomBnd(ord);								 //Ëæ»úÊır£¬Ò²±»³Æ×÷ÁÙÊ±ÃÜÔ¿
-			Cipher_elg temp = El.encrypt_g(ZZ(plaintext[i]), ran_1[i]);//µÃµ½(u,v)ÃÜÎÄ×é£¬u = h^r£¬v = g^m¡Áy^r£¬yÎª¹«Ô¿
-			ciphertext[i] = temp;									 //Ë³Ğò¶ÁÈë
-			ost << temp << endl;										 //Êä³öÃÜÎÄ
-			ss << temp << ";";
-		}
-		//¼ÓÃÜ0
-		ranZero = RandomBnd(ord);					  //Ëæ»úÊır
-		ciphertextZero = El.encrypt_g(ZZ(0), ranZero);//µÃµ½(h^r,y^r)ÃÜÎÄ×é
-		ost << ciphertextZero << endl;							
-		ss << ciphertextZero << ";";
-		ost.close();
-		//¶ÁÈ¡¶Ô·½Éú³ÉµÄÃÜÎÄ
-		string cipher;
-		if (bigMe) {
-			net.mSend(ss.str());
-			net.mReceive(cipher);
-		}
-		else {
-			net.mReceive(cipher);
-			net.mSend(ss.str());
-		}
-		vector<string> ciphertext_2_str;
-		net.deserialization(cipher, ciphertext_2_str);
-		fileName = "ciphertext" + codes[1] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < ciphertext_2_str.size(); i++)
-			ost << ciphertext_2_str[i] << endl;
-		ost.close();
-	}
+	//è¯»å–æ˜æ–‡
+	void readPlaintext();
+	//ç”Ÿæˆå¯†æ–‡å¹¶è¯»å–å¯¹æ–¹ç”Ÿæˆçš„å¯†æ–‡
+	void createCipher();
 
 public:
-	CipherGen(array<string, 2> codes, bool bigMe) :codes(codes), bigMe(bigMe) {
-		SetSeed(to_ZZ((long)time(0) + (long)clock()));
-		y = El.get_pk();
-		mod = El.get_group().get_mod();
-		ord = El.get_group().get_ord();
-		g = El.get_group().get_g();
-		h = El.get_group().get_gen();
-	}
-	//Éú³ÉÃÜÎÄ( h^r , g^m ¡Á y^r )
-	void gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext, ZZ& RanZero, array<ZZ, 32> &Ran) {
-		readPlaintext();
-		createCipher();
-		//createZeroCipher();
-		Ciphertext = ciphertext;
-		Plaintext = plaintext;
-		RanZero = ranZero;
-		Ran = ran_1;
-		//return ciphertext;
-	}
-	//Éú³ÉÖ¤Ã÷
-	void prove() {
-		clock_t tstart = clock();
-		string fileName = "proveCipher" + codes[0] + ".txt";
-		Commitment com(codes, plaintext, ciphertext, ran_1, bigMe, fileName);
-		com.cipherCommit();
-
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "prove ciphertext " << ttime << " ms" << endl;
-	}
-	//ÑéÖ¤Ö¤Ã÷
-	bool verify() {
-		clock_t tstart = clock();
-		bool flag = true;
-		//¶ÁÈëÃÜÎÄ
-		string fileName = "ciphertext" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext[i];
-		}
-		ist.close();
-		//¶ÁÈëÖ¤Ã÷
-		fileName = "proveCipher" + codes[0] + ".txt";
-		Commitment com(codes, ciphertext, bigMe, fileName);
-		flag &= com.cipherCheck();
-
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "verify ciphertext " << ttime << " ms" << endl;
-		return flag;
-	}
+	CipherGen(array<string, 2> codes, bool bigMe);
+	//ç”Ÿæˆå¯†æ–‡( h^r , g^m Ã— y^r )
+	void gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext, ZZ& RanZero, array<ZZ, 32>& Ran);
+	//ç”Ÿæˆè¯æ˜
+	void prove();
+	//éªŒè¯è¯æ˜
+	bool verify();
 };

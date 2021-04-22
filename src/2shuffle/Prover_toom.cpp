@@ -27,7 +27,7 @@ Prover_toom::Prover_toom(vector<vector<Cipher_elg>*>* Cin, vector<vector<ZZ>*>* 
 	m_r = num[6];
 	mu_h = num[7];
 
-	//Creates the matrices A£¬ÄÚÈİÎªpi
+	//Creates the matrices Aï¼Œå†…å®¹ä¸ºpi
 	A = new vector<vector<ZZ>*>(m);
 	func_pro::set_A(A, pi, m, n);
 	SetSeed(to_ZZ((unsigned int)time(0) + clock()));
@@ -148,7 +148,7 @@ void Prover_toom::round_1()
 	Ped = Pedersen(n, G);
 	Ped.set_omega(omega_mulex, omega_LL, omega_sw);
 
-	//¶ÔÏòÁ¿piµÄÃ¿Ò»ĞĞ½øĞĞ³ĞÅµ
+	//å¯¹å‘é‡piçš„æ¯ä¸€è¡Œè¿›è¡Œæ‰¿è¯º
 	Functions::commit_op(A, r_A, c_A);
 
 
@@ -182,7 +182,7 @@ void Prover_toom::round_3()
 	ZZ x2;
 	vector<vector<ZZ>*>* chal_x2 = new vector<vector<ZZ>*>(m);
 
-	// ÓÃhashÉú³ÉËæ»úÌôÕ½x
+	// ç”¨hashç”ŸæˆéšæœºæŒ‘æˆ˜x
 	string hashValueStr = sha.hash(hashStr[0]);
 	ZZ hashValueZZ;
 	conv(hashValueZZ, hashValueStr.c_str());
@@ -191,13 +191,13 @@ void Prover_toom::round_3()
 		hashValueModP.set_val(hashValueModP.get_val() - ord);
 	x2 = hashValueModP.get_val();
 
-	//Éú³ÉÄÚÈİÎªx2, x2^2, ... , x2^NµÄË³Ğò¾ØÕóchal_x2
+	//ç”Ÿæˆå†…å®¹ä¸ºx2, x2^2, ... , x2^Nçš„é¡ºåºçŸ©é˜µchal_x2
 	func_pro::set_x2(chal_x2, x2, m, n);
 
-	//¸ù¾İÏòÁ¿pi½«chal_x2ÖØĞÂÅÅÁĞ£¬Éú³ÉshuffleºóµÄ¾ØÕóB
+	//æ ¹æ®å‘é‡piå°†chal_x2é‡æ–°æ’åˆ—ï¼Œç”Ÿæˆshuffleåçš„çŸ©é˜µB
 	func_pro::set_B_op(B, basis_B, chal_x2, pi, omega_mulex);
 
-	//¶ÔBµÄÃ¿Ò»ĞĞÉú³ÉËæ»úÊıºÍ³ĞÅµ
+	//å¯¹Bçš„æ¯ä¸€è¡Œç”Ÿæˆéšæœºæ•°å’Œæ‰¿è¯º
 	Functions::commit_op(B, r_B, c_B);
 
 	//ofstream ost("prove.pro", ios::app);
@@ -221,7 +221,7 @@ void Prover_toom::round_3()
 	Functions::delete_vector(chal_x2);
 }
 
-//round_5a ¹¹½¨¾ØÕóD£¬²¢¶ÔÏòÁ¿chal_zºÍD_h×ö³ĞÅµ
+//round_5a æ„å»ºçŸ©é˜µDï¼Œå¹¶å¯¹å‘é‡chal_zå’ŒD_håšæ‰¿è¯º
 void Prover_toom::round_5a()
 {
 	long i;
@@ -232,10 +232,10 @@ void Prover_toom::round_5a()
 	time_t rawtime;
 	time(&rawtime);
 
-	//Éú³É¾ØÕóD: y ¡Á A_ij + B_ij - z
+	//ç”ŸæˆçŸ©é˜µD: y Ã— A_ij + B_ij - z
 	func_pro::set_D(D, A, B, chal_z4, chal_y4);
 
-	//Éú³ÉÓÃÓÚproduct argumentµÄ¾ØÕóD_h£ºSet the matrix D_h as the Hadamard product of the rows in D
+	//ç”Ÿæˆç”¨äºproduct argumentçš„çŸ©é˜µD_hï¼šSet the matrix D_h as the Hadamard product of the rows in D
 	func_pro::set_D_h(D_h, D);
 
 	for (i = 0; i < n; i++)
@@ -244,18 +244,18 @@ void Prover_toom::round_5a()
 		NegateMod(r->at(i), to_ZZ(1), ord);
 	}
 
-	//½«¾ØÕóDµÄ×îºóÒ»ĞĞÓÃ¡°-1¡±Ìî³ä
+	//å°†çŸ©é˜µDçš„æœ€åä¸€è¡Œç”¨â€œ-1â€å¡«å……
 	D->at(m) = r;
-	//½«Éú³É¾ØÕóAµÄ³ĞÅµµÄËæ»úÊıÏòÁ¿µÄ×îºóÒ»¸öÖµÉèÎª0
+	//å°†ç”ŸæˆçŸ©é˜µAçš„æ‰¿è¯ºçš„éšæœºæ•°å‘é‡çš„æœ€åä¸€ä¸ªå€¼è®¾ä¸º0
 	r_A->at(m) = 0;
 
-	//¶Ôchal_z×ö³ĞÅµ
+	//å¯¹chal_zåšæ‰¿è¯º
 	Functions::commit_op(v_z, r_z, c_z);
-	//¶ÔD_hµÄÃ¿Ò»ĞĞ½øĞĞ³ĞÅµ
-	Functions::commit_op(D_h, r_D_h, c_D_h);//r_D_hÎªt
+	//å¯¹D_hçš„æ¯ä¸€è¡Œè¿›è¡Œæ‰¿è¯º
+	Functions::commit_op(D_h, r_D_h, c_D_h);//r_D_hä¸ºt
 
 	delete v_z;
-	func_pro::set_Rb(B, R, R_b);//b_ij ¡Á R_ijµÄ½á¹ûÀÛ¼Ó
+	func_pro::set_Rb(B, R, R_b);//b_ij Ã— R_ijçš„ç»“æœç´¯åŠ 
 	commit_ac();
 
 	/*for (int i = 0; i < basis_B->size(); i++) {
@@ -271,7 +271,7 @@ void Prover_toom::round_5a()
 
 void Prover_toom::round_5()
 {
-	// ÓÃhashÉú³ÉËæ»úÌôÕ½y,z
+	// ç”¨hashç”ŸæˆéšæœºæŒ‘æˆ˜y,z
 	string hashValueStr1 = sha.hash(hashStr[1]);
 	ZZ hashValueZZ1;
 	conv(hashValueZZ1, hashValueStr1.c_str());
@@ -289,7 +289,7 @@ void Prover_toom::round_5()
 	chal_z4 = hashValueModP1.get_val();
 	chal_y4 = hashValueModP2.get_val();
 
-	round_5a();//¹¹½¨¾ØÕóD£¬²¢¶ÔÏòÁ¿chal_zºÍD_h×ö³ĞÅµ
+	round_5a();//æ„å»ºçŸ©é˜µDï¼Œå¹¶å¯¹å‘é‡chal_zå’ŒD_håšæ‰¿è¯º
 
 	//ofstream ost("prove.pro", ios::app);
 	stringstream ss1, ss2;
@@ -379,7 +379,7 @@ void Prover_toom::round_7a()
 
 void Prover_toom::round_7()
 {
-	// ÓÃhashÉú³ÉËæ»úÌôÕ½y,z
+	// ç”¨hashç”ŸæˆéšæœºæŒ‘æˆ˜y,z
 	string hashValueStr1 = sha.hash(hashStr[3]);
 	ZZ hashValueZZ1;
 	conv(hashValueZZ1, hashValueStr1.c_str());
@@ -517,7 +517,7 @@ void Prover_toom::round_9a()
 }
 
 void Prover_toom::round_9() {
-	// ÓÃhashÉú³ÉËæ»úÌôÕ½x
+	// ç”¨hashç”ŸæˆéšæœºæŒ‘æˆ˜x
 	string hashValueStr = sha.hash(hashStr[5]);
 	ZZ hashValueZZ;
 	conv(hashValueZZ, hashValueStr.c_str());
@@ -526,7 +526,7 @@ void Prover_toom::round_9() {
 		hashValueModP.set_val(hashValueModP.get_val() - ord);
 	ZZ chal_x8_temp = hashValueModP.get_val();
 
-	//Ò»¸öËæ»úÌôÕ½
+	//ä¸€ä¸ªéšæœºæŒ‘æˆ˜
 	func_pro::fill_x8(chal_x8, chal_x8_temp);
 
 	round_9a();
@@ -614,10 +614,10 @@ int Prover_toom::prove(string codeName)
 		exit(1);
 	}
 	this->round_1();
-	this->round_3();//Éú³ÉÒ»¸öÌôÕ½
-	this->round_5();//Éú³ÉÁ½¸öÌôÕ½
-	this->round_7();//Éú³ÉÁ½¸öÌôÕ½
-	this->round_9();//Éú³ÉÒ»¸öÌôÕ½
+	this->round_3();//ç”Ÿæˆä¸€ä¸ªæŒ‘æˆ˜
+	this->round_5();//ç”Ÿæˆä¸¤ä¸ªæŒ‘æˆ˜
+	this->round_7();//ç”Ÿæˆä¸¤ä¸ªæŒ‘æˆ˜
+	this->round_9();//ç”Ÿæˆä¸€ä¸ªæŒ‘æˆ˜
 	ost.close();
 	return 0;
 }

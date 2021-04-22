@@ -6,7 +6,7 @@ Pedersen::Pedersen() {
 
 }
 
-//Éú³ÉÒ»¸ö»ùÓÚÈºHµÄPedersenÊµÀı£¬Ëü×î¶à¿ÉÒÔÌá½»n¸öÔªËØ¡£
+//ç”Ÿæˆä¸€ä¸ªåŸºäºç¾¤Hçš„Pedersenå®ä¾‹ï¼Œå®ƒæœ€å¤šå¯ä»¥æäº¤nä¸ªå…ƒç´ ã€‚
 Pedersen::Pedersen(long n, G_q H) {
 	long i;
 	bool b;
@@ -19,7 +19,7 @@ Pedersen::Pedersen(long n, G_q H) {
 	/*ofstream ost;
 	ost.open("Pedersen.txt", ios::out);*/
 	for (i = 0; i <= n; i++)
-	{//Éú³Én+1¸öGµÄÉú³ÉÔª(g^r)×÷Îª¹«Ô¿£¬´æ·ÅÔÚgenÖĞ£¬µÚÒ»¸ö¸øËæ»úÊı£¬ºóÃæµÄn¸ö¸øÒª½øĞĞ³ĞÅµµÄÊı
+	{//ç”Ÿæˆn+1ä¸ªGçš„ç”Ÿæˆå…ƒ(g^r)ä½œä¸ºå…¬é’¥ï¼Œå­˜æ”¾åœ¨genä¸­ï¼Œç¬¬ä¸€ä¸ªç»™éšæœºæ•°ï¼Œåé¢çš„nä¸ªç»™è¦è¿›è¡Œæ‰¿è¯ºçš„æ•°
 		b = true;
 		while (b) {
 			ran_1 = RandomBnd(G.get_ord());
@@ -43,7 +43,7 @@ Pedersen::Pedersen(long n, G_q H, vector<Mod_p>* gen_in) {
 	int count = 0;
 	this->gen = new vector<Mod_p>(n + 1);
 	for (i = 0; i <= n; i++)
-	{//Éú³Én+1¸öGµÄÉú³ÉÔª(g^r)×÷Îª¹«Ô¿£¬´æ·ÅÔÚgenÖĞ£¬µÚÒ»¸ö¸øËæ»úÊı£¬ºóÃæµÄn¸ö¸øÒª½øĞĞ³ĞÅµµÄÊı
+	{//ç”Ÿæˆn+1ä¸ªGçš„ç”Ÿæˆå…ƒ(g^r)ä½œä¸ºå…¬é’¥ï¼Œå­˜æ”¾åœ¨genä¸­ï¼Œç¬¬ä¸€ä¸ªç»™éšæœºæ•°ï¼Œåé¢çš„nä¸ªç»™è¦è¿›è¡Œæ‰¿è¯ºçš„æ•°
 		this->gen->at(i) = gen_in->at(i);
 	}
 }
@@ -433,7 +433,7 @@ Mod_p Pedersen::commit(const vector<ZZ>* t, ZZ ran_1) {
 		for (i = 1; i <= (long)t->size(); i++)
 		{
 			PowerMod(temp_1, gen->at(i).get_val(), t->at(i - 1), mod);//g_i ^ a_i
-			MulMod(temp, temp, temp_1, mod);//ÀÛ³Ë
+			MulMod(temp, temp, temp_1, mod);//ç´¯ä¹˜
 		}
 	}
 	return Mod_p(temp, mod);

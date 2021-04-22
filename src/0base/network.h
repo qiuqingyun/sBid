@@ -8,10 +8,10 @@ const int BUF_SIZE = 2048;
 class Network
 {
 public:
-	void init(string codeName, bool bigMe, int port);		 //³õÊ¼»¯
-	bool mSend(string send_string);							 //·¢ËÍÒ»¸östring
-	bool mReceive(string& recv_string);						 //½ÓÊÕÒ»¸östring
-	void deserialization(string str, vector<string>& strs);//·´ĞòÁĞ»¯
+	void init(string codeName, bool bigMe, int port);		 //åˆå§‹åŒ–
+	bool mSend(string send_string);							 //å‘é€ä¸€ä¸ªstring
+	bool mReceive(string& recv_string);						 //æ¥æ”¶ä¸€ä¸ªstring
+	void deserialization(string str, vector<string>& strs);//ååºåˆ—åŒ–
 	~Network();
 	int sockSer = -1, sockCli = -1;
 	bool bigMe;

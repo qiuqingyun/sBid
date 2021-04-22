@@ -1,4 +1,4 @@
-﻿#include "func_pro.h"
+#include "func_pro.h"
 NTL_CLIENT
 
 extern G_q G;

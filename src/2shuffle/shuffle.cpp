@@ -1,4 +1,4 @@
-﻿#include "shuffle.h"
+#include "shuffle.h"
 
 Shuffle::Shuffle(array< string, 2> codes, string codeName) {
 	this->codes = codes;

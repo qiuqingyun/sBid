@@ -162,7 +162,7 @@ string SHA256::hash(string m) {
 }
 
 ZZ SHA256::hash(string str, G_q G)
-{// 用hash生成随机挑战x
+{// 鐢╤ash鐢熸垚闅忔満鎸戞垬x
 	string hashValueStr = hash(str);
 	ZZ hashValueZZ;
 	conv(hashValueZZ, hashValueStr.c_str());

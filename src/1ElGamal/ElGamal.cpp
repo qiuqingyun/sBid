@@ -259,15 +259,15 @@ void ElGamal::set_sk(long s) {
 
 void ElGamal::set_sk(ZZ s) {
 
-	sk = s;//Ë½Ô¿x
-	pk_1 = G.get_gen().expo(s);//Éú³É¹«Ô¿£¬y=g^x
+	sk = s;//ç§é’¥x
+	pk_1 = G.get_gen().expo(s);//ç”Ÿæˆå…¬é’¥ï¼Œy=g^x
 }
 
 void ElGamal::set_key(ZZ s, ZZ p) {
-	sk = s;//Ë½Ô¿
-	pk_1 = Mod_p(p, G.get_mod());//¹«Ô¿
+	sk = s;//ç§é’¥
+	pk_1 = Mod_p(p, G.get_mod());//å…¬é’¥
 }
-//Éú³ÉElGamalÖ÷¹«Ô¿
+//ç”ŸæˆElGamalä¸»å…¬é’¥
 void ElGamal::keyGen(string pk_2_str) {
 	ZZ pk_2;
 	conv(pk_2, pk_2_str.c_str());
@@ -325,8 +325,8 @@ Cipher_elg ElGamal::encrypt(Mod_p el, ZZ ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
 	temp_1 = G.get_gen().expo(ran_1);//h^r
-	temp_2 = pk.expo(ran_1) * el;//m¡Áy^r
-	c = Cipher_elg(temp_1, temp_2);//µÃµ½(u,v)ÃÜÎÄ×é£¬u = h^r£¬v = m¡Áy^r
+	temp_2 = pk.expo(ran_1) * el;//mÃ—y^r
+	c = Cipher_elg(temp_1, temp_2);//å¾—åˆ°(u,v)å¯†æ–‡ç»„ï¼Œu = h^rï¼Œv = mÃ—y^r
 	return c;
 }
 Cipher_elg ElGamal::encrypt(ZZ m, ZZ ran_1) {
@@ -341,7 +341,7 @@ Cipher_elg ElGamal::encrypt(long m, ZZ ran_1) {
 	Cipher_elg c;
 	Mod_p temp_1, temp_2;
 	temp_1 = G.get_gen().expo(ran_1);//h^r
-	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());//m¡Áy^r
+	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());//mÃ—y^r
 	c = Cipher_elg(temp_1, temp_2);
 	return c;
 }
@@ -349,7 +349,7 @@ Cipher_elg ElGamal::encrypt_g(ZZ m, ZZ ran_1) {
 	Mod_p temp_1, temp_2, temp_m;
 	temp_1 = G.get_gen().expo(ran_1);//h^r
 	temp_m = G.get_g().expo(m);//g^m
-	temp_2 = pk.expo(ran_1) * temp_m;//g^m¡Áy^r
+	temp_2 = pk.expo(ran_1) * temp_m;//g^mÃ—y^r
 	return Cipher_elg(temp_1, temp_2);
 }
 

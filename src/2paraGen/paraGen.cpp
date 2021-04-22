@@ -1,5 +1,5 @@
 #include"paraGen.h"
-//生成参数
+//鐢熸垚鍙傛暟
 int ParaGen::parametersGen(int lp, int lq) {
 	cout << "\nParameters generating" << endl;
 	int flag = 1, index = 0;

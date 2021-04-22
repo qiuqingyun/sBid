@@ -1,46 +1,46 @@
 #include "network.h"
 
-//ÍøÂç³õÊ¼»¯
+//ç½‘ç»œåˆå§‹åŒ–
 void Network::init(string codeName, bool bigMe, int port)
 {
 	//cout << "Network preparing " << flush;
 	this->codeName = codeName;
 	this->bigMe = bigMe;
 	this->port = port;
-	//´´½¨socket
+	//åˆ›å»ºsocket
 	if ((this->sockSer = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		printf("[%s] - Socket error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
-	//Ìî³äÌ×½Ó×ÖµØÖ·½á¹¹£¬°üÀ¨µØÖ·×å£¬ipºÍ¶Ë¿ÚºÅ
+	//å¡«å……å¥—æ¥å­—åœ°å€ç»“æ„ï¼ŒåŒ…æ‹¬åœ°å€æ—ï¼Œipå’Œç«¯å£å·
 	bzero(&this->addrSer, sizeof(struct sockaddr_in));
 	inet_aton((const char*)IP.c_str(), &(this->addrSer.sin_addr));
 	this->addrSer.sin_family = AF_INET;
 	this->addrSer.sin_port = htons(port);
 	int opt = SO_REUSEADDR;
 	setsockopt(this->sockSer, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-	// ½ÓÊÕ»º³åÇø
-	int nRecvBuf = 8 * 1024; //ÉèÖÃÎª8K
+	// æ¥æ”¶ç¼“å†²åŒº
+	int nRecvBuf = 8 * 1024; //è®¾ç½®ä¸º8K
 	setsockopt(this->sockSer, SOL_SOCKET, SO_RCVBUF, (const char*)&nRecvBuf, sizeof(int));
-	// ·¢ËÍ»º³åÇø
-	int nSendBuf = 8 * 1024; //ÉèÖÃÎª8K
+	// å‘é€ç¼“å†²åŒº
+	int nSendBuf = 8 * 1024; //è®¾ç½®ä¸º8K
 	setsockopt(this->sockSer, SOL_SOCKET, SO_SNDBUF, (const char*)&nSendBuf, sizeof(int));
 	if (bigMe)
 	{
-		//°ó¶¨
+		//ç»‘å®š
 		if (bind(sockSer, (struct sockaddr*)(&this->addrSer), sizeof(struct sockaddr)) == -1)
 		{
 			printf("[%s] - Bind error : %s\n", codeName.c_str(), strerror(errno));
 			exit(1);
 		}
-		// ¼àÌı
+		// ç›‘å¬
 		if (listen(sockSer, 1) == -1)
 		{
 			printf("[%s] - Listen error : %s\n", codeName.c_str(), strerror(errno));
 			exit(1);
 		}
-		//½ÓÊÜ
+		//æ¥å—
 		socklen_t naddr = sizeof(struct sockaddr_in);
 		if ((this->sockCli = accept(this->sockSer, (struct sockaddr*)(&this->addrCli), &naddr)) == -1)
 		{
@@ -50,7 +50,7 @@ void Network::init(string codeName, bool bigMe, int port)
 	}
 	else
 	{
-		//Á¬½Ó
+		//è¿æ¥
 		int times = 1;
 		while (connect(sockSer, (struct sockaddr*)&this->addrSer, sizeof(struct sockaddr)) == -1)
 		{
@@ -65,28 +65,28 @@ void Network::init(string codeName, bool bigMe, int port)
 	//cout << "\rNetwork OK        " << endl;
 }
 
-//·¢ËÍÒ»¸östring
+//å‘é€ä¸€ä¸ªstring
 bool Network::mSend(int fd, string send_string)
 {
 	char* cstr = new char[send_string.size() + 1];
 	strcpy(cstr, send_string.c_str());
-	size_t send_size = send_string.size() + 1; //ĞèÒª·¢ËÍµÄÊı¾İ´óĞ¡
+	size_t send_size = send_string.size() + 1; //éœ€è¦å‘é€çš„æ•°æ®å¤§å°
 	string send_size_string = to_string(send_size);
 	char* c_send_size_str = new char[send_size_string.size() + 1];
 	strcpy(c_send_size_str, send_size_string.c_str());
 	if (send(fd, c_send_size_str, send_size_string.size() + 1, 0) == -1)
-	{ //¸æÖª¶Ô·½ĞèÒª×¼±¸µÄ»º³åÇø´óĞ¡
+	{ //å‘ŠçŸ¥å¯¹æ–¹éœ€è¦å‡†å¤‡çš„ç¼“å†²åŒºå¤§å°
 		printf("[%s] - Prewrite error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
 	if (recv(fd, this->checkBuf, BUF_SIZE, 0) == -1 && !(strcmp(this->checkBuf, c_send_size_str)))
-	{ //½ÓÊÕÈ·ÈÏĞÅÏ¢
+	{ //æ¥æ”¶ç¡®è®¤ä¿¡æ¯
 		printf("[%s] - Check error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
 	clock_t startS = clock();
 	if ((send(fd, cstr, send_size, 0)) == -1)
-	{ //·¢ËÍÊı¾İ
+	{ //å‘é€æ•°æ®
 		printf("[%s] - Write error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
@@ -95,29 +95,29 @@ bool Network::mSend(int fd, string send_string)
 	return true;
 }
 
-//½ÓÊÕÒ»¸östring
+//æ¥æ”¶ä¸€ä¸ªstring
 bool Network::mReceive(int fd, string& recv_string)
 {
 	recv_string.clear();
 	if (recv(fd, this->recvSizeBuf, BUF_SIZE, 0) == -1)
-	{ //½ÓÊÕ»º³åÇø³ß´ç
+	{ //æ¥æ”¶ç¼“å†²åŒºå°ºå¯¸
 		printf("[%s] - Preread error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
 	if (send(fd, this->recvSizeBuf, BUF_SIZE, 0) == -1)
-	{ //·¢ËÍÈ·ÈÏĞÅÏ¢
+	{ //å‘é€ç¡®è®¤ä¿¡æ¯
 		printf("[%s] - Check error : %s\n", codeName.c_str(), strerror(errno));
 		exit(1);
 	}
-	size_t recv_size = stol(this->recvSizeBuf); //½ÓÊÕ»º³åÇø³ß´ç
-	char* cstr = new char[recv_size];           //½ÓÊÕ»º³åÇø
+	size_t recv_size = stol(this->recvSizeBuf); //æ¥æ”¶ç¼“å†²åŒºå°ºå¯¸
+	char* cstr = new char[recv_size];           //æ¥æ”¶ç¼“å†²åŒº
 	memset(cstr, '\0', recv_size);
 	ssize_t recv_num, remain_num = recv_size;
 	clock_t startR = clock();
 	while (remain_num > 1)
 	{
 		if ((recv_num = recv(fd, cstr, recv_size, 0)) == -1 || recv_num == 0)
-		{ //½ÓÊÕÊı¾İ
+		{ //æ¥æ”¶æ•°æ®
 			printf("[%s] - Read error : %s\n", codeName.c_str(), strerror(errno));
 			exit(1);
 		}
@@ -129,7 +129,7 @@ bool Network::mReceive(int fd, string& recv_string)
 	return true;
 }
 
-//·¢ËÍÒ»¸östring
+//å‘é€ä¸€ä¸ªstring
 bool Network::mSend(string send_string)
 {
 	int fd = (bigMe) ? this->sockCli : sockSer;
@@ -137,7 +137,7 @@ bool Network::mSend(string send_string)
 	return true;
 }
 
-//½ÓÊÕÒ»¸östring
+//æ¥æ”¶ä¸€ä¸ªstring
 bool Network::mReceive(string& recv_string)
 {
 	int fd = (bigMe) ? this->sockCli : sockSer;
@@ -145,7 +145,7 @@ bool Network::mReceive(string& recv_string)
 	return true;
 }
 
-//·´ĞòÁĞ»¯
+//ååºåˆ—åŒ–
 void Network::deserialization(string str, vector<string>& strs) {
 	size_t pos_start = 0, pos_end = 0;
 	while ((pos_end = str.find(delimiter, pos_end)) != string::npos) {
@@ -154,7 +154,7 @@ void Network::deserialization(string str, vector<string>& strs) {
 		pos_start = ++pos_end;
 	}
 }
-//¹Ø±ÕÌ×½Ó×Ö
+//å…³é—­å¥—æ¥å­—
 Network::~Network()
 {
 	if (sockSer)

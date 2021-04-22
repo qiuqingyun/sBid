@@ -1,4 +1,4 @@
-﻿#ifndef PROVER_TOOM_H_
+#ifndef PROVER_TOOM_H_
 #define PROVER_TOOM_H_
 
 #include "../global.h"

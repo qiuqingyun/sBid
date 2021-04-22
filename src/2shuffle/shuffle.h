@@ -14,10 +14,10 @@ class Shuffle {
 private:
 	ifstream ist;
 	ofstream ost;
-	vector<vector<Cipher_elg>*>* cipher_in;    //Ô­Ê¼ÊäÈëµÄÃÜÎÄ
-	vector<vector<Cipher_elg>*>* cipher_out;   //ÖØ¼ÓÃÜµÄÃÜÎÄ
-	vector<vector<vector<int>*>*>* pi;        //Permutation£¬ÓÃÓÚshuffle
-	vector<vector<ZZ>*>* R;			           //ÓÃÓÚÖØ¼ÓÃÜµÄËæ»úÊı
+	vector<vector<Cipher_elg>*>* cipher_in;    //åŸå§‹è¾“å…¥çš„å¯†æ–‡
+	vector<vector<Cipher_elg>*>* cipher_out;   //é‡åŠ å¯†çš„å¯†æ–‡
+	vector<vector<vector<int>*>*>* pi;        //Permutationï¼Œç”¨äºshuffle
+	vector<vector<ZZ>*>* R;			           //ç”¨äºé‡åŠ å¯†çš„éšæœºæ•°
 	string codeName;
 	array< string, 2> codes;
 	int mu = 4;                      // number of rows after reduction
@@ -26,40 +26,40 @@ private:
 	int omega_mulex = 7;			  //windowsize for sliding-window technique
 	int omega_sw = 6;				  //windowsize for multi-expo technique
 	int omega_LL = 5;				  //windowsize for multi-expo technique
-	int m = 16;//ĞĞÊı
-	int n = 2;//ÁĞÊı
-	int ans = 0;//ÑéÖ¤½á¹û
+	int m = 16;//è¡Œæ•°
+	int n = 2;//åˆ—æ•°
+	int ans = 0;//éªŒè¯ç»“æœ
 	bool bigMe;
 	ZZ mod;
 	ZZ ord;
 	ZZ gen;
-	ZZ genq;  // generator of Z_q£¬ÓÃÓÚÑéÖ¤µÄÉú³ÉÔª
+	ZZ genq;  // generator of Z_qï¼Œç”¨äºéªŒè¯çš„ç”Ÿæˆå…ƒ
 
-	//¶ÁÈ¡ÈºµÄ²ÎÊı²¢Éú³ÉÈº
+	//è¯»å–ç¾¤çš„å‚æ•°å¹¶ç”Ÿæˆç¾¤
 	//void readParameters();
-	//ÉèÖÃElGamal¹«Ë½Ô¿
+	//è®¾ç½®ElGamalå…¬ç§é’¥
 	//void creatElGamal();
-	//¶ÁÈ¡ÎÄ¼şÖĞµÄÃÜÎÄ£¬±£´æÎª16¡Á2µÄ¾ØÕóĞÎÊ½
+	//è¯»å–æ–‡ä»¶ä¸­çš„å¯†æ–‡ï¼Œä¿å­˜ä¸º16Ã—2çš„çŸ©é˜µå½¢å¼
 	void readCipher(vector<vector<Cipher_elg>*>* Cipher);
-	//Éú³ÉËæ»úÌæ»»ĞòÁĞ
+	//ç”Ÿæˆéšæœºæ›¿æ¢åºåˆ—
 	void permutation(vector<int>* v, int N);
-	//Éú³ÉËæ»úÌæ»»¾ØÕó
+	//ç”Ÿæˆéšæœºæ›¿æ¢çŸ©é˜µ
 	void perm_matrix(vector<vector<vector<int>* >* >* pi);
-	//Éú³ÉËæ»úÊı¾ØÕó
+	//ç”Ÿæˆéšæœºæ•°çŸ©é˜µ
 	void randomEl(vector<vector<ZZ>*>* R);
-	//ÖØ¼ÓÃÜ
+	//é‡åŠ å¯†
 	void reencryptCipher(stringstream& ss);
 public:
 	Shuffle(array< string, 2> codes, string codeName);
-	//´´½¨Prover½ÇÉ«
+	//åˆ›å»ºProverè§’è‰²
 	void creatProver(bool bigMe);
-	//´´½¨Verifier½ÇÉ«
+	//åˆ›å»ºVerifierè§’è‰²
 	void creatVerifier();
-	//½øĞĞshuffle²Ù×÷
+	//è¿›è¡Œshuffleæ“ä½œ
 	void shuffle();
-	//Éú³É³ĞÅµ
+	//ç”Ÿæˆæ‰¿è¯º
 	void prove();
-	//ÕıÈ·ĞÔÑéÖ¤
+	//æ­£ç¡®æ€§éªŒè¯
 	bool verify();
 };
 

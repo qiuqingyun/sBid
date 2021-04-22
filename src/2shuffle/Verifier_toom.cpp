@@ -122,7 +122,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 
 	//1 c_A
 	for (int i = 0; i < m; i++)
-	{ //½ÓÊÕround_1ÖĞProverµÄ³ĞÅµ
+	{ //æ¥æ”¶round_1ä¸­Proverçš„æ‰¿è¯º
 		ist >> container2;
 		c_A->at(i).toModP(container2, H.get_mod());
 		container1 += container2;
@@ -334,7 +334,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 	func_ver::fill_x8(chal_x8, basis_chal_x8, mul_chal_x8, omega, chal_x8_temp);
 	ist.close();
 
-	array<ZZ, 6> hashChk; //hashÑéÖ¤
+	array<ZZ, 6> hashChk; //hashéªŒè¯
 	for (int i = 0; i < 6; i++)
 	{
 		ZZ hashValueZZ;

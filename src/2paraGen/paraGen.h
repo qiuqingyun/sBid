@@ -23,6 +23,6 @@ private:
 	bool checkGCD(ZZ a, ZZ q1, ZZ q);
 
 public:
-	//Éú³É²ÎÊı,lpÎªpµÄÎ»³¤£¬lqÎªqµÄÎ»³¤
+	//ç”Ÿæˆå‚æ•°,lpä¸ºpçš„ä½é•¿ï¼Œlqä¸ºqçš„ä½é•¿
 	int parametersGen(int lp, int lq);
 };

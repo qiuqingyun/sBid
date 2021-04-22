@@ -1,5 +1,6 @@
 #pragma once
 #include "../global.h"
+#include "../1commitment/commitment.h"
 extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
@@ -9,11 +10,11 @@ class Decrypt {
 private:
 	ifstream ist;
 	ofstream ost;
-	array<string, 2> codes;//×Ô¼ººÍ¶Ô·½µÄ±àºÅ£¬µÚÒ»¸öÊÇ×Ô¼ºµÄ£¬µÚ¶ş¸öÊÇ¶Ô·½µÄ
+	array<string, 2> codes;//è‡ªå·±å’Œå¯¹æ–¹çš„ç¼–å·ï¼Œç¬¬ä¸€ä¸ªæ˜¯è‡ªå·±çš„ï¼Œç¬¬äºŒä¸ªæ˜¯å¯¹æ–¹çš„
 	string codeBig, codeSmall;
-	array<Cipher_elg, 32> ciphertext;	 //¾­¹ıÁ½ÂÖ»ìÏıµÄÃÜÎÄ
-	array<ZZ, 32> dk_1;    //×Ô¼ºµÄ½âÃÜ·İ¶î
-	array<ZZ, 32> dk_2;  //¶Ô·½µÄ½âÃÜ·İ¶î
+	array<Cipher_elg, 32> ciphertext;	 //ç»è¿‡ä¸¤è½®æ··æ·†çš„å¯†æ–‡
+	array<ZZ, 32> dk_1;    //è‡ªå·±çš„è§£å¯†ä»½é¢
+	array<ZZ, 32> dk_2;  //å¯¹æ–¹çš„è§£å¯†ä»½é¢
 	array<ZZ, 32> c2;
 	string ans[2] = { "FAIL","PASS" };
 	int cipherNum = 32;
@@ -25,153 +26,17 @@ private:
 	Mod_p h;
 	Mod_p y;
 
-	//¶ÁÈ¡¾­¹ıÁ½ÂÖ»ìÏıµÄÃÜÎÄ
-	void readCipherShuffled() {
-		string fileName = "cipherSR" + codeBig + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext[i];
-		}
-		ist.close();
-	}
-	//´´½¨½âÃÜ·İ¶î
-	void createDk() {
-		string fileName = "dk" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost) {
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		stringstream ss;
-		for (int i = 0; i < cipherNum; i++) {
-			c2[i] = ciphertext[i].get_u();
-			dk_1[i] = PowerMod(c2[i], sk, mod);
-			ost << dk_1[i] << endl;
-			ss << dk_1[i] << ";";
-		}
-		ost.close();
-
-		string cipher_1, cipher_2;
-		ss >> cipher_1;
-		if (bigMe) {//´óºÅÏÈ½ÓÊÕÔÙ·¢ËÍ
-			net.mReceive(cipher_2);
-			net.mSend(cipher_1);
-		}
-		else {//Ğ¡ºÅÏÈ·¢ËÍÔÙ½ÓÊÕ
-			net.mSend(cipher_1);
-			net.mReceive(cipher_2);
-		}
-		vector<string> ciphertext_2_str;
-		net.deserialization(cipher_2, ciphertext_2_str);
-		//±£´æ
-		fileName = "dk" + codes[1] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++)
-			ost << ciphertext_2_str[i] << endl;
-		ost.close();
-	}
-	//¶ÁÈ¡¶Ô·½µÄ½âÃÜ·İ¶î
-	void readDk() {
-		string fileName = "dk" + codes[1] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> dk_2[i];
-		}
-		ist.close();
-	}
-	//Êä³ö½á¹û
-	int outputAns() {
-		int result = 0, flag = 0;
-		for (int i = 0; i < cipherNum; i++)
-		{
-			ZZ dk = MulMod(dk_1[i], dk_2[i], mod);//¼Ó·¨Í¬Ì¬
-			ZZ dk_inv = InvMod(dk, mod);//È¡Äæ
-			ZZ ans = El.get_m(MulMod(ciphertext[i].get_v(), dk_inv, mod));//½âÃÜ
-			if (ans == 0)
-			{//´óºÅÊ¤
-
-				return 0;
-			}
-			else if (ans == 1)
-			{//Æ½¾Ö
-				flag++;
-			}
-		}
-		if (flag == cipherNum)
-
-			return 1;
-		return 2;
-
-	}
+	//è¯»å–ç»è¿‡ä¸¤è½®æ··æ·†çš„å¯†æ–‡
+	void readCipherShuffled();
+	//åˆ›å»ºè§£å¯†ä»½é¢
+	void createDk();
+	//è¯»å–å¯¹æ–¹çš„è§£å¯†ä»½é¢
+	void readDk();
+	//è¾“å‡ºç»“æœ
+	int outputAns();
 public:
-	Decrypt(array<string, 2> codes, string codeBig, string codeSmall, bool bigMe) :codes(codes), codeBig(codeBig), codeSmall(codeSmall), bigMe(bigMe) {
-		SetSeed(to_ZZ((long)time(0) + (long)clock()));
-		y = El.get_pk();
-		mod = El.get_group().get_mod();
-		ord = El.get_group().get_ord();
-		g = El.get_group().get_g();
-		h = El.get_group().get_gen();
-		sk = El.get_sk();
-	}
-	int decrypt() {
-		readCipherShuffled();
-		createDk();
-		readDk();
-		return outputAns();
-	}
-	void prove() {
-		clock_t tstart = clock();
-		string fileName = "proveDecrypt" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		//Éú³ÉÖ¤Ã÷
-		Commitment com(codes, c2, dk_1, bigMe, fileName);
-		com.decryptCommit();
-
-		ost.close();
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
-	}
-
-	bool verify() {
-		clock_t tstart = clock();
-		bool flag = true;
-		ist.close();
-		//¶ÁÈëÖ¤Ã÷
-		string fileName = "proveDecrypt" + codes[0] + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist)
-		{
-			cout << "Can't open " << fileName << endl;
-			exit(1);
-		}
-
-		//ÑéÖ¤Ö¤Ã÷
-		Commitment com(codes, bigMe, fileName);
-		flag &= com.decryptCheck();
-
-		ist.close();
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "verify decrypt " << ttime << " ms" << endl;
-		return flag;
-	}
+	Decrypt(array<string, 2> codes, string codeBig, string codeSmall, bool bigMe);
+	int decrypt();
+	void prove();
+	bool verify();
 };

@@ -1,4 +1,4 @@
-﻿#include "Functions.h"
+#include "Functions.h"
 NTL_CLIENT
 
 using namespace std;
