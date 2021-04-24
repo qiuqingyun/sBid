@@ -1,13 +1,16 @@
 #include "shuffle.h"
 
-Shuffle::Shuffle(array< string, 2> codes, string round) :codes(codes), round(round) {}
+Shuffle::Shuffle(array< string, 2> codes, string round) :codes(codes), round(round) {
+	mod = El.get_group().get_mod();
+	ord = El.get_group().get_ord();
+}
 //创建Prover角色
 void Shuffle::creatProver(bool bigMe) {
 	this->bigMe = bigMe;
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
 	string fileName;
-	if (bigMe) {//大号接收小号的shuffle结果
+	if (bigMe) {//大号用小号的shuffle结果作为输入
 		string shuffleResult;
 		net.mReceive(shuffleResult);
 		vector<string> shuffleResult_str;
@@ -24,7 +27,7 @@ void Shuffle::creatProver(bool bigMe) {
 		}
 		ost.close();
 	}
-	else {//小号读取大号的比较结果
+	else {//小号用大号的比较结果作为输入
 		fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
 	}
 	//读入密文
@@ -155,6 +158,7 @@ void Shuffle::shuffle() {
 	pi = new vector<vector<vector<int>*>*>(m);
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
 	randomEl(R);//生成用于重加密的随机数矩阵R，内容为32个随机数
+	
 	//使用pi和R对密文cipher_in进行重新加密，生成32个(u,v)密文组，并输出
 	string fileName = "cipherSR" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);

@@ -15,53 +15,6 @@ int Decrypt::decrypt() {
 	readDk();
 	return outputAns();
 }
-void Decrypt::prove() {
-	clock_t tstart = clock();
-	//生成证明
-	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
-	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
-	com.decryptCommit();
-	//计时
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
-	//交换证明
-	string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
-	if (bigMe) {
-		net.fSend(fileName);
-		net.fReceive(fileName1);
-	}
-	else {
-		net.fReceive(fileName1);
-		net.fSend(fileName);
-	}
-}
-bool Decrypt::verify() {
-	clock_t tstart = clock();
-	int index = 0;
-	if (!vMode)
-		index = 1;
-	bool flag = true;
-	ist.close();
-	//读入证明
-	string fileName = "proveDecrypt" + codes[index] + "-R" + round + ".txt";
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-
-	//验证证明
-	Commitment com(codes, round, bigMe, fileName);
-	flag &= com.decryptCheck();
-
-	ist.close();
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "verify decrypt " << ttime << " ms" << endl;
-	return flag;
-}
 //读取经过两轮混淆的密文
 void Decrypt::readCipherShuffled() {
 	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
@@ -152,4 +105,82 @@ int Decrypt::outputAns() {
 		return 1;
 	return 2;
 
+}
+void Decrypt::prove() {
+	clock_t tstart = clock();
+	//生成证明
+	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
+	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
+	com.decryptCommit();
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
+	//交换证明
+	string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}
+}
+bool Decrypt::verify() {
+	clock_t tstart = clock();
+	int index = 0;
+	if (!vMode)
+		index = 1;
+	bool flag = true;
+	//读入密文，得到c2
+	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist) {
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	for (int i = 0; i < cipherNum; i++) {
+		ist >> ciphertext[i];
+	}
+	ist.close();
+	//读入dk
+	fileName = "dk" + codes[index] + "-R" + round + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist) {
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	for (int i = 0; i < cipherNum; i++) {
+		ist >> dk_1[i];
+	}
+	ist.close();
+	//读入pk
+	fileName = "pk" + codes[index] + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist) {
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string container;
+	ist >> container;
+	pk.toModP(container, mod);
+	ist.close();
+	//读入证明
+	fileName = "proveDecrypt" + codes[index] + "-R" + round + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	//验证证明
+	Commitment com(codes, round, ciphertext, dk_1, pk, bigMe, fileName);
+	flag &= com.decryptCheck();
+
+	ist.close();
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "verify decrypt " << ttime << " ms" << endl;
+	return flag;
 }

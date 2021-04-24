@@ -16,9 +16,9 @@
 
 ## 使用方法
 * 命令格式: `./sBid <para1> <para2> <para3> <para4>`
-* 参数生成：`<para1>`置0，无需`<para2>`,`<para3>`,`<para4>`参数
-* 竞拍功能：`<para1>`为竞拍参与者的唯一编号，`<para2>`为另一竞拍参与者的唯一编号，`<para3>`为当前竞拍轮数，无需`<para4>`参数
-* 验证功能：`<para1>`置0，`<para2>`为将要验证的竞拍参与者的唯一编号，`<para3>`为另一竞拍参与者的唯一编号，`<para4>`为将要验证的竞拍轮数
+* 参数生成：`<para1>`为`-g`，无需`<para2>`,`<para3>`,`<para4>`参数
+* 竞拍功能：`<para1>`为`-b`，`<para2>`为竞拍参与者的唯一编号，`<para3>`为另一竞拍参与者的唯一编号，`<para4>`为当前竞拍轮数
+* 验证功能：`<para1>`为`-v`，`<para2>`为将要验证的竞拍参与者的唯一编号，`<para3>`为另一竞拍参与者的唯一编号，`<para4>`为将要验证的竞拍轮数
 
 ## 必要文件
 * 参数生成：无
@@ -37,25 +37,13 @@
         * 上一轮的加密密文文件`ciphertext${code}.txt`
         * 上一轮的加密随机数文件`ran${code}.txt`
 * 验证功能：
-    * 基础文件：
-        * 加密参数文件`parameters.txt`
-        * 被验方的公钥文件`pk${code}.txt`
-        * 被验方的主公钥文件`pk${CoCode}.txt`
-        * 注：
-            1. `${code}`为竞拍参与者的唯一编号
-            2. `${CoCode}`为竞拍双方唯一编号的组合编号
-    * 密文文件：
-        * 被验方的加密密文文件`ciphertext${code}.txt`
-        * 另一方的加密密文文件`ciphertext${code_opponent}.txt`
-        * 比较结果文件`cipherCR${code_big}.txt`
-        * 被验方的混淆结果文件`cipherSR${code}.txt`
-        * 另一方的混淆结果文件`cipherSR${code_opponent}.txt`
-        * 注：
-            1. `${code}`为竞拍参与者的唯一编号
-            2. `${code_opponent}`为另一竞拍参与者的唯一编号
-            3. `${code_big}`为两个竞拍参与者的唯一编号中值更大的唯一编号
-    * 证明文件：
-        * 加密正确性证明文件`proveCipher${code}.txt`
-        * 比较正确性证明文件`proveCompare${code}.txt`
-        * 混淆正确性证明文件`proveCompare${code}.txt`
-        * 解密正确性证明文件`proveCompare${code}.txt`
+        * 参数文件`parameters.txt`
+        * 公钥文件`pk*.txt`
+        * 部分解密文件`dk*-R*.txt`
+        * 加密密文文件`ciphertext*-R*.txt`
+        * 比较结果文件`cipherCR*-R*.txt`
+        * 混淆结果文件`cipherSR*-R*.txt`
+        * 加密正确性证明文件`proveCipher*-R*.txt`
+        * 比较正确性证明文件`proveCompare*-R*.txt`
+        * 混淆正确性证明文件`proveShuffle*-R*.txt`
+        * 解密正确性证明文件`proveDecrypt*-R*.txt`

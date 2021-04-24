@@ -33,8 +33,6 @@ private:
 	bool bigMe;
 	ZZ mod;
 	ZZ ord;
-	ZZ gen;
-	ZZ genq;  // generator of Z_q，用于验证的生成元
 
 	//读取群的参数并生成群
 	//void readParameters();

@@ -24,30 +24,28 @@
 
 #include "./3sBid/sBid.h"
 extern ZZ sk_debug;
-
+extern bool debug;
 int main(int argc, char** argv)
 {
 	array<int, 3> codes;
 	int op, ch;
 	if (argc == 1)
 	{
-		codes[0] = 1;
-		codes[1] = 2;
-		codes[2] = 1;
-		vMode = true;
-		SBid sbid;
-		sbid.prepare(codes);
-		sbid.verify();
-		/*cout << "Input your code:" << flush;
-		cin >> codes[0];
-		cout << "Input your opponent's code:" << flush;
-		cin >> codes[1];
-		cout << "Input round:" << flush;
-		cin >> codes[2];
-		SBid sbid;
-		sbid.prepare(codes);
-		sbid.bid();
-		sbid.verify();*/
+		if (debug) {
+			cout << "Input your code:" << flush;
+			cin >> codes[0];
+			cout << "Input your opponent's code:" << flush;
+			cin >> codes[1];
+			cout << "Input round:" << flush;
+			cin >> codes[2];
+			SBid sbid;
+			sbid.prepare(codes);
+			sbid.bid();
+			sbid.verify();
+		}
+		else {
+			cout << "please input \"./sBid -h\" to learn more" << endl;
+		}
 	}
 	else {
 		while ((ch = getopt(argc, argv, "b:v:g")) != -1)
@@ -69,7 +67,6 @@ int main(int argc, char** argv)
 					codes[0] = atoi(optarg);
 					codes[1] = atoi(argv[optind]);
 					codes[2] = atoi(argv[optind + 1]);
-					cout << "You are Verifier" << endl;
 					vMode = true;
 					SBid sbid;
 					sbid.prepare(codes);
@@ -86,7 +83,9 @@ int main(int argc, char** argv)
 					break;
 				}
 				default: {
-					cout << "error" << endl;
+					cout << "./sBid -g : Parameter Generation" << endl;
+					cout << "./sBid -b : Bidding function" << endl;
+					cout << "./sBid -v : Verification function" << endl;
 					break;
 				}
 			}

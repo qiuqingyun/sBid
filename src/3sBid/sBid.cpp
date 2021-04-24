@@ -67,7 +67,7 @@ void SBid::creatElGamal() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{//生成公私钥
-		cout << "[" << codes[0] << "] - " << fileName << " does not exist, a new key will be generated" << endl;
+		cout << "[" << codes[0] << "] - The key does not exist, a new key will be generated randomly" << endl;
 		ZZ x = RandomBnd(H.get_ord());//随机生成私钥
 		El.set_sk(x);//生成公钥
 		//输出公私钥

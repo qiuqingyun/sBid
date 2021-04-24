@@ -26,6 +26,7 @@ private:
 	Mod_p g;
 	Mod_p h;
 	Mod_p y;
+	Mod_p pk;
 
 	//读取经过两轮混淆的密文
 	void readCipherShuffled();

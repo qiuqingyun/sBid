@@ -39,7 +39,159 @@ Commitment::Commitment(array<string, 2> codes, string round, array<Cipher_elg, 3
 //验证
 Commitment::Commitment(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) : codes(codes), round(round), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {}
 //验证
-Commitment::Commitment(array<string, 2> codes, string round, bool bigMe, string fileName) : codes(codes), round(round), bigMe(bigMe), fileName(fileName) {}
+Commitment::Commitment(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> dk, Mod_p y1, bool bigMe, string fileName) : codes(codes), round(round), ciphertext(ciphertext), dk(dk), y1(y1), bigMe(bigMe), fileName(fileName) {}
+
+//密文正确性证明
+void Commitment::cipherCommit() {
+	ost.open(fileName, ios::out);
+	if (!ost)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
+		exit(1);
+	}
+	ost << mod << endl;
+	ost << ord << endl;
+	ost << g << endl;
+	ost << h << endl;
+	ost << y << endl;
+
+	sigma();
+	indicates();//表示证明
+	discreteLogarithm(2);//离散对数证明
+	linearEquation(1);//线性等式证明
+
+	ost.close();
+}
+//密文正确性证明验证
+bool Commitment::cipherCheck() {
+	bool ans = true;
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string container;
+	ist >> mod;
+	ist >> ord;
+	ist >> container;
+	g.toModP(container, mod);
+	ist >> container;
+	h.toModP(container, mod);
+	ist >> container;
+	y.toModP(container, mod);
+
+	ans &= checkSigma();
+	ans &= indicatesCheck();
+	ans &= discreteLogarithmCheck(2);
+	ans &= linearEquationCheck(1);
+	ist.close();
+	return ans;
+}
+
+//密文一致性证明
+void Commitment::ciphertextConsistencyCommit() {
+	ost.open(fileName, ios::out);
+	if (!ost)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
+		exit(1);
+	}
+	ost << mod << endl;
+	ost << ord << endl;
+	ost << g << endl;
+	ost << h << endl;
+	array< ZZ, 32> c, s1, s2, s3, s4;
+	array< Mod_p, 32> t;
+	for (int i = 0; i < cipherNum; i++) {
+		//生成随机数v1,v2,v3,v4
+		ZZ v1 = RandomBnd(ord);
+		ZZ v2 = v1;
+		ZZ v3 = RandomBnd(ord);
+		ZZ v4 = RandomBnd(ord);
+		t[i] = g.expo(v1) * g.expo(v2) * y.expo(v3) * y_1.expo(v4);//g^v1 × y^v2
+		stringstream ss;
+		ss << g << y << y_1 << t[i] << ciphertext_1[i].get_v() << ciphertext_2[i].get_v();//hash( g, y1, y2, t, c1, c2 )
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
+		c[i] = hashValue;//hash挑战
+		s1[i] = SubMod(v1, MulMod(c[i], plaintext[i], mod - 1), mod - 1);//v1-cm1
+		s2[i] = SubMod(v2, MulMod(c[i], plaintext[i], mod - 1), mod - 1);//v2-cm2
+		s3[i] = SubMod(v3, MulMod(c[i], ran_1[i], mod - 1), mod - 1);//v3-cr1
+		s4[i] = SubMod(v4, MulMod(c[i], ran_2[i], mod - 1), mod - 1);//v4-cr2
+	}
+	//0 c
+	for (int i = 0; i < cipherNum; i++)
+		ost << c[i] << endl;
+	//1 t
+	for (int i = 0; i < cipherNum; i++)
+		ost << t[i] << endl;
+	//2 s1
+	for (int i = 0; i < cipherNum; i++)
+		ost << s1[i] << endl;
+	//3 s2
+	for (int i = 0; i < cipherNum; i++)
+		ost << s2[i] << endl;
+	//4 s3
+	for (int i = 0; i < cipherNum; i++)
+		ost << s3[i] << endl;
+	//5 s4
+	for (int i = 0; i < cipherNum; i++)
+		ost << s4[i] << endl;
+	ost.close();
+}
+//密文一致性证明验证
+bool Commitment::ciphertextConsistencyCheck() {
+	bool ans = true;
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string container;
+	array< ZZ, 32> c, s1, s2, s3, s4;
+	array< Mod_p, 32> t;
+	ist >> mod;
+	ist >> ord;
+	ist >> container;
+	g.toModP(container, mod);
+	ist >> container;
+	h.toModP(container, mod);
+	//0 c
+	for (int i = 0; i < cipherNum; i++)
+		ist >> c[i];
+	//1 t
+	for (int i = 0; i < cipherNum; i++)
+	{
+		ist >> container;
+		t[i].toModP(container, mod);
+	}
+	//2 s1
+	for (int i = 0; i < cipherNum; i++)
+		ist >> s1[i];
+	//3 s2
+	for (int i = 0; i < cipherNum; i++)
+		ist >> s2[i];
+	//4 s3
+	for (int i = 0; i < cipherNum; i++)
+		ist >> s3[i];
+	//5 s4
+	for (int i = 0; i < cipherNum; i++)
+		ist >> s4[i];
+	ist.close();
+	for (int i = 0; i < cipherNum; i++) {
+		Mod_p x = Mod_p(ciphertext_1[i].get_v() * ciphertext_2[i].get_v(), mod);
+		Mod_p temp = g.expo(s1[i]) * g.expo(s2[i]) * y.expo(s3[i]) * y_1.expo(s4[i]) * x.expo(c[i]);
+		stringstream ss;
+		ss << g << y << y_1 << t[i] << ciphertext_1[i].get_v() << ciphertext_2[i].get_v();//hash( g, y1, y2, t, c1, c2 )
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
+		ans &= (temp == t[i]);
+		ans &= (s1[i] == s2[i]);
+		ans &= (c[i] == hashValue);
+	}
+	return ans;
+}
+
 //比较正确性证明
 void Commitment::compareCommit() {
 	ost.open(fileName, ios::out);
@@ -89,52 +241,7 @@ bool Commitment::compareCheck(Cipher_elg cipherZero) {
 	return ans;
 }
 
-void Commitment::cipherCommit() {
-	ost.open(fileName, ios::out);
-	if (!ost)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
-		exit(1);
-	}
-	ost << mod << endl;
-	ost << ord << endl;
-	ost << g << endl;
-	ost << h << endl;
-	ost << y << endl;
-
-	sigma();
-	indicates();//表示证明
-	discreteLogarithm(2);//离散对数证明
-	linearEquation(1);//线性等式证明
-
-	ost.close();
-}
-bool Commitment::cipherCheck() {
-	bool ans = true;
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	string container;
-	ist >> mod;
-	ist >> ord;
-	ist >> container;
-	g.toModP(container, mod);
-	ist >> container;
-	h.toModP(container, mod);
-	ist >> container;
-	y.toModP(container, mod);
-
-	ans &= checkSigma();
-	ans &= indicatesCheck();
-	ans &= discreteLogarithmCheck(2);
-	ans &= linearEquationCheck(1);
-	ist.close();
-	return ans;
-}
-
+//解密正确性证明
 void Commitment::decryptCommit() {
 	ost.open(fileName, ios::out);
 	if (!ost)
@@ -146,21 +253,18 @@ void Commitment::decryptCommit() {
 	ost << ord << endl;
 	ost << g << endl;
 	ost << h << endl;
-	ost << y << endl;
 
 	for (int i = 0; i < cipherNum; i++) {
 		ran[i] = x1.get_val();//x1
 		ciphertext[i] = Cipher_elg(y1.get_val(), dk[i], mod);
 		base1[i] = Mod_p(c2[i], mod);
 		base2[i] = h;
-		ost << ciphertext[i] << endl;
-		ost << base1[i] << endl;
-		ost << base2[i] << endl;
 	}
 	equation();
 
 	ost.close();
 }
+//解密正确性证明验证
 bool Commitment::decryptCheck() {
 	bool ans = true;
 	ist.open(fileName, ios::in);
@@ -176,17 +280,12 @@ bool Commitment::decryptCheck() {
 	g.toModP(container, mod);
 	ist >> container;
 	h.toModP(container, mod);
-	ist >> container;
-	y.toModP(container, mod);
 
 	for (int i = 0; i < cipherNum; i++) {
-		ist >> ciphertext[i];
-		ist >> container;
-		base1[i].toModP(container, mod);
-		ist >> container;
-		base2[i].toModP(container, mod);
+		base1[i] = Mod_p(ciphertext[i].get_u(), mod);
+		base2[i] = h;
+		ciphertext[i] = Cipher_elg(y1.get_val(), dk[i], mod);
 	}
-
 	ans &= equationCheck();
 	ist.close();
 	return ans;

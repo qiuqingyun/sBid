@@ -6,4 +6,4 @@ ElGamal El = ElGamal();         // The class for encryption and decryption
 Pedersen Ped = Pedersen();        // Object which calculates the commitments
 Network net = Network();
 bool vMode = false;
-bool debug = true;
+bool debug = false;

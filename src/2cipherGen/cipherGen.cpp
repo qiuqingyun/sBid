@@ -134,7 +134,6 @@ void CipherGen::prove() {
 	}
 	//密文一致性证明
 	if (stoi(round) > 1) {
-		tstart = clock();
 		//读入上一轮的公钥,密文
 		fileName = "ciphertext" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
 		ist.open(fileName, ios::in);
@@ -147,6 +146,16 @@ void CipherGen::prove() {
 		y_1.toModP(container, mod);
 		for (int i = 0; i < cipherNum; i++) {
 			ist >> ciphertext_2[i];
+		}
+		//交换证明
+		fileName1 = "ciphertext" + codes[1] + "-R" + to_string(stoi(round) - 1) + ".txt";
+		if (bigMe) {
+			net.fSend(fileName);
+			net.fReceive(fileName1);
+		}
+		else {
+			net.fReceive(fileName1);
+			net.fSend(fileName);
 		}
 		ist.close();
 		//读入上一轮的随机数
@@ -161,6 +170,7 @@ void CipherGen::prove() {
 		}
 		ist.close();
 		//生成证明
+		tstart = clock();
 		fileName = "proveConsistency" + codes[0] + "-R" + round + ".txt";
 		Commitment com2(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, ran_2, y_1, bigMe, fileName);
 		com2.ciphertextConsistencyCommit();
