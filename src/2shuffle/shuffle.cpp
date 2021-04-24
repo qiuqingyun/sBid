@@ -16,7 +16,7 @@ void Shuffle::creatProver(bool bigMe) {
 		ost.open(fileName, ios::out);
 		if (!ist)
 		{
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		for (int i = 0; i < 32; i++) {
@@ -31,7 +31,7 @@ void Shuffle::creatProver(bool bigMe) {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{//作为第二轮shuffle者
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	readCipher(cipher_in);
@@ -54,7 +54,7 @@ void Shuffle::creatVerifier() {
 		ist.open(fileName, ios::in);
 		if (!ist)
 		{
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 	}
@@ -65,7 +65,7 @@ void Shuffle::creatVerifier() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	readCipher(cipher_out);
@@ -105,7 +105,7 @@ void Shuffle::shuffle() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	stringstream ss;
@@ -131,7 +131,7 @@ void Shuffle::shuffle() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		for (int i = 0; i < 32; i++)
@@ -222,14 +222,18 @@ void Shuffle::reencryptCipher(stringstream& ss) {
 //生成承诺
 void Shuffle::prove() {//prove内容有问题
 	clock_t tstart = clock();
-
+	//生成证明
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
 	string fileName = "proveShuffle" + codes[0] + "-R" + round + ".txt";
-	P->prove(fileName);
+	P->prove(codes, fileName);
 	delete P;
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
 	//交换证明
-	/*string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
 		net.fSend(fileName);
 		net.fReceive(fileName1);
@@ -237,11 +241,7 @@ void Shuffle::prove() {//prove内容有问题
 	else {
 		net.fReceive(fileName1);
 		net.fSend(fileName);
-	}*/
-
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
+	}
 }
 //正确性验证
 bool Shuffle::verify() {

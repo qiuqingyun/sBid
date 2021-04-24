@@ -161,7 +161,7 @@ void Network::fSend(string fileName) {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codeName << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string temp,container;
@@ -178,7 +178,7 @@ void Network::fReceive(string fileName) {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't creat " << fileName << endl;
+		cout << "[" << codeName << "] - " << "Can't creat " << fileName << endl;
 		exit(1);
 	}
 	string  container;

@@ -605,12 +605,12 @@ void Prover_toom::round_9() {
 	//ost.close();
 }
 
-int Prover_toom::prove(string fileName)
+int Prover_toom::prove(array<string, 2> codes,string fileName)
 {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create "<< fileName << endl;
 		exit(1);
 	}
 	this->round_1();

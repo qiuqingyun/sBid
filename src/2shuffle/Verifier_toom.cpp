@@ -98,7 +98,7 @@ int Verifier_toom::verify(string codeName, string round, vector<vector<Cipher_el
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codeName << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	//reads the values out of the file name

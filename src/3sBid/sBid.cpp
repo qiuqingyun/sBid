@@ -14,7 +14,7 @@ void SBid::prepare(array<int, 3> codes_in) {
 	codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
 	bigMe = codes_in[0] > codes_in[1];
 	readParameters();
-	
+
 }
 //开始竞标
 void SBid::bid() {
@@ -47,7 +47,7 @@ void SBid::readParameters() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	ist >> mod;
@@ -67,14 +67,14 @@ void SBid::creatElGamal() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{//生成公私钥
-		cout << fileName << " does not exist, a new key will be generated" << endl;
+		cout << "[" << codes[0] << "] - " << fileName << " does not exist, a new key will be generated" << endl;
 		ZZ x = RandomBnd(H.get_ord());//随机生成私钥
 		El.set_sk(x);//生成公钥
 		//输出公私钥
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		ost << El.get_pk_1() << endl;
@@ -83,7 +83,7 @@ void SBid::creatElGamal() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		ost << El.get_sk() << endl;
@@ -99,7 +99,7 @@ void SBid::creatElGamal() {
 		ist.open(fileName, ios::in);
 		if (!ist)
 		{
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		getline(ist, sk_str);
@@ -126,7 +126,7 @@ void SBid::pkExchange() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	ost << pk_2 << endl;

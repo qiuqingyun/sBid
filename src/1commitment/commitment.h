@@ -127,7 +127,7 @@ public:
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		ost << mod << endl;
@@ -177,7 +177,7 @@ public:
 		ist.open(fileName, ios::in);
 		if (!ist)
 		{
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		string container;

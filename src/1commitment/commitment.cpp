@@ -45,7 +45,7 @@ void Commitment::compareCommit() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	ost << mod << endl;
@@ -67,7 +67,7 @@ bool Commitment::compareCheck(Cipher_elg cipherZero) {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string container;
@@ -93,7 +93,7 @@ void Commitment::cipherCommit() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	ost << mod << endl;
@@ -114,7 +114,7 @@ bool Commitment::cipherCheck() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string container;
@@ -139,7 +139,7 @@ void Commitment::decryptCommit() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	ost << mod << endl;
@@ -166,7 +166,7 @@ bool Commitment::decryptCheck() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string container;

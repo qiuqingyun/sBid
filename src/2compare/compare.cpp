@@ -24,12 +24,16 @@ void Compare::compare() {
 //生成证明
 void Compare::prove() {
 	clock_t tstart = clock();
-	string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
 	//生成证明
+	string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
 	Commitment com(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
 	com.compareCommit();
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
 	//交换证明
-	/*string fileName1 = "proveCompare" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = "proveCompare" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
 		net.fSend(fileName);
 		net.fReceive(fileName1);
@@ -37,11 +41,7 @@ void Compare::prove() {
 	else {
 		net.fReceive(fileName1);
 		net.fSend(fileName);
-	}*/
-
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
+	}
 }
 //验证证明
 bool Compare::verify() {
@@ -54,7 +54,7 @@ bool Compare::verify() {
 	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string container;
@@ -69,7 +69,7 @@ bool Compare::verify() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 
@@ -88,7 +88,7 @@ void Compare::readCipher() {
 	string fileName = "ciphertext" + codes[1] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string temp;
@@ -100,7 +100,7 @@ void Compare::readCipher() {
 	fileName = "ciphertext" + codes[0] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	ist >> temp;
@@ -117,7 +117,7 @@ void Compare::cmp() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create "<< fileName << endl;
 			exit(1);
 		}
 		Cipher_elg a, b, aPb, aTb, twoTaTb, minus2TaTb, b_minus, aMbM1;
@@ -160,7 +160,7 @@ void Compare::cmp() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create "<< fileName << endl;
 			exit(1);
 		}
 		for (int i = 0; i < cipherNum; i++)

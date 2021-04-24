@@ -17,12 +17,16 @@ int Decrypt::decrypt() {
 }
 void Decrypt::prove() {
 	clock_t tstart = clock();
-	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
 	//生成证明
+	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
 	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
 	com.decryptCommit();
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
 	//交换证明
-	/*string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
 		net.fSend(fileName);
 		net.fReceive(fileName1);
@@ -30,11 +34,7 @@ void Decrypt::prove() {
 	else {
 		net.fReceive(fileName1);
 		net.fSend(fileName);
-	}*/
-
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
+	}
 }
 bool Decrypt::verify() {
 	clock_t tstart = clock();
@@ -48,7 +48,7 @@ bool Decrypt::verify() {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 
@@ -67,7 +67,7 @@ void Decrypt::readCipherShuffled() {
 	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < cipherNum; i++) {
@@ -80,7 +80,7 @@ void Decrypt::createDk() {
 	string fileName = "dk" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost) {
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	stringstream ss;
@@ -109,7 +109,7 @@ void Decrypt::createDk() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < cipherNum; i++)
@@ -121,7 +121,7 @@ void Decrypt::readDk() {
 	string fileName = "dk" + codes[1] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < cipherNum; i++) {

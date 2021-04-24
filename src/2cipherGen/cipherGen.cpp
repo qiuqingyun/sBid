@@ -22,12 +22,16 @@ void CipherGen::gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext,
 //生成证明
 void CipherGen::prove() {
 	clock_t tstart = clock();
-	string fileName = "proveCipher" + codes[0] + "-R" + round + ".txt";
 	//生成证明
+	string fileName = "proveCipher" + codes[0] + "-R" + round + ".txt";
 	Commitment com(codes, round, plaintext, ciphertext, ran_1, bigMe, fileName);
 	com.cipherCommit();//生成本轮密文正确性证明
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove ciphertext " << ttime << " ms" << endl;
 	//交换证明
-	/*string fileName1 = "proveCipher" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = "proveCipher" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
 		net.fSend(fileName);
 		net.fReceive(fileName1);
@@ -35,13 +39,15 @@ void CipherGen::prove() {
 	else {
 		net.fReceive(fileName1);
 		net.fSend(fileName);
-	}*/
+	}
+	//密文一致性证明
 	if (stoi(round) > 1) {
+		tstart = clock();
 		//读入上一轮的公钥,密文
 		fileName = "ciphertext" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
 		ist.open(fileName, ios::in);
 		if (!ist) {
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		string container;
@@ -55,7 +61,7 @@ void CipherGen::prove() {
 		fileName = "ran" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
 		ist.open(fileName, ios::in);
 		if (!ist) {
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		for (int i = 0; i < cipherNum; i++) {
@@ -66,8 +72,12 @@ void CipherGen::prove() {
 		fileName = "proveConsistency" + codes[0] + "-R" + round + ".txt";
 		Commitment com2(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, ran_2, y_1, bigMe, fileName);
 		com2.ciphertextConsistencyCommit();
+		//计时
+		tstop = clock();
+		ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+		cout << "[" << codes[0] << "] - " << "prove consistency " << ttime << " ms" << endl;
 		//交换证明
-		/*fileName1 = "proveConsistency" + codes[1] + "-R" + round + ".txt";
+		fileName1 = "proveConsistency" + codes[1] + "-R" + round + ".txt";
 		if (bigMe) {
 			net.fSend(fileName);
 			net.fReceive(fileName1);
@@ -75,12 +85,9 @@ void CipherGen::prove() {
 		else {
 			net.fReceive(fileName1);
 			net.fSend(fileName);
-		}*/
+		}
 	}
 
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove ciphertext " << ttime << " ms" << endl;
 }
 //验证证明
 bool CipherGen::verify() {
@@ -94,7 +101,7 @@ bool CipherGen::verify() {
 	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
-		cout << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	string container;
@@ -114,7 +121,7 @@ bool CipherGen::verify() {
 		fileName = "ciphertext" + codes[index] + "-R" + to_string(stoi(round) - 1) + ".txt";
 		ist.open(fileName, ios::in);
 		if (!ist) {
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		ist >> container;
@@ -142,7 +149,7 @@ void CipherGen::readPlaintext() {
 		fileName = "plaintext_int" + codes[0] + ".txt";
 		ist.open(fileName, ios::in);
 		if (!ist) {
-			cout << "Can't open " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 			exit(1);
 		}
 		ist >> plaintext_int;
@@ -152,7 +159,7 @@ void CipherGen::readPlaintext() {
 		fileName = "plaintext" + codes[0] + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost) {
-			cout << "Can't create " << fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		ost << plaintext_inv << endl;
@@ -171,7 +178,7 @@ void CipherGen::createCipher() {
 	string fileName = "ciphertext" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost) {
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	stringstream ss;
@@ -207,7 +214,7 @@ void CipherGen::createCipher() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < ciphertext_2_str.size(); i++)
@@ -218,7 +225,7 @@ void CipherGen::createCipher() {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "Can't create " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < ran_1.size(); i++)
