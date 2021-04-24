@@ -12,7 +12,7 @@ public:
 
 	static string toString(const uint8_t* digest);
 	string hash(string m);
-	ZZ hash(string str, G_q G);
+	ZZ hash(string str, ZZ mod, ZZ ord);
 
 private:
 	uint8_t  m_data[64];

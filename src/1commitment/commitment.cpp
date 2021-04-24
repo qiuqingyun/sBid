@@ -1,7 +1,15 @@
 #include "commitment.h"
 
+//密文一致性证明
+Commitment::Commitment(array<string, 2> codes, string round, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext_1, array<Cipher_elg, 32> ciphertext_2, array<ZZ, 32> ran_1, array<ZZ, 32> ran_2, Mod_p y_1, bool bigMe, string fileName) :codes(codes), round(round), plaintext(plaintext), ciphertext_1(ciphertext_1), ciphertext_2(ciphertext_2), ran_1(ran_1), ran_2(ran_2), y_1(y_1), bigMe(bigMe), fileName(fileName) {
+	mod = El.get_group().get_mod();
+	ord = El.get_group().get_ord();
+	g = El.get_group().get_g();
+	h = El.get_group().get_gen();
+	y = El.get_pk();
+}
 //加密正确性证明
-Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran, bool bigMe, string fileName) :codes(codes), plaintext(plaintext), ciphertext(ciphertext), ran(ran), bigMe(bigMe), fileName(fileName) {
+Commitment::Commitment(array<string, 2> codes, string round, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran, bool bigMe, string fileName) :codes(codes), round(round), plaintext(plaintext), ciphertext(ciphertext), ran(ran), bigMe(bigMe), fileName(fileName) {
 	mod = El.get_group().get_mod();
 	ord = El.get_group().get_ord();
 	g = El.get_group().get_g();
@@ -9,7 +17,7 @@ Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> plaintext, array<Ci
 	y = El.get_pk();
 }
 //比较正确性证明
-Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> plaintext_1, array<Cipher_elg, 32> ciphertext_1, array<Cipher_elg, 32> ciphertext_2, array<ZZ, 32> ran_1, Cipher_elg cipherZero_1, Cipher_elg cipherZero_2, ZZ ranZero, bool bigMe, string fileName) :codes(codes), plaintext_1(plaintext_1), ciphertext_1(ciphertext_1), ciphertext_2(ciphertext_2), ran_1(ran_1), cipherZero_1(cipherZero_1), cipherZero_2(cipherZero_2), ranZero(ranZero), bigMe(bigMe), fileName(fileName) {
+Commitment::Commitment(array<string, 2> codes, string round, array<ZZ, 32> plaintext_1, array<Cipher_elg, 32> ciphertext_1, array<Cipher_elg, 32> ciphertext_2, array<ZZ, 32> ran_1, Cipher_elg cipherZero_1, Cipher_elg cipherZero_2, ZZ ranZero, bool bigMe, string fileName) :codes(codes), round(round), plaintext_1(plaintext_1), ciphertext_1(ciphertext_1), ciphertext_2(ciphertext_2), ran_1(ran_1), cipherZero_1(cipherZero_1), cipherZero_2(cipherZero_2), ranZero(ranZero), bigMe(bigMe), fileName(fileName) {
 	mod = El.get_group().get_mod();
 	ord = El.get_group().get_ord();
 	g = El.get_group().get_g();
@@ -17,7 +25,7 @@ Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> plaintext_1, array<
 	y = El.get_pk();
 }
 //解密正确性证明
-Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> c2, array<ZZ, 32> dk, bool bigMe, string fileName) :codes(codes), c2(c2), dk(dk), bigMe(bigMe), fileName(fileName) {
+Commitment::Commitment(array<string, 2> codes, string round, array<ZZ, 32> c2, array<ZZ, 32> dk, bool bigMe, string fileName) :codes(codes), round(round), c2(c2), dk(dk), bigMe(bigMe), fileName(fileName) {
 	mod = El.get_group().get_mod();
 	ord = El.get_group().get_ord();
 	g = El.get_group().get_g();
@@ -26,10 +34,12 @@ Commitment::Commitment(array<string, 2> codes, array<ZZ, 32> c2, array<ZZ, 32> d
 	y1 = El.get_pk_1();
 	x1 = Mod_p(El.get_sk(), mod);
 }
+//密文一致性证明验证
+Commitment::Commitment(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext_1, array<Cipher_elg, 32> ciphertext_2, Mod_p y, Mod_p y_1, bool bigMe, string fileName) : codes(codes), round(round), ciphertext_1(ciphertext_1), ciphertext_2(ciphertext_2), y(y), y_1(y_1), bigMe(bigMe), fileName(fileName) {}
 //验证
-Commitment::Commitment(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) :codes(codes), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {}
+Commitment::Commitment(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext, bool bigMe, string fileName) : codes(codes), round(round), ciphertext(ciphertext), bigMe(bigMe), fileName(fileName) {}
 //验证
-Commitment::Commitment(array<string, 2> codes, bool bigMe, string fileName) :codes(codes), bigMe(bigMe), fileName(fileName) {}
+Commitment::Commitment(array<string, 2> codes, string round, bool bigMe, string fileName) : codes(codes), round(round), bigMe(bigMe), fileName(fileName) {}
 //比较正确性证明
 void Commitment::compareCommit() {
 	ost.open(fileName, ios::out);
@@ -197,7 +207,7 @@ void Commitment::sigma() {
 		t2[i] = g.expo(MulMod(ZZ(plaintext[i]), v1, mod)) * y.expo(v3);//g^(m×v1) × y^v3
 		stringstream ss;
 		ss << g << y << t1[i] << t2[i] << c1;//hash( g, y, t1, t2, c1 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		c[i] = hashValue;//hash挑战
 		//生成三个响应s1,s2,s3
 		s1[i] = AddMod(MulMod(plaintext[i], c[i], mod - 1), v1, mod - 1);//s1=m×c+v1
@@ -262,7 +272,7 @@ bool Commitment::checkSigma() {
 		Mod_p temp4 = g.expo(ZZ(0)) * y.expo(s3[i]);//g^0 × y^s3
 		stringstream ss;
 		ss << g << y << t1[i] << t2[i] << c1;//hash( g, y, t1, t2, c1 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		flag &= (temp1 == temp2);
 		flag &= (temp3 == temp4);
 		flag &= (c[i] == hashValue);
@@ -283,7 +293,7 @@ void Commitment::indicates() {
 		t[i] = g.expo(v1) * y.expo(v2);//g^v1 × y^v2
 		stringstream ss;
 		ss << g << y << t[i] << c1;//hash( g, y, t, c1 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		c[i] = hashValue;//hash挑战
 		//生成三个响应s1,s2,s3
 		s1[i] = SubMod(v1, MulMod(plaintext[i], c[i], mod - 1), mod - 1);//s1=v1-m×c
@@ -329,7 +339,7 @@ bool Commitment::indicatesCheck() {
 		Mod_p temp = g.expo(s1[i]) * y.expo(s2[i]) * c1.expo(c[i]);//g^s1 × y^s2 × c1^c
 		stringstream ss;
 		ss << g << y << t[i] << c1;//hash( g, y, t, c1 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		flag &= (temp == t[i]);
 		flag &= (c[i] == hashValue);
 	}
@@ -354,7 +364,7 @@ void Commitment::discreteLogarithm(int flag) {
 				t[i] = y.expo(v);//y^v
 				stringstream ss;
 				ss << y << t[i] << c2;//hash( y, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 2: {
@@ -363,7 +373,7 @@ void Commitment::discreteLogarithm(int flag) {
 				t[i] = h.expo(v);//h^v
 				stringstream ss;
 				ss << h << t[i] << c2;//hash( h, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 3: {
@@ -372,7 +382,7 @@ void Commitment::discreteLogarithm(int flag) {
 				t[i] = base1[i].expo(v);//y^v
 				stringstream ss;
 				ss << base1[i] << t[i] << c2;//hash( y, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 4: {
@@ -381,7 +391,7 @@ void Commitment::discreteLogarithm(int flag) {
 				t[i] = base2[i].expo(v);//h^v
 				stringstream ss;
 				ss << base2[i] << t[i] << c2;//hash( h, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			default:
@@ -431,7 +441,7 @@ bool Commitment::discreteLogarithmCheck(int flag) {
 				temp = y.expo(s[i]) * c2.expo(c[i]);//y^s × c2^c
 				stringstream ss;
 				ss << y << t[i] << c2;//hash( y, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 2: {
@@ -439,7 +449,7 @@ bool Commitment::discreteLogarithmCheck(int flag) {
 				temp = h.expo(s[i]) * c2.expo(c[i]);//h^s × c2^c
 				stringstream ss;
 				ss << h << t[i] << c2;//hash( h, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 3: {
@@ -447,7 +457,7 @@ bool Commitment::discreteLogarithmCheck(int flag) {
 				temp = base1[i].expo(s[i]) * c2.expo(c[i]);//y^s × c2^c
 				stringstream ss;
 				ss << base1[i] << t[i] << c2;//hash( y, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			case 4: {
@@ -455,7 +465,7 @@ bool Commitment::discreteLogarithmCheck(int flag) {
 				temp = base2[i].expo(s[i]) * c2.expo(c[i]);//h^s × c2^c
 				stringstream ss;
 				ss << base2[i] << t[i] << c2;//hash( h, t, c2 )
-				hashValue = sha.hash(ss.str(), El.get_group());
+				hashValue = sha.hash(ss.str(), mod, ord);
 				break;
 			}
 			default:
@@ -483,7 +493,7 @@ void Commitment::linearEquation(int flag) {
 			t[i] = g.expo(v1) * y.expo(v2) * h.expo(v3);//g^v1 × y^v2 × h^v3
 			stringstream ss;
 			ss << h << y << g << t[i] << x[i];//hash( h, y, g, t, x )
-			hashValue = sha.hash(ss.str(), El.get_group());
+			hashValue = sha.hash(ss.str(), mod, ord);
 			c[i] = hashValue;//hash挑战
 			//生成响应s
 			s1[i] = SubMod(v1, MulMod(plaintext[i], c[i], mod - 1), mod - 1);//s1=v1-m×c
@@ -496,7 +506,7 @@ void Commitment::linearEquation(int flag) {
 			t[i] = y.expo(v1) * g.expo(v2) * base2[i].expo(v3);//g^v1 × y^v2 × h^v3
 			stringstream ss;
 			ss << base2[i] << y << g << t[i] << x[i];//hash( h, y, g, t, x )
-			hashValue = sha.hash(ss.str(), El.get_group());
+			hashValue = sha.hash(ss.str(), mod, ord);
 			c[i] = hashValue;//hash挑战
 			//生成响应s
 			s1[i] = SubMod(v1, MulMod(ran[i], c[i], mod - 1), mod - 1);//s1=v1-m×c
@@ -554,13 +564,13 @@ bool Commitment::linearEquationCheck(int flag) {
 			temp = g.expo(s1[i]) * y.expo(s2[i]) * h.expo(s3[i]) * x[i].expo(c[i]);//g^s1 × y^s2 × h^s3 × x^c
 			stringstream ss;
 			ss << h << y << g << t[i] << x[i];//hash( h, y, g, t, x )
-			hashValue = sha.hash(ss.str(), El.get_group());
+			hashValue = sha.hash(ss.str(), mod, ord);
 		}
 		else {
 			temp = y.expo(s1[i]) * g.expo(s2[i]) * base2[i].expo(s3[i]) * x[i].expo(c[i]);//g^s1 × y^s2 × h^s3 × x^c
 			stringstream ss;
 			ss << base2[i] << y << g << t[i] << x[i];//hash( h, y, g, t, x )
-			hashValue = sha.hash(ss.str(), El.get_group());
+			hashValue = sha.hash(ss.str(), mod, ord);
 		}
 		ans &= (temp == t[i]);
 		ans &= (s2[i] == s3[i]);
@@ -583,7 +593,7 @@ void Commitment::equation() {
 		t2[i] = base2[i].expo(v);//h^v
 		stringstream ss;
 		ss << base2[i] << base1[i] << t1[i] << t2[i] << c1 << c2;//hash( h, y, t1, t2, c1, c2 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		c[i] = hashValue;//hash挑战
 		//生成响应s
 		s[i] = SubMod(v, MulMod(ran[i], c[i], mod - 1), mod - 1);//s2=v-r×c
@@ -634,7 +644,7 @@ bool Commitment::equationCheck() {
 		Mod_p temp2 = base2[i].expo(s[i]) * c2.expo(c[i]);//h^s × c2^c
 		stringstream ss;
 		ss << base2[i] << base1[i] << t1[i] << t2[i] << c1 << c2;//hash( h, y, t1, t2, c1, c2 )
-		ZZ hashValue = sha.hash(ss.str(), El.get_group());
+		ZZ hashValue = sha.hash(ss.str(), mod, ord);
 		flag &= (temp1 == t1[i]);
 		flag &= (temp2 == t2[i]);
 		flag &= (c[i] == hashValue);
@@ -813,3 +823,4 @@ bool Commitment::compareCommitCheck5() {
 	//cout << "round5: " << ans << endl;
 	return ans;
 }
+

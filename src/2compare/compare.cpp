@@ -1,6 +1,6 @@
 #include "compare.h"
 
-Compare::Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe) :codes(codes), plaintext(plaintext), ciphertext(ciphertext), ran_1(ran_1), ranZero(ranZero), bigMe(bigMe) {
+Compare::Compare(array<string, 2> codes, string round, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe) :codes(codes), round(round), plaintext(plaintext), ciphertext(ciphertext), ran_1(ran_1), ranZero(ranZero), bigMe(bigMe) {
 	SetSeed(to_ZZ((long)time(0) + (long)clock()));
 	y = El.get_pk();
 	mod = El.get_group().get_mod();
@@ -8,7 +8,7 @@ Compare::Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_e
 	g = El.get_group().get_g();
 	h = El.get_group().get_gen();
 }
-Compare::Compare(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe) :codes(codes), ciphertext(ciphertext), bigMe(bigMe) {
+Compare::Compare(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext, bool bigMe) :codes(codes), round(round), ciphertext(ciphertext), bigMe(bigMe) {
 	//SetSeed(to_ZZ((long)time(0) + (long)clock()));
 	y = El.get_pk();
 	mod = El.get_group().get_mod();
@@ -24,18 +24,21 @@ void Compare::compare() {
 //生成证明
 void Compare::prove() {
 	clock_t tstart = clock();
-	string fileName = "proveCompare" + codes[0] + ".txt";
-	ost.open(fileName, ios::out);
-	if (!ost)
-	{
-		cout << "Can't create " << fileName << endl;
-		exit(1);
-	}
-	//TODO:生成证明
-	Commitment com(codes, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
+	string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
+	//生成证明
+	Commitment com(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
 	com.compareCommit();
+	//交换证明
+	/*string fileName1 = "proveCompare" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}*/
 
-	ost.close();
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
@@ -43,21 +46,26 @@ void Compare::prove() {
 //验证证明
 bool Compare::verify() {
 	clock_t tstart = clock();
+	int index = 0;
+	/*if (!vMode)
+		index = 1;*/
 	bool flag = true;
 	//读入密文
-	string fileName = "ciphertext" + codes[0] + ".txt";
+	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
 		cout << "Can't open " << fileName << endl;
 		exit(1);
 	}
+	string container;
+	ist >> container;
 	for (int i = 0; i < cipherNum; i++) {
 		ist >> ciphertext[i];
 	}
 	ist >> cipherZero;
 	ist.close();
 	//读入证明
-	fileName = "proveCompare" + codes[0] + ".txt";
+	fileName = "proveCompare" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -65,8 +73,8 @@ bool Compare::verify() {
 		exit(1);
 	}
 
-	//TODO:验证证明
-	Commitment com(codes, ciphertext, bigMe, fileName);
+	//验证证明
+	Commitment com(codes, round, ciphertext, bigMe, fileName);
 	flag &= com.compareCheck(cipherZero);
 
 	ist.close();
@@ -77,23 +85,25 @@ bool Compare::verify() {
 }
 //读取对方的密文
 void Compare::readCipher() {
-	string fileName = "ciphertext" + codes[1] + ".txt";
+	string fileName = "ciphertext" + codes[1] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
 		cout << "Can't open " << fileName << endl;
 		exit(1);
 	}
+	string temp;
+	ist >> temp;
 	for (int i = 0; i < cipherNum; i++)
 		ist >> ciphertext_2[i];
-	string temp;
 	ist >> cipherZero_2;//读取对方的0密文
 	ist.close();
-	fileName = "ciphertext" + codes[0] + ".txt";
+	fileName = "ciphertext" + codes[0] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
 		cout << "Can't open " << fileName << endl;
 		exit(1);
 	}
+	ist >> temp;
 	for (int i = 0; i < cipherNum; i++)
 		ist >> temp;
 	ist >> cipherZero;//读取自己的0密文
@@ -103,7 +113,7 @@ void Compare::readCipher() {
 void Compare::cmp() {
 	if (bigMe) {//大号进行比较操作，并将结果发送给小号
 		//clock_t tstart = clock();
-		string fileName = "cipherCR" + codes[0] + ".txt";
+		string fileName = "cipherCR" + codes[0] + "-R" + round + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
@@ -146,7 +156,7 @@ void Compare::cmp() {
 		net.mReceive(CR);
 		vector<string> CR_str;
 		net.deserialization(CR, CR_str);
-		string fileName = "cipherCR" + codes[1] + ".txt";
+		string fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{

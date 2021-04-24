@@ -267,6 +267,9 @@ void ElGamal::set_key(ZZ s, ZZ p) {
 	sk = s;//私钥
 	pk_1 = Mod_p(p, G.get_mod());//公钥
 }
+void ElGamal::set_pk(ZZ p) {
+	pk = Mod_p(p, G.get_mod());//公钥
+}
 //生成ElGamal主公钥
 void ElGamal::keyGen(string pk_2_str) {
 	ZZ pk_2;

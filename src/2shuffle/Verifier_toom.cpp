@@ -4,6 +4,7 @@ NTL_CLIENT
 
 G_q* Group;
 extern G_q H;
+extern G_q G;
 extern Pedersen Ped;
 extern ElGamal El;
 
@@ -84,7 +85,7 @@ Verifier_toom::~Verifier_toom()
 	delete C_c;
 }
 
-int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
+int Verifier_toom::verify(string codeName, string round, vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
 {
 	int b;
 	long i;
@@ -93,7 +94,7 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 
 	ZZ ord = H.get_ord();
 	string container1 = "\0", container2;
-	string fileName = "proveShuffle" + codeName + ".txt";
+	string fileName = "proveShuffle" + codeName + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -102,13 +103,18 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 	}
 	//reads the values out of the file name
 	//-1 group
-	ZZ g_in, gen_in, ord_in, mod_in;
+	ZZ g_in, gen_in, ord_in, mod_in, pk_in;
 	ist >> g_in;
 	ist >> gen_in;
 	ist >> ord_in;
 	ist >> mod_in;
+	ist >> pk_in;
 
 	Group = new G_q(g_in, gen_in, ord_in, mod_in);
+	H = *Group;
+	G = *Group;
+	El.set_group(H);
+	El.set_pk(pk_in);
 	//0 pedersen
 	vector<Mod_p>* pedGen = new vector<Mod_p>(n + 1);
 	for (int i = 0; i <= n; i++)
@@ -421,12 +427,12 @@ int Verifier_toom::verify(string codeName, vector<vector<Cipher_elg>*>* cc, vect
 		}
 	}
 	//cout << "[" << codeName << "] - " << "shuffle results: " << flush;
-	string ans = (flag) ? "PASS" : "FAIL";
+	//string ans = (flag) ? "PASS" : "FAIL";
 	//cout << ans << endl;
-	ofstream ost;
+	/*ofstream ost;
 	ost.open("ansShuffle" + codeName + ".txt", ios::out);
 	ost << ans << endl;
-	ost.close();
+	ost.close();*/
 	string errorStr[] = { "Dh","D","Ds","Dl" ,"d" ,"Delta" ,"B" ,"a" ,"c" ,"E" ,"ac" ,"hash" };
 	if (!flag)
 		cout << "[" << codeName << "] - " << "ERROR: " << errorStr[errorCode] << endl;
@@ -496,7 +502,6 @@ void Verifier_toom::calculate_C(Cipher_elg& C, vector<Cipher_elg>* C_c, vector<Z
 	Mod_p temp;
 	Mod_p gen = H.get_gen();
 	Cipher_elg temp_1;
-
 	NegateMod(t_1, a_c_bar, ord);
 	Mod_p::expo(temp, gen, t_1);
 	C = El.encrypt(temp, to_ZZ(0));

@@ -161,13 +161,13 @@ string SHA256::hash(string m) {
 	return hashValue;
 }
 
-ZZ SHA256::hash(string str, G_q G)
+ZZ SHA256::hash(string str, ZZ mod, ZZ ord)
 {// 用hash生成随机挑战x
 	string hashValueStr = hash(str);
 	ZZ hashValueZZ;
 	conv(hashValueZZ, hashValueStr.c_str());
-	Mod_p hashValueModP = Mod_p(hashValueZZ, G.get_mod());
-	while (hashValueModP.get_val() > G.get_ord())
-		hashValueModP.set_val(hashValueModP.get_val() - G.get_ord());
+	Mod_p hashValueModP = Mod_p(hashValueZZ, mod);
+	while (hashValueModP.get_val() > ord)
+		hashValueModP.set_val(hashValueModP.get_val() - ord);
 	return hashValueModP.get_val();
 }

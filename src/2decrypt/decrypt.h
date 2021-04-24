@@ -11,6 +11,7 @@ private:
 	ifstream ist;
 	ofstream ost;
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
+	string round;//当前轮数
 	string codeBig, codeSmall;
 	array<Cipher_elg, 32> ciphertext;	 //经过两轮混淆的密文
 	array<ZZ, 32> dk_1;    //自己的解密份额
@@ -35,7 +36,7 @@ private:
 	//输出结果
 	int outputAns();
 public:
-	Decrypt(array<string, 2> codes, string codeBig, string codeSmall, bool bigMe);
+	Decrypt(array<string, 2> codes, string round, string codeBig, string codeSmall, bool bigMe);
 	int decrypt();
 	void prove();
 	bool verify();

@@ -11,6 +11,7 @@ private:
 	ifstream ist;
 	ofstream ost;
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
+	string round;//当前轮数
 	array<ZZ, 32> plaintext;//竞价二进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<Cipher_elg, 32> ciphertext_2;  //对方的密文
@@ -34,8 +35,8 @@ private:
 	void cmp();
 
 public:
-	Compare(array<string, 2> codes, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe);
-	Compare(array<string, 2> codes, array<Cipher_elg, 32> ciphertext, bool bigMe);
+	Compare(array<string, 2> codes, string round, array<ZZ, 32> plaintext, array<Cipher_elg, 32> ciphertext, array<ZZ, 32> ran_1, ZZ ranZero, bool bigMe);
+	Compare(array<string, 2> codes, string round, array<Cipher_elg, 32> ciphertext, bool bigMe);
 	//比较
 	void compare();
 	//生成证明

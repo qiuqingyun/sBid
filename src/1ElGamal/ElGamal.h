@@ -50,6 +50,7 @@ public:
 	void set_group(G_q G);
 	void set_sk(ZZ s);
 	void set_sk(long s);
+	void set_pk(ZZ pk);
 	void set_key(ZZ s, ZZ p);
 	void keyGen(string pk_2);
 

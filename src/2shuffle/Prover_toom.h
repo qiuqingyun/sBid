@@ -146,7 +146,7 @@ public:
 	// string round_7_red();
 	void round_9a();
 	void round_9();
-	int prove(string codeName);
+	int prove(string fileName);
 
 	void commit_ac();
 	void calculate_Cc(vector<vector<Cipher_elg>*>* C, vector<vector<vector<long>*>*>* B);

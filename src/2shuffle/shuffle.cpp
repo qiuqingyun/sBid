@@ -1,9 +1,6 @@
 #include "shuffle.h"
 
-Shuffle::Shuffle(array< string, 2> codes, string codeName) {
-	this->codes = codes;
-	this->codeName = codeName;
-}
+Shuffle::Shuffle(array< string, 2> codes, string round) :codes(codes), round(round) {}
 //创建Prover角色
 void Shuffle::creatProver(bool bigMe) {
 	this->bigMe = bigMe;
@@ -15,7 +12,7 @@ void Shuffle::creatProver(bool bigMe) {
 		net.mReceive(shuffleResult);
 		vector<string> shuffleResult_str;
 		net.deserialization(shuffleResult, shuffleResult_str);
-		fileName = "cipherSR" + codes[1] + ".txt";//比较结果的密文
+		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
 		ost.open(fileName, ios::out);
 		if (!ist)
 		{
@@ -28,7 +25,7 @@ void Shuffle::creatProver(bool bigMe) {
 		ost.close();
 	}
 	else {//小号读取大号的比较结果
-		fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
+		fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
 	}
 	//读入密文
 	ist.open(fileName, ios::in);
@@ -49,11 +46,11 @@ void Shuffle::creatVerifier() {
 	creatElGamal();*/
 	//读取未shuffle的密文
 	//作为第一轮shuffle者
-	string fileName = "cipherCR" + codes[1] + ".txt";//比较结果的密文
+	string fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{//作为第二轮shuffle者
-		fileName = "cipherSR" + codes[1] + ".txt";//shuffe过一轮的密文
+		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";//shuffe过一轮的密文
 		ist.open(fileName, ios::in);
 		if (!ist)
 		{
@@ -64,7 +61,7 @@ void Shuffle::creatVerifier() {
 	readCipher(cipher_in);
 	ist.close();
 	//读取shuffle过的密文
-	fileName = "cipherSR" + codes[0] + ".txt";
+	fileName = "cipherSR" + codes[0] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -104,7 +101,7 @@ void Shuffle::shuffle() {
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
 	randomEl(R);//生成用于重加密的随机数矩阵R，内容为32个随机数
 	//使用pi和R对密文cipher_in进行重新加密，生成32个(u,v)密文组，并输出
-	string fileName = "cipherSR" + codes[0] + ".txt";
+	string fileName = "cipherSR" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -130,7 +127,7 @@ void Shuffle::shuffle() {
 		net.mReceive(cipher_2);
 		vector<string> ciphertext_2_str;
 		net.deserialization(cipher_2, ciphertext_2_str);
-		fileName = "cipherSR" + codes[1] + ".txt";
+		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
@@ -228,8 +225,20 @@ void Shuffle::prove() {//prove内容有问题
 
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
-	P->prove(codes[0]);
+	string fileName = "proveShuffle" + codes[0] + "-R" + round + ".txt";
+	P->prove(fileName);
 	delete P;
+	//交换证明
+	/*string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}*/
+
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
@@ -237,11 +246,13 @@ void Shuffle::prove() {//prove内容有问题
 //正确性验证
 bool Shuffle::verify() {
 	clock_t tstart = clock();
-
+	int index = 0;
+	/*if (!vMode)
+		index = 1;*/
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 
 	Verifier_toom* V = new Verifier_toom(num);
-	ans = V->verify(codes[0], cipher_in, cipher_out);
+	ans = V->verify(codes[index], round, cipher_in, cipher_out);
 	delete V;
 
 	clock_t tstop = clock();

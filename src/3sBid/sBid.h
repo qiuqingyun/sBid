@@ -8,21 +8,18 @@ extern G_q G;               // group used for the Pedersen commitment
 extern G_q H;               // group used for the the encryption
 extern ElGamal El;         // The class for encryption and decryption
 extern Network net;
+extern bool vMode;
 class SBid {
 private:
 	ifstream ist;
 	ofstream ost;
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
+	string round;//当前轮数
 	string codeBig, codeSmall;
 	string pkFileName;
-	string coCode;
 	array<ZZ, 32> plaintext;//竞价二进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<ZZ, 32> ran_1;//加密的随机数
-	array<Cipher_elg, 32> cipherAns;	 //经过两轮混淆的密文
-	array<ZZ, 32> dk_1;    //自己的解密份额
-	array<ZZ, 32> dk_2;  //对方的解密份额]
-	CipherGen* cipherGen;
 	ZZ ranZero;
 	string ans[2] = { "FAIL","PASS" };
 	bool bigMe;
@@ -31,7 +28,6 @@ private:
 	ZZ gen_h;
 	ZZ gen_g;
 	ZZ sk, pk;
-	int plaintext_int;
 	int cipherNum = 32;
 	int pBits = 100;
 	int qBits = 90;
@@ -40,6 +36,8 @@ private:
 	void readParameters();
 	//设置初始化ElGamal
 	void creatElGamal();
+	//将生成的公钥传递给对方
+	void pkExchange();
 	//加密并生成证明
 	void ciphertextOp();
 	//验证加密
@@ -61,7 +59,7 @@ public:
 	//生成参数
 	void parametersGen();
 	//竞拍准备操作
-	void prepare(array<int, 2> codes_in);
+	void prepare(array<int, 3> codes_in);
 	//开始竞标
 	void bid();
 	//验证

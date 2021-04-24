@@ -1,6 +1,6 @@
 #include "decrypt.h"
 
-Decrypt::Decrypt(array<string, 2> codes, string codeBig, string codeSmall, bool bigMe) :codes(codes), codeBig(codeBig), codeSmall(codeSmall), bigMe(bigMe) {
+Decrypt::Decrypt(array<string, 2> codes, string round, string codeBig, string codeSmall, bool bigMe) :codes(codes), round(round), codeBig(codeBig), codeSmall(codeSmall), bigMe(bigMe) {
 	SetSeed(to_ZZ((long)time(0) + (long)clock()));
 	y = El.get_pk();
 	mod = El.get_group().get_mod();
@@ -17,28 +17,34 @@ int Decrypt::decrypt() {
 }
 void Decrypt::prove() {
 	clock_t tstart = clock();
-	string fileName = "proveDecrypt" + codes[0] + ".txt";
-	ost.open(fileName, ios::out);
-	if (!ost)
-	{
-		cout << "Can't create " << fileName << endl;
-		exit(1);
-	}
+	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
 	//生成证明
-	Commitment com(codes, c2, dk_1, bigMe, fileName);
+	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
 	com.decryptCommit();
+	//交换证明
+	/*string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}*/
 
-	ost.close();
 	clock_t tstop = clock();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
 }
 bool Decrypt::verify() {
 	clock_t tstart = clock();
+	int index = 0;
+	/*if (!vMode)
+		index = 1;*/
 	bool flag = true;
 	ist.close();
 	//读入证明
-	string fileName = "proveDecrypt" + codes[0] + ".txt";
+	string fileName = "proveDecrypt" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -47,7 +53,7 @@ bool Decrypt::verify() {
 	}
 
 	//验证证明
-	Commitment com(codes, bigMe, fileName);
+	Commitment com(codes, round, bigMe, fileName);
 	flag &= com.decryptCheck();
 
 	ist.close();
@@ -58,7 +64,7 @@ bool Decrypt::verify() {
 }
 //读取经过两轮混淆的密文
 void Decrypt::readCipherShuffled() {
-	string fileName = "cipherSR" + codeBig + ".txt";
+	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
 		cout << "Can't open " << fileName << endl;
@@ -71,7 +77,7 @@ void Decrypt::readCipherShuffled() {
 }
 //创建解密份额
 void Decrypt::createDk() {
-	string fileName = "dk" + codes[0] + ".txt";
+	string fileName = "dk" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost) {
 		cout << "Can't create " << fileName << endl;
@@ -99,7 +105,7 @@ void Decrypt::createDk() {
 	vector<string> ciphertext_2_str;
 	net.deserialization(cipher_2, ciphertext_2_str);
 	//保存
-	fileName = "dk" + codes[1] + ".txt";
+	fileName = "dk" + codes[1] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -112,7 +118,7 @@ void Decrypt::createDk() {
 }
 //读取对方的解密份额
 void Decrypt::readDk() {
-	string fileName = "dk" + codes[1] + ".txt";
+	string fileName = "dk" + codes[1] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist) {
 		cout << "Can't open " << fileName << endl;

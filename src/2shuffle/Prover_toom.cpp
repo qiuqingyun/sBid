@@ -158,6 +158,7 @@ void Prover_toom::round_1()
 	ost << G.get_gen() << endl;
 	ost << G.get_ord() << endl;
 	ost << G.get_mod() << endl;
+	ost << El.get_pk() << endl;
 	//0 pedersen
 	vector<Mod_p>* pedGen = Ped.get_gen();
 	for (int i = 0; i <= n; i++)
@@ -604,9 +605,8 @@ void Prover_toom::round_9() {
 	//ost.close();
 }
 
-int Prover_toom::prove(string codeName)
+int Prover_toom::prove(string fileName)
 {
-	string fileName = "proveShuffle" + codeName + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{

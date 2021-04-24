@@ -154,6 +154,38 @@ void Network::deserialization(string str, vector<string>& strs) {
 		pos_start = ++pos_end;
 	}
 }
+
+//发送一个文件
+void Network::fSend(string fileName) {
+	ifstream ist;
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string temp,container;
+	while (ist >> temp) {
+		container += (temp+"\n");
+	}
+	ist.close();
+	mSend(container);
+}
+
+//接收一个文件
+void Network::fReceive(string fileName) {
+	ofstream ost;
+	ost.open(fileName, ios::out);
+	if (!ost)
+	{
+		cout << "Can't creat " << fileName << endl;
+		exit(1);
+	}
+	string  container;
+	mReceive(container);
+	ost << container;
+	ost.close();
+}
 //关闭套接字
 Network::~Network()
 {

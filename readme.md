@@ -27,14 +27,23 @@
         * 加密参数文件`parameters.txt`
         * 十进制明文金额数文件`plaintext_int${code}.txt`或二进制明文金额数文件`plaintext${code}.txt`
         * 注：
-            1. `${code}`为竞拍参与者的唯一编号，
+            1. `${code}`为竞拍参与者的唯一编号
             2. 程序优先读取二进制明文金额数文件，不存在二进制明文金额数文件时才会读取十进制明文金额数文件中的金额，且会生成二进制明文金额数文件
     * 第二轮及之后轮次
         * 加密参数文件`parameters.txt`
         * 十进制明文金额数文件`plaintext_int${code}.txt`或二进制明文金额数文件`plaintext${code}.txt`
         * 公钥文件`pk${code}.txt`
         * 私钥文件`sk${code}.txt`
+        * 上一轮的加密密文文件`ciphertext${code}.txt`
+        * 上一轮的加密随机数文件`ran${code}.txt`
 * 验证功能：
+    * 基础文件：
+        * 加密参数文件`parameters.txt`
+        * 被验方的公钥文件`pk${code}.txt`
+        * 被验方的主公钥文件`pk${CoCode}.txt`
+        * 注：
+            1. `${code}`为竞拍参与者的唯一编号
+            2. `${CoCode}`为竞拍双方唯一编号的组合编号
     * 密文文件：
         * 被验方的加密密文文件`ciphertext${code}.txt`
         * 另一方的加密密文文件`ciphertext${code_opponent}.txt`

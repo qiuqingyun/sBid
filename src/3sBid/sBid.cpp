@@ -6,24 +6,28 @@ void SBid::parametersGen() {
 	paraGen.parametersGen(pBits, qBits);
 }
 //竞拍准备操作
-void SBid::prepare(array<int, 2> codes_in) {
+void SBid::prepare(array<int, 3> codes_in) {
 	codes[0] = to_string(codes_in[0]);//自己的编号
 	codes[1] = to_string(codes_in[1]);//对方的编号
+	round = to_string(codes_in[2]);//轮数
 	codeBig = (stoi(codes[0]) > stoi(codes[1])) ? codes[0] : codes[1];
 	codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
 	bigMe = codes_in[0] > codes_in[1];
-	int port = 20200;
-	if (bigMe)
-		port += codes_in[0];
-	else
-		port += codes_in[1];
-	net.init(codes[0], bigMe, port);
 	readParameters();
-	creatElGamal();
-	ciphertextOp();
+	
 }
 //开始竞标
 void SBid::bid() {
+	int port = 20202;
+	if (bigMe)
+		port += stoi(codes[0]);
+	else
+		port += stoi(codes[1]);
+
+	net.init(codes[0], bigMe, port);
+	creatElGamal();
+	pkExchange();
+	ciphertextOp();
 	compareOp();
 	shuffleOp();
 	decryptOp();
@@ -103,7 +107,9 @@ void SBid::creatElGamal() {
 		El.set_key(sk, pk);
 		ist.close();
 	}
-	//将生成的公钥传递给对方
+}
+//将生成的公钥传递给对方
+void SBid::pkExchange() {
 	string pk_1, pk_2;
 	stringstream ss;
 	ss << El.get_pk_1();
@@ -116,7 +122,7 @@ void SBid::creatElGamal() {
 		net.mReceive(pk_2);
 		net.mSend(pk_1);
 	}
-	fileName = "pk" + codes[1] + ".txt";
+	string fileName = "pk" + codes[1] + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -127,61 +133,48 @@ void SBid::creatElGamal() {
 	ost.close();
 	//生成主公钥
 	El.keyGen(pk_2);
-	//输出主公钥
-	int suffixFlag = (codes[0] < codes[1]);
-	coCode = codes[!suffixFlag] + "-" + codes[suffixFlag];
-	fileName = "pk" + coCode + ".txt";
-	pkFileName = fileName;
-	ost.open(fileName, ios::out);
-	if (!ost)
-	{
-		cout << "Can't create " << fileName << endl;
-		exit(1);
-	}
-	ost << El.get_pk() << endl;
-	ost.close();
 }
 //加密并生成证明
 void SBid::ciphertextOp() {
-	CipherGen* cipherGen = new CipherGen(codes, bigMe);
-	cipherGen->gen(ciphertext, plaintext, ranZero, ran_1);//生成密文( h^r , g^m × y^r )
-	cipherGen->prove();//生成密文证明
+	CipherGen cipherGen(codes, round, bigMe);
+	cipherGen.gen(ciphertext, plaintext, ranZero, ran_1);//生成密文( h^r , g^m × y^r )
+	cipherGen.prove();//生成密文证明
 }
 //验证加密
 void SBid::ciphertextVerify() {
-	CipherGen* cipherVerify = new CipherGen(codes, bigMe);
-	bool flag = cipherVerify->verify();
+	CipherGen cipherVerify(codes, round, bigMe);
+	bool flag = cipherVerify.verify();
 	cout << "[" << codes[0] << "] - " << "ciphertext results: " << ans[flag] << endl;
 }
 //比较并生成证明
 void SBid::compareOp() {
-	Compare compare(codes, plaintext, ciphertext, ran_1, ranZero, bigMe);
+	Compare compare(codes, round, plaintext, ciphertext, ran_1, ranZero, bigMe);
 	compare.compare();
 	compare.prove();
 }
 //验证比较
 void SBid::compareVerify() {
-	Compare compare(codes, ciphertext, bigMe);
+	Compare compare(codes, round, ciphertext, bigMe);
 	bool flag = compare.verify();
 	cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
 }
 //混淆并生成证明
 void SBid::shuffleOp() {
-	Shuffle prover(codes, coCode);
+	Shuffle prover(codes, round);
 	prover.creatProver(bigMe);
 	prover.shuffle();
 	prover.prove();
 }
 //验证混淆
 void SBid::shuffleVerify() {
-	Shuffle verifier(codes, coCode);
+	Shuffle verifier(codes, round);
 	verifier.creatVerifier();
 	bool flag = verifier.verify();
 	cout << "[" << codes[0] << "] - " << "shuffle results: " << ans[flag] << endl;
 }
 //解密并生成证明
 void SBid::decryptOp() {
-	Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
+	Decrypt decrypt(codes, round, codeBig, codeSmall, bigMe);
 	int ans = decrypt.decrypt();
 	decrypt.prove();
 	switch (ans)
@@ -201,7 +194,7 @@ void SBid::decryptOp() {
 }
 //验证解密
 void SBid::decryptVerify() {
-	Decrypt decrypt(codes, codeBig, codeSmall, bigMe);
+	Decrypt decrypt(codes, round, codeBig, codeSmall, bigMe);
 	bool flag = decrypt.verify();
 	cout << "[" << codes[0] << "] - " << "decrypt results: " << ans[flag] << endl;
 }
