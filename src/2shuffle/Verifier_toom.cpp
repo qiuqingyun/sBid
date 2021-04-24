@@ -85,7 +85,7 @@ Verifier_toom::~Verifier_toom()
 	delete C_c;
 }
 
-int Verifier_toom::verify(string codeName, string round, vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
+int Verifier_toom::verify(array<string, 2> codes, string fileName, vector<vector<Cipher_elg>*>* cc, vector<vector<Cipher_elg>*>* Cc)
 {
 	int b;
 	long i;
@@ -94,11 +94,11 @@ int Verifier_toom::verify(string codeName, string round, vector<vector<Cipher_el
 
 	ZZ ord = H.get_ord();
 	string container1 = "\0", container2;
-	string fileName = "proveShuffle" + codeName + "-R" + round + ".txt";
+	//string fileName = "proveShuffle" + codeName + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "[" << codeName << "] - " << "Can't open " << fileName << endl;
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	//reads the values out of the file name
@@ -435,7 +435,7 @@ int Verifier_toom::verify(string codeName, string round, vector<vector<Cipher_el
 	ost.close();*/
 	string errorStr[] = { "Dh","D","Ds","Dl" ,"d" ,"Delta" ,"B" ,"a" ,"c" ,"E" ,"ac" ,"hash" };
 	if (!flag)
-		cout << "[" << codeName << "] - " << "ERROR: " << errorStr[errorCode] << endl;
+		cout << "[" << codes[0] << "] - " << "ERROR: " << errorStr[errorCode] << endl;
 	return flag;
 }
 

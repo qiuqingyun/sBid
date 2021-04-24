@@ -156,7 +156,10 @@ void SBid::compareOp() {
 void SBid::compareVerify() {
 	Compare compare(codes, round, ciphertext, bigMe);
 	bool flag = compare.verify();
-	cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
+	if ((bigMe && !vMode) || (!bigMe && vMode))//大号参与者以及小号验证者则跳过
+		return;
+	else
+		cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
 }
 //混淆并生成证明
 void SBid::shuffleOp() {
@@ -168,7 +171,7 @@ void SBid::shuffleOp() {
 //验证混淆
 void SBid::shuffleVerify() {
 	Shuffle verifier(codes, round);
-	verifier.creatVerifier();
+	verifier.creatVerifier(bigMe);
 	bool flag = verifier.verify();
 	cout << "[" << codes[0] << "] - " << "shuffle results: " << ans[flag] << endl;
 }

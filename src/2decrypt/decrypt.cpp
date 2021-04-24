@@ -39,8 +39,8 @@ void Decrypt::prove() {
 bool Decrypt::verify() {
 	clock_t tstart = clock();
 	int index = 0;
-	/*if (!vMode)
-		index = 1;*/
+	if (!vMode)
+		index = 1;
 	bool flag = true;
 	ist.close();
 	//∂¡»Î÷§√˜

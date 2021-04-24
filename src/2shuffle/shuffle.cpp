@@ -39,29 +39,43 @@ void Shuffle::creatProver(bool bigMe) {
 
 }
 //创建Verifier角色
-void Shuffle::creatVerifier() {
+void Shuffle::creatVerifier(bool bigMe) {
+	this->bigMe = bigMe;
 	cipher_in = new vector<vector<Cipher_elg>*>(m);  //输入的密文
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
-	/*readParameters();
-	creatElGamal();*/
+	int index = 1;
+	if (!vMode)
+		index = 0;
 	//读取未shuffle的密文
 	//作为第一轮shuffle者
-	string fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
+	string fileName;
+	if (!vMode) {
+		if (bigMe) {//大号读取比较结果
+			fileName = "cipherCR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
+		}
+		else {//小号读取混淆结果
+			fileName = "cipherSR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
+		}
+	}
+	else
+	{
+		if (bigMe) {//大号读取混淆结果
+			fileName = "cipherSR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
+		}
+		else {//小号读取比较结果
+			fileName = "cipherCR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
+		}
+	}
 	ist.open(fileName, ios::in);
 	if (!ist)
-	{//作为第二轮shuffle者
-		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";//shuffe过一轮的密文
-		ist.open(fileName, ios::in);
-		if (!ist)
-		{
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
-		}
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
 	}
 	readCipher(cipher_in);
 	ist.close();
 	//读取shuffle过的密文
-	fileName = "cipherSR" + codes[0] + "-R" + round + ".txt";
+	fileName = "cipherSR" + codes[!index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
@@ -70,6 +84,47 @@ void Shuffle::creatVerifier() {
 	}
 	readCipher(cipher_out);
 	ist.close();
+}
+//生成承诺
+void Shuffle::prove() {//prove内容有问题
+	clock_t tstart = clock();
+	//生成证明
+	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
+	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
+	string fileName = "proveShuffle" + codes[0] + "-R" + round + ".txt";
+	P->prove(codes, fileName);
+	delete P;
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
+	//交换证明
+	string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}
+}
+//正确性验证
+bool Shuffle::verify() {
+	clock_t tstart = clock();
+	int index = 0;
+	if (!vMode)
+		index = 1;
+	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
+	string fileName = "proveShuffle" + codes[index] + "-R" + round + ".txt";
+	Verifier_toom* V = new Verifier_toom(num);
+	ans = V->verify(codes, fileName, cipher_in, cipher_out);
+	delete V;
+
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "verify shuffle " << ttime << " ms" << endl;
+	return ans;
 }
 //读取文件中的密文，保存为16×2的矩阵形式
 void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
@@ -218,45 +273,4 @@ void Shuffle::reencryptCipher(stringstream& ss) {
 		}
 		cipher_out->at(i) = r;
 	}
-}
-//生成承诺
-void Shuffle::prove() {//prove内容有问题
-	clock_t tstart = clock();
-	//生成证明
-	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
-	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
-	string fileName = "proveShuffle" + codes[0] + "-R" + round + ".txt";
-	P->prove(codes, fileName);
-	delete P;
-	//计时
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
-	//交换证明
-	string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
-	if (bigMe) {
-		net.fSend(fileName);
-		net.fReceive(fileName1);
-	}
-	else {
-		net.fReceive(fileName1);
-		net.fSend(fileName);
-	}
-}
-//正确性验证
-bool Shuffle::verify() {
-	clock_t tstart = clock();
-	int index = 0;
-	/*if (!vMode)
-		index = 1;*/
-	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
-
-	Verifier_toom* V = new Verifier_toom(num);
-	ans = V->verify(codes[index], round, cipher_in, cipher_out);
-	delete V;
-
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "verify shuffle " << ttime << " ms" << endl;
-	return ans;
 }

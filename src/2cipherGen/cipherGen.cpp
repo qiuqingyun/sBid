@@ -19,127 +19,6 @@ void CipherGen::gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext,
 	Ran = ran_1;
 	//return ciphertext;
 }
-//生成证明
-void CipherGen::prove() {
-	clock_t tstart = clock();
-	//生成证明
-	string fileName = "proveCipher" + codes[0] + "-R" + round + ".txt";
-	Commitment com(codes, round, plaintext, ciphertext, ran_1, bigMe, fileName);
-	com.cipherCommit();//生成本轮密文正确性证明
-	//计时
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove ciphertext " << ttime << " ms" << endl;
-	//交换证明
-	string fileName1 = "proveCipher" + codes[1] + "-R" + round + ".txt";
-	if (bigMe) {
-		net.fSend(fileName);
-		net.fReceive(fileName1);
-	}
-	else {
-		net.fReceive(fileName1);
-		net.fSend(fileName);
-	}
-	//密文一致性证明
-	if (stoi(round) > 1) {
-		tstart = clock();
-		//读入上一轮的公钥,密文
-		fileName = "ciphertext" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		string container;
-		ist >> container;
-		y_1.toModP(container, mod);
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext_2[i];
-		}
-		ist.close();
-		//读入上一轮的随机数
-		fileName = "ran" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ran_2[i];
-		}
-		ist.close();
-		//生成证明
-		fileName = "proveConsistency" + codes[0] + "-R" + round + ".txt";
-		Commitment com2(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, ran_2, y_1, bigMe, fileName);
-		com2.ciphertextConsistencyCommit();
-		//计时
-		tstop = clock();
-		ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "prove consistency " << ttime << " ms" << endl;
-		//交换证明
-		fileName1 = "proveConsistency" + codes[1] + "-R" + round + ".txt";
-		if (bigMe) {
-			net.fSend(fileName);
-			net.fReceive(fileName1);
-		}
-		else {
-			net.fReceive(fileName1);
-			net.fSend(fileName);
-		}
-	}
-
-}
-//验证证明
-bool CipherGen::verify() {
-	clock_t tstart = clock();
-	int index = 0;
-	/*if (!vMode)
-		index = 1;*/
-
-	bool flag = true;
-	//读入密文
-	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
-	ist.open(fileName, ios::in);
-	if (!ist) {
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	string container;
-	ist >> container;
-	y.toModP(container, H.get_mod());
-	for (int i = 0; i < cipherNum; i++) {
-		ist >> ciphertext[i];
-	}
-	ist.close();
-	//读入证明
-	fileName = "proveCipher" + codes[index] + "-R" + round + ".txt";
-	Commitment com(codes, round, ciphertext, bigMe, fileName);
-	flag &= com.cipherCheck();
-
-	if (stoi(round) > 1) {
-		//读入上一轮的公钥,密文
-		fileName = "ciphertext" + codes[index] + "-R" + to_string(stoi(round) - 1) + ".txt";
-		ist.open(fileName, ios::in);
-		if (!ist) {
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		ist >> container;
-		y_1.toModP(container, mod);
-		for (int i = 0; i < cipherNum; i++) {
-			ist >> ciphertext_2[i];
-		}
-		ist.close();
-		fileName = "proveConsistency" + codes[index] + "-R" + round + ".txt";
-		Commitment com2(codes, round, ciphertext, ciphertext_2, y, y_1, bigMe, fileName);
-		flag &= com2.ciphertextConsistencyCheck();//生成本轮密文正确性证明
-	}
-
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "verify ciphertext " << ttime << " ms" << endl;
-	return flag;
-}
 //读取明文
 void CipherGen::readPlaintext() {
 	bitset<32> plaintext_inv;
@@ -231,4 +110,131 @@ void CipherGen::createCipher() {
 	for (int i = 0; i < ran_1.size(); i++)
 		ost << ran_1[i] << endl;
 	ost.close();
+}
+//生成证明
+void CipherGen::prove() {
+	clock_t tstart = clock();
+	//生成证明
+	string fileName = "proveCipher" + codes[0] + "-R" + round + ".txt";
+	Commitment com(codes, round, plaintext, ciphertext, ran_1, bigMe, fileName);
+	com.cipherCommit();//生成本轮密文正确性证明
+	//计时
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "prove ciphertext " << ttime << " ms" << endl;
+	//交换证明
+	string fileName1 = "proveCipher" + codes[1] + "-R" + round + ".txt";
+	if (bigMe) {
+		net.fSend(fileName);
+		net.fReceive(fileName1);
+	}
+	else {
+		net.fReceive(fileName1);
+		net.fSend(fileName);
+	}
+	//密文一致性证明
+	if (stoi(round) > 1) {
+		tstart = clock();
+		//读入上一轮的公钥,密文
+		fileName = "ciphertext" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		string container;
+		ist >> container;
+		y_1.toModP(container, mod);
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> ciphertext_2[i];
+		}
+		ist.close();
+		//读入上一轮的随机数
+		fileName = "ran" + codes[0] + "-R" + to_string(stoi(round) - 1) + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> ran_2[i];
+		}
+		ist.close();
+		//生成证明
+		fileName = "proveConsistency" + codes[0] + "-R" + round + ".txt";
+		Commitment com2(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, ran_2, y_1, bigMe, fileName);
+		com2.ciphertextConsistencyCommit();
+		//计时
+		tstop = clock();
+		ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+		cout << "[" << codes[0] << "] - " << "prove consistency " << ttime << " ms" << endl;
+		//交换证明
+		fileName1 = "proveConsistency" + codes[1] + "-R" + round + ".txt";
+		if (bigMe) {
+			net.fSend(fileName);
+			net.fReceive(fileName1);
+		}
+		else {
+			net.fReceive(fileName1);
+			net.fSend(fileName);
+		}
+	}
+
+}
+//验证证明
+bool CipherGen::verify() {
+	clock_t tstart = clock();
+	int index = 0;
+	if (!vMode)
+		index = 1;
+
+	bool flag = true;
+	//读入密文
+	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist) {
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string container;
+	ist >> container;
+	y.toModP(container, H.get_mod());
+	for (int i = 0; i < cipherNum; i++) {
+		ist >> ciphertext[i];
+	}
+	ist.close();
+	//读入证明
+	fileName = "proveCipher" + codes[index] + "-R" + round + ".txt";
+	Commitment com(codes, round, ciphertext, bigMe, fileName);
+	flag &= com.cipherCheck();
+	clock_t tstop = clock();
+	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+	cout << "[" << codes[0] << "] - " << "verify ciphertext " << ttime << " ms" << endl;
+	//密文一致性验证
+	if (stoi(round) > 1) {
+		tstart = clock();
+		//读入上一轮的公钥,密文
+		fileName = "ciphertext" + codes[index] + "-R" + to_string(stoi(round) - 1) + ".txt";
+		ist.open(fileName, ios::in);
+		if (!ist) {
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		ist >> container;
+		y_1.toModP(container, mod);
+		for (int i = 0; i < cipherNum; i++) {
+			ist >> ciphertext_2[i];
+		}
+		ist.close();
+		//读入证明
+		fileName = "proveConsistency" + codes[index] + "-R" + round + ".txt";
+		Commitment com2(codes, round, ciphertext, ciphertext_2, y, y_1, bigMe, fileName);
+		flag &= com2.ciphertextConsistencyCheck();//生成本轮密文正确性证明
+		tstop = clock();
+		ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+		cout << "[" << codes[0] << "] - " << "verify consistency " << ttime << " ms" << endl;
+	}
+
+	
+	return flag;
 }

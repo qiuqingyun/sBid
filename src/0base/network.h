@@ -1,6 +1,6 @@
 #pragma once
 #include "base.h"
-
+extern bool debug;
 using namespace std;
 
 const int BUF_SIZE = 2048;

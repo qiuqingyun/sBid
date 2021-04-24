@@ -23,33 +23,35 @@ void Compare::compare() {
 }
 //生成证明
 void Compare::prove() {
-	clock_t tstart = clock();
-	//生成证明
-	string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
-	Commitment com(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
-	com.compareCommit();
-	//计时
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
-	//交换证明
-	string fileName1 = "proveCompare" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
+		clock_t tstart = clock();
+		//生成证明
+		string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
+		Commitment com(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
+		com.compareCommit();
+		//计时
+		clock_t tstop = clock();
+		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
+		cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
+		//发送证明
 		net.fSend(fileName);
-		net.fReceive(fileName1);
 	}
 	else {
+		//接收证明
+		string fileName1 = "proveCompare" + codes[1] + "-R" + round + ".txt";
 		net.fReceive(fileName1);
-		net.fSend(fileName);
 	}
 }
 //验证证明
 bool Compare::verify() {
 	clock_t tstart = clock();
 	int index = 0;
-	/*if (!vMode)
-		index = 1;*/
+	if (!vMode)
+		index = 1;
 	bool flag = true;
+	if ((bigMe && !vMode) || (!bigMe && vMode)) {//大号参与者以及小号验证者则跳过
+		return true;
+	}
 	//读入密文
 	string fileName = "ciphertext" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
@@ -117,7 +119,7 @@ void Compare::cmp() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "[" << codes[0] << "] - " << "Can't create "<< fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		Cipher_elg a, b, aPb, aTb, twoTaTb, minus2TaTb, b_minus, aMbM1;
@@ -160,7 +162,7 @@ void Compare::cmp() {
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
-			cout << "[" << codes[0] << "] - " << "Can't create "<< fileName << endl;
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 			exit(1);
 		}
 		for (int i = 0; i < cipherNum; i++)

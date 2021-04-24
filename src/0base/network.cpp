@@ -40,6 +40,7 @@ void Network::init(string codeName, bool bigMe, int port)
 			printf("[%s] - Listen error : %s\n", codeName.c_str(), strerror(errno));
 			exit(1);
 		}
+		cout << "[" << codeName << "] - Waiting for connection" << endl;
 		//接受
 		socklen_t naddr = sizeof(struct sockaddr_in);
 		if ((this->sockCli = accept(this->sockSer, (struct sockaddr*)(&this->addrCli), &naddr)) == -1)
@@ -47,11 +48,13 @@ void Network::init(string codeName, bool bigMe, int port)
 			printf("[%s] - Accept error%s\n", codeName.c_str(), strerror(errno));
 			exit(1);
 		}
+		cout << "[" << codeName << "] - Connected" << endl;
 	}
 	else
 	{
 		//连接
 		int times = 1;
+		cout << "[" << codeName << "] - Waiting for connection" << endl;
 		while (connect(sockSer, (struct sockaddr*)&this->addrSer, sizeof(struct sockaddr)) == -1)
 		{
 			sleep(times++);
@@ -61,6 +64,7 @@ void Network::init(string codeName, bool bigMe, int port)
 				exit(1);
 			}
 		}
+		cout << "[" << codeName << "] - Connected" << endl;
 	}
 	//cout << "\rNetwork OK        " << endl;
 }
@@ -164,12 +168,15 @@ void Network::fSend(string fileName) {
 		cout << "[" << codeName << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
-	string temp,container;
+	string temp, container;
 	while (ist >> temp) {
-		container += (temp+"\n");
+		container += (temp + "\n");
 	}
 	ist.close();
+	//cout << "[" << codeName << "] - " << "Start sending " << fileName << endl;
 	mSend(container);
+	if (debug)
+		cout << "[" << codeName << "] - " << "sent     " << fileName << endl;
 }
 
 //接收一个文件
@@ -181,10 +188,13 @@ void Network::fReceive(string fileName) {
 		cout << "[" << codeName << "] - " << "Can't creat " << fileName << endl;
 		exit(1);
 	}
+	//cout << "[" << codeName << "] - " << "Start receiving " << fileName << endl;
 	string  container;
 	mReceive(container);
 	ost << container;
 	ost.close();
+	if (debug)
+		cout << "[" << codeName << "] - " << "received " << fileName << endl;
 }
 //关闭套接字
 Network::~Network()

@@ -55,7 +55,7 @@ public:
 	//创建Prover角色
 	void creatProver(bool bigMe);
 	//创建Verifier角色
-	void creatVerifier();
+	void creatVerifier(bool bigMe);
 	//进行shuffle操作
 	void shuffle();
 	//生成承诺
