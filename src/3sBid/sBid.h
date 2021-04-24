@@ -41,19 +41,19 @@ private:
 	//加密并生成证明
 	void ciphertextOp();
 	//验证加密
-	void ciphertextVerify();
+	bool ciphertextVerify();
 	//比较并生成证明
 	void compareOp();
 	//验证比较
-	void compareVerify();
+	bool compareVerify();
 	//混淆并生成证明
 	void shuffleOp();
 	//验证混淆
-	void shuffleVerify();
+	bool shuffleVerify();
 	//解密并生成证明
 	void decryptOp();
 	//验证解密
-	void decryptVerify();
+	bool decryptVerify();
 
 public:
 	//生成参数

@@ -14,7 +14,7 @@ void SBid::prepare(array<int, 3> codes_in) {
 	codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
 	bigMe = codes_in[0] > codes_in[1];
 	readParameters();
-
+	cout << "[" << codes[0] << "] - No." << codes[0] << " vs No." << codes[1] << " - Round: " << round << endl;
 }
 //开始竞标
 void SBid::bid() {
@@ -35,10 +35,12 @@ void SBid::bid() {
 //验证
 void SBid::verify() {
 	cout << "[" << codes[0] << "] - " << "=====Verify=====" << endl;
-	ciphertextVerify();
-	compareVerify();
-	shuffleVerify();
-	decryptVerify();
+	bool flag=true;
+	flag &= ciphertextVerify();
+	flag &= compareVerify();
+	flag &= shuffleVerify();
+	flag &= decryptVerify();
+	cout << "[" << codes[0] << "] - " << "Verify results: " << ans[flag] << endl;
 	cout << "[" << codes[0] << "] - " << "======OVER======" << endl;
 }
 //读取群的参数并生成群
@@ -141,10 +143,10 @@ void SBid::ciphertextOp() {
 	cipherGen.prove();//生成密文证明
 }
 //验证加密
-void SBid::ciphertextVerify() {
+bool SBid::ciphertextVerify() {
 	CipherGen cipherVerify(codes, round, bigMe);
 	bool flag = cipherVerify.verify();
-	cout << "[" << codes[0] << "] - " << "ciphertext results: " << ans[flag] << endl;
+	return flag;
 }
 //比较并生成证明
 void SBid::compareOp() {
@@ -153,13 +155,13 @@ void SBid::compareOp() {
 	compare.prove();
 }
 //验证比较
-void SBid::compareVerify() {
+bool SBid::compareVerify() {
 	Compare compare(codes, round, ciphertext, bigMe);
 	bool flag = compare.verify();
 	if ((bigMe && !vMode) || (!bigMe && vMode))//大号参与者以及小号验证者则跳过
-		return;
+		return true;
 	else
-		cout << "[" << codes[0] << "] - " << "compare results: " << ans[flag] << endl;
+		return flag;
 }
 //混淆并生成证明
 void SBid::shuffleOp() {
@@ -169,11 +171,11 @@ void SBid::shuffleOp() {
 	prover.prove();
 }
 //验证混淆
-void SBid::shuffleVerify() {
+bool SBid::shuffleVerify() {
 	Shuffle verifier(codes, round);
 	verifier.creatVerifier(bigMe);
 	bool flag = verifier.verify();
-	cout << "[" << codes[0] << "] - " << "shuffle results: " << ans[flag] << endl;
+	return flag;
 }
 //解密并生成证明
 void SBid::decryptOp() {
@@ -196,8 +198,8 @@ void SBid::decryptOp() {
 	}
 }
 //验证解密
-void SBid::decryptVerify() {
+bool SBid::decryptVerify() {
 	Decrypt decrypt(codes, round, codeBig, codeSmall, bigMe);
 	bool flag = decrypt.verify();
-	cout << "[" << codes[0] << "] - " << "decrypt results: " << ans[flag] << endl;
+	return flag;
 }
