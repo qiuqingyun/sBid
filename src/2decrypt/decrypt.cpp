@@ -107,15 +107,10 @@ int Decrypt::outputAns() {
 
 }
 void Decrypt::prove() {
-	clock_t tstart = clock();
 	//生成证明
 	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
 	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
 	com.decryptCommit();
-	//计时
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "prove decrypt " << ttime << " ms" << endl;
 	//交换证明
 	string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
 	if (bigMe) {
@@ -128,7 +123,6 @@ void Decrypt::prove() {
 	}
 }
 bool Decrypt::verify() {
-	clock_t tstart = clock();
 	int index = 0;
 	if (!vMode)
 		index = 1;
@@ -179,8 +173,5 @@ bool Decrypt::verify() {
 	flag &= com.decryptCheck();
 
 	ist.close();
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "verify decrypt " << ttime << " ms" << endl;
 	return flag;
 }

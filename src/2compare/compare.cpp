@@ -109,15 +109,10 @@ void Compare::cmp() {
 //生成证明
 void Compare::prove() {
 	if (bigMe) {
-		clock_t tstart = clock();
 		//生成证明
 		string fileName = "proveCompare" + codes[0] + "-R" + round + ".txt";
 		Commitment com(codes, round, plaintext, ciphertext, ciphertext_2, ran_1, cipherZero, cipherZero_2, ranZero, bigMe, fileName);
 		com.compareCommit();
-		//计时
-		clock_t tstop = clock();
-		double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-		cout << "[" << codes[0] << "] - " << "prove compare " << ttime << " ms" << endl;
 		//发送证明
 		net.fSend(fileName);
 	}
@@ -129,7 +124,6 @@ void Compare::prove() {
 }
 //验证证明
 bool Compare::verify() {
-	clock_t tstart = clock();
 	int index = 0;
 	if (!vMode)
 		index = 1;
@@ -165,8 +159,5 @@ bool Compare::verify() {
 	flag &= com.compareCheck(cipherZero);
 
 	ist.close();
-	clock_t tstop = clock();
-	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
-	cout << "[" << codes[0] << "] - " << "verify compare " << ttime << " ms" << endl;
 	return flag;
 }

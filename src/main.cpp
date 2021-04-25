@@ -58,8 +58,23 @@ int main(int argc, char** argv)
 					codes[2] = atoi(argv[optind + 1]);
 					SBid sbid;
 					sbid.prepare(codes);
+					time_t rawtime;
+					struct tm* info;
+					char buffer[80];
+					time(&rawtime);
+					info = localtime(&rawtime);
+					strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", info);
+					cout << "[" << codes[0] << "] - " << "Start at " << buffer<<endl;
+					clock_t begin = clock();
 					sbid.bid();
 					sbid.verify();
+					clock_t end = clock();
+					double cTime = (end - begin) / (double)CLOCKS_PER_SEC * 1000;
+					time(&rawtime);
+					info = localtime(&rawtime);
+					strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", info);
+					cout << "[" << codes[0] << "] - " << "End at " << buffer << endl;
+					cout << "[" << codes[0] << "] - " << "Total time " << cTime << " ms" << endl;
 					break;
 				}
 				case 'v': {

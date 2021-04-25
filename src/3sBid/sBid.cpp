@@ -14,17 +14,16 @@ void SBid::prepare(array<int, 3> codes_in) {
 	codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
 	bigMe = codes_in[0] > codes_in[1];
 	readParameters();
-	cout << "[" << codes[0] << "] - No." << codes[0] << " vs No." << codes[1] << " - Round: " << round << endl;
+	cout << "\n[" << codes[0] << "] - No." << codes[0] << " vs No." << codes[1] << " - Round: " << round << endl;
+	int port = 20202;
+	if (bigMe)
+		port += stoi(codes[0]) * 100 + stoi(round);
+	else
+		port += stoi(codes[1]) * 100 + stoi(round);
+	net.init(codes[0], bigMe, port);
 }
 //开始竞标
 void SBid::bid() {
-	int port = 20202;
-	if (bigMe)
-		port += stoi(codes[0]);
-	else
-		port += stoi(codes[1]);
-
-	net.init(codes[0], bigMe, port);
 	creatElGamal();
 	pkExchange();
 	ciphertextOp();
@@ -34,14 +33,14 @@ void SBid::bid() {
 }
 //验证
 void SBid::verify() {
-	cout << "[" << codes[0] << "] - " << "=====Verify=====" << endl;
-	bool flag=true;
+	cout << "[" << codes[0] << "] - " << "===============Verify===============" << endl;
+	bool flag = true;
 	flag &= ciphertextVerify();
 	flag &= compareVerify();
 	flag &= shuffleVerify();
 	flag &= decryptVerify();
 	cout << "[" << codes[0] << "] - " << "Verify results: " << ans[flag] << endl;
-	cout << "[" << codes[0] << "] - " << "======OVER======" << endl;
+	cout << "[" << codes[0] << "] - " << "================OVER================" << endl;
 }
 //读取群的参数并生成群
 void SBid::readParameters() {
