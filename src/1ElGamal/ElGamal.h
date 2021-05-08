@@ -68,8 +68,8 @@ public:
 	Cipher_elg encrypt_g(ZZ m, ZZ ran_1);
 
 	//decryption function
-	Mod_p decrypt(Cipher_elg c);
-	ZZ decrypt(Cipher_elg c, int flag);
+	ZZ decrypt(Cipher_elg c);
+	//ZZ decrypt(Cipher_elg c, int flag);
 	ZZ decrypt_debug(Cipher_elg c);
 	ZZ get_m(ZZ temp);
 	//Assigment operator

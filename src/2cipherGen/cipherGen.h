@@ -13,13 +13,14 @@ private:
 	array<string, 2> codes;//自己和对方的编号，第一个是自己的，第二个是对方的
 	string round;//当前轮数
 	array<ZZ, 32> plaintext;//竞价二进制明文
+	ZZ amount;//竞价十进制明文
 	array<Cipher_elg, 32> ciphertext;    //密文
 	array<Cipher_elg, 32> ciphertext_2;    //上一轮的密文
 	array<ZZ, 32> ran_1;
 	array<ZZ, 32> ran_2;
 	Cipher_elg ciphertextZero;
 	ZZ ranZero;
-	int plaintext_int;
+	//int plaintext_int;
 	int cipherNum = 32;
 	bool bigMe;
 	ZZ mod;
@@ -37,6 +38,8 @@ private:
 
 public:
 	CipherGen(array<string, 2> codes, string round, bool bigMe);
+	//读取明文并用私有公钥加密，保存密文
+	void chainPrepare();
 	//生成密文( h^r , g^m × y^r )
 	void gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext, ZZ& RanZero, array<ZZ, 32>& Ran);
 	//生成证明

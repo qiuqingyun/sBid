@@ -290,18 +290,18 @@ Cipher_elg ElGamal::encrypt(Mod_p el) {
 
 }
 
-Cipher_elg ElGamal::encrypt(ZZ m) {
-	Cipher_elg c;
-	Mod_p temp_1, temp_2;
-	ZZ ran_1;
-	SetSeed(to_ZZ((unsigned int)time(0)));
-	ran_1 = RandomBnd(G.get_ord());
-	cout << ran_1 << endl;
-	temp_1 = G.get_gen().expo(ran_1);
-	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
-	c = Cipher_elg(temp_1, temp_2);
-	return c;
-}
+//Cipher_elg ElGamal::encrypt(ZZ m) {
+//	Cipher_elg c;
+//	Mod_p temp_1, temp_2;
+//	ZZ ran_1;
+//	SetSeed(to_ZZ((unsigned int)time(0)));
+//	ran_1 = RandomBnd(G.get_ord());
+//	cout << ran_1 << endl;
+//	temp_1 = G.get_gen().expo(ran_1);
+//	temp_2 = pk.expo(ran_1) * Mod_p(m, G.get_mod());
+//	c = Cipher_elg(temp_1, temp_2);
+//	return c;
+//}
 
 Cipher_elg ElGamal::encrypt(long m) {
 	Cipher_elg c;
@@ -355,6 +355,15 @@ Cipher_elg ElGamal::encrypt_g(ZZ m, ZZ ran_1) {
 	temp_2 = pk.expo(ran_1) * temp_m;//g^m×y^r
 	return Cipher_elg(temp_1, temp_2);
 }
+//上链加密
+Cipher_elg ElGamal::encrypt(ZZ m_z) {
+	Mod_p temp_1, temp_2;
+	Mod_p m = Mod_p(m_z, G.get_mod());
+	ZZ ran = RandomBnd(G.get_ord());
+	temp_1 = G.get_gen().expo(ran);//h^r
+	temp_2 = pk_1.expo(ran) * m;//m×y_1^r
+	return Cipher_elg(temp_1, temp_2);
+}
 
 Cipher_elg ElGamal::encrypt(ZZ m, long ran_1) {
 	Cipher_elg c;
@@ -374,8 +383,8 @@ Cipher_elg ElGamal::encrypt(long m, long ran_1) {
 	return c;
 }
 
-//Decrypts the ciphertext c
-Mod_p ElGamal::decrypt(Cipher_elg c) {
+//下链解密
+ZZ ElGamal::decrypt(Cipher_elg c) {
 	if (sk == 0)
 		cout << "can not decrypt, need secret key" << endl;
 	ZZ temp;
@@ -386,17 +395,17 @@ Mod_p ElGamal::decrypt(Cipher_elg c) {
 	temp = MulMod(temp, c.get_v(), mod);
 	return temp;
 }
-ZZ ElGamal::decrypt(Cipher_elg c, int flag) {
-	if (sk == 0)
-		cout << "can not decrypt, need secret key" << endl;
-	ZZ temp;
-	ZZ mod = G.get_mod();
-	temp = InvMod(c.get_u(), mod);
-	temp = PowerMod(temp, sk, mod);
-	temp = MulMod(temp, c.get_v(), mod);
-	// cout<<temp<<" "<<flush;
-	return temp;
-}
+//ZZ ElGamal::decrypt(Cipher_elg c, int flag) {
+//	if (sk == 0)
+//		cout << "can not decrypt, need secret key" << endl;
+//	ZZ temp;
+//	ZZ mod = G.get_mod();
+//	temp = InvMod(c.get_u(), mod);
+//	temp = PowerMod(temp, sk, mod);
+//	temp = MulMod(temp, c.get_v(), mod);
+//	// cout<<temp<<" "<<flush;
+//	return temp;
+//}
 ZZ ElGamal::get_m(ZZ temp) {
 	if (temp == 1) {
 		return ZZ(0);

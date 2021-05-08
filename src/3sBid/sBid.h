@@ -35,7 +35,7 @@ private:
 	//读取群的参数并生成群
 	void readParameters();
 	//设置初始化ElGamal
-	void creatElGamal();
+	int creatElGamal();
 	//将生成的公钥传递给对方
 	void pkExchange();
 	//加密并生成证明
@@ -64,4 +64,6 @@ public:
 	void bid();
 	//验证
 	void verify();
+	//解密密文
+	void decrypt(array<string, 3> paras);
 };

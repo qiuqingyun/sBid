@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 		}
 	}
 	else {
-		while ((ch = getopt(argc, argv, "b:v:g")) != -1)
+		while ((ch = getopt(argc, argv, "b:v:d:g")) != -1)
 		{
 			switch (ch)
 			{
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
 					time(&rawtime);
 					info = localtime(&rawtime);
 					strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", info);
-					cout << "[" << codes[0] << "] - " << "Start at " << buffer<<endl;
+					cout << "[" << codes[0] << "] - " << "Start at " << buffer << endl;
 					clock_t begin = clock();
 					sbid.bid();
 					sbid.verify();
@@ -91,6 +91,15 @@ int main(int argc, char** argv)
 				case 'g': {
 					SBid sbid;
 					sbid.parametersGen();
+					break;
+				}
+				case 'd': {
+					array<string, 3> paras;
+					paras[0] = optarg;
+					paras[1] = argv[optind];
+					paras[2] = argv[optind + 1];
+					SBid sbid;
+					sbid.decrypt(paras);
 					break;
 				}
 				case '?': {

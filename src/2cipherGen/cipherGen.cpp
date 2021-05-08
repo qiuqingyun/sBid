@@ -8,11 +8,25 @@ CipherGen::CipherGen(array<string, 2> codes, string round, bool bigMe) :codes(co
 	g = El.get_group().get_g();
 	h = El.get_group().get_gen();
 }
+
+//读取明文并用私有公钥加密，保存密文
+void CipherGen::chainPrepare() {
+	readPlaintext();
+	//加密明文十进制金额，用于上链
+	string fileName = "cipherAmount" + codes[0] + ".txt";
+	ost.open(fileName, ios::out);
+	if (!ost) {
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
+		exit(1);
+	}
+	Cipher_elg cipher_amount = El.encrypt(amount);//得到(u,v)密文组，u = h^r，v = g^m×y^r，y为公钥
+	ost << cipher_amount << endl;//输出密文
+	ost.close();
+}
 //生成密文( h^r , g^m × y^r )
 void CipherGen::gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext, ZZ& RanZero, array<ZZ, 32>& Ran) {
 	readPlaintext();
 	createCipher();
-	//createZeroCipher();
 	Ciphertext = ciphertext;
 	Plaintext = plaintext;
 	RanZero = ranZero;
@@ -21,6 +35,7 @@ void CipherGen::gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext,
 }
 //读取明文
 void CipherGen::readPlaintext() {
+	int plaintext_int;
 	bitset<32> plaintext_inv;
 	string fileName = "plaintext" + codes[0] + ".txt";
 	ist.open(fileName, ios::in);
@@ -32,7 +47,8 @@ void CipherGen::readPlaintext() {
 			exit(1);
 		}
 		ist >> plaintext_int;
-		cout << "[" << codes[0] << "] - " << "Amount: " << plaintext_int << endl;
+		amount = ZZ(plaintext_int);
+		cout << "[" << codes[0] << "] - " << "Amount: " << amount << endl;
 		plaintext_inv = plaintext_int;
 		ist.close();
 		fileName = "plaintext" + codes[0] + ".txt";
@@ -47,7 +63,9 @@ void CipherGen::readPlaintext() {
 	else {
 		ist >> plaintext_inv;
 		ist.close();
-		cout << "[" << codes[0] << "] - " << "Amount: " << plaintext_inv.to_ulong() << endl;
+		amount = ZZ(plaintext_inv.to_ulong());
+		cout << "[" << codes[0] << "] - " << "Amount: " << amount << endl;
+
 	}
 	for (int i = 0; i < cipherNum; i++)
 		plaintext[i] = ZZ(plaintext_inv[cipherNum - i - 1]);
@@ -227,6 +245,6 @@ bool CipherGen::verify() {
 		flag &= com2.ciphertextConsistencyCheck();//生成本轮密文正确性证明
 	}
 
-	
+
 	return flag;
 }

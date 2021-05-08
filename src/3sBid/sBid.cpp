@@ -62,7 +62,7 @@ void SBid::readParameters() {
 	G.set_g(gen_g);
 }
 //设置初始化ElGamal
-void SBid::creatElGamal() {
+int SBid::creatElGamal() {
 	El.set_group(H);
 	string fileName = "pk" + codes[0] + ".txt";
 	ist.open(fileName, ios::in);
@@ -107,7 +107,9 @@ void SBid::creatElGamal() {
 		conv(sk, sk_str.c_str());
 		El.set_key(sk, pk);
 		ist.close();
+		return 1;
 	}
+	return 0;
 }
 //将生成的公钥传递给对方
 void SBid::pkExchange() {
@@ -138,6 +140,8 @@ void SBid::pkExchange() {
 //加密并生成证明
 void SBid::ciphertextOp() {
 	CipherGen cipherGen(codes, round, bigMe);
+	if (round == "1")
+		cipherGen.chainPrepare();
 	cipherGen.gen(ciphertext, plaintext, ranZero, ran_1);//生成密文( h^r , g^m × y^r )
 	cipherGen.prove();//生成密文证明
 }
@@ -201,4 +205,40 @@ bool SBid::decryptVerify() {
 	Decrypt decrypt(codes, round, codeBig, codeSmall, bigMe);
 	bool flag = decrypt.verify();
 	return flag;
+}
+//解密密文
+void SBid::decrypt(array<string, 3> paras) {
+	codes[0] = paras[0];//自己的编号
+	readParameters();
+
+	if (creatElGamal()) {
+		string fileName = paras[1];
+		ist.open(fileName, ios::in);
+		if (!ist)
+		{
+			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+			exit(1);
+		}
+		Cipher_elg cipher_amount;
+		ist >> cipher_amount;
+		ist.close();
+
+		ZZ ans = El.decrypt(cipher_amount);
+		cout << "[" << codes[0] << "] - " << "ciphertext amount: " << cipher_amount << endl;
+		cout << "[" << codes[0] << "] - " << "plaintext  amount: " << ans << endl;
+
+		fileName = paras[2];
+		ost.open(fileName, ios::out);
+		if (!ost)
+		{
+			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
+			exit(1);
+		}
+		ost << ans << endl;
+		ost.close();
+	}
+	else {
+		cout << "[" << codes[0] << "] - " << "Decryption error: Unable to read key file" << endl;
+		exit(1);
+	}
 }
