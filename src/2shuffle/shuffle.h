@@ -39,7 +39,7 @@ private:
 	//设置ElGamal公私钥
 	//void creatElGamal();
 	//读取文件中的密文，保存为16×2的矩阵形式
-	void readCipher(vector<vector<Cipher_elg>*>* Cipher);
+	void readCipher(string fileName, vector<vector<Cipher_elg>*>* Cipher);
 	//生成随机替换序列
 	void permutation(vector<int>* v, int N);
 	//生成随机替换矩阵

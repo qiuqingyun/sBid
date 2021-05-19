@@ -1,7 +1,7 @@
 #include "ElGamal.h"
 NTL_CLIENT
 #define DEBUG true
-ZZ sk_main_debug = conv<ZZ>("817266138476070071680325283");
+//ZZ sk_main_debug = conv<ZZ>("817266138476070071680325283");
 
 ElGamal::ElGamal() {
 	// TODO Auto-generated constructor stub
@@ -436,6 +436,75 @@ ZZ ElGamal::get_m(ZZ temp) {
 	}
 	else if (temp == PowerMod(G.get_g().get_val(), 9, G.get_mod())) {
 		return ZZ(9);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 10, G.get_mod())) {
+		return ZZ(10);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 11, G.get_mod())) {
+		return ZZ(11);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 12, G.get_mod())) {
+		return ZZ(12);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 13, G.get_mod())) {
+		return ZZ(13);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 14, G.get_mod())) {
+		return ZZ(14);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 15, G.get_mod())) {
+		return ZZ(15);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 16, G.get_mod())) {
+		return ZZ(16);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 17, G.get_mod())) {
+		return ZZ(17);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 18, G.get_mod())) {
+		return ZZ(18);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 19, G.get_mod())) {
+		return ZZ(19);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 20, G.get_mod())) {
+		return ZZ(20);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 21, G.get_mod())) {
+		return ZZ(21);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 22, G.get_mod())) {
+		return ZZ(22);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 23, G.get_mod())) {
+		return ZZ(23);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 24, G.get_mod())) {
+		return ZZ(24);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 25, G.get_mod())) {
+		return ZZ(25);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 26, G.get_mod())) {
+		return ZZ(26);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 27, G.get_mod())) {
+		return ZZ(27);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 28, G.get_mod())) {
+		return ZZ(28);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 29, G.get_mod())) {
+		return ZZ(29);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 30, G.get_mod())) {
+		return ZZ(30);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 31, G.get_mod())) {
+		return ZZ(31);
+	}
+	else if (temp == PowerMod(G.get_g().get_val(), 32, G.get_mod())) {
+		return ZZ(32);
 	}
 	else if (temp == PowerMod(G.get_g().get_val(), -1, G.get_mod())) {
 		return ZZ(-1);

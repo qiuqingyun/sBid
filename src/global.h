@@ -14,3 +14,20 @@ extern ElGamal El;         // The class for encryption and decryption
 extern Pedersen Ped;        // Object which calculates the commitments
 extern bool vMode;
 extern bool debug;
+extern string filesPath;
+
+inline void waitFile(string fileName, ifstream& ist) {
+	int index = 0;
+	while (!ist && ++index < 300000) {
+		usleep(1);
+		ist.close();
+		ist.open(fileName, ios::in);
+	}
+}
+
+inline clock_t GetTickCount()
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000)*1000;
+}

@@ -23,16 +23,18 @@
 */
 
 #include "./3sBid/sBid.h"
+#include "./3server/server.h"
 extern ZZ sk_debug;
 extern bool debug;
 int main(int argc, char** argv)
 {
-	array<int, 3> codes;
+
 	int op, ch;
 	if (argc == 1)
 	{
 		if (debug) {
 			cout << "Input your code:" << flush;
+			array<int, 6> codes;
 			cin >> codes[0];
 			cout << "Input your opponent's code:" << flush;
 			cin >> codes[1];
@@ -48,14 +50,24 @@ int main(int argc, char** argv)
 		}
 	}
 	else {
-		while ((ch = getopt(argc, argv, "b:v:d:g")) != -1)
+		while ((ch = getopt(argc, argv, "b:v:d:r:gt")) != -1)
 		{
 			switch (ch)
 			{
 				case 'b': {
-					codes[0] = atoi(optarg);
-					codes[1] = atoi(argv[optind]);
-					codes[2] = atoi(argv[optind + 1]);
+					array<int, 6> codes;
+					codes[0] = atoi(optarg);//自己的index
+					codes[1] = atoi(argv[optind]);//对方的index
+					codes[2] = atoi(argv[optind + 1]);//本轮的round
+					codes[3] = atoi(argv[optind + 2]);//自己的lastFinishRound
+					codes[4] = atoi(argv[optind + 3]);//对方的lastFinishRound
+					codes[5] = atoi(argv[optind + 4]);//0:价低胜 1：价高胜
+					string outFile = optarg;
+					string errFile = outFile + "_err.log";
+					outFile += "_out.log";
+					freopen(outFile.c_str(), "a", stdout);
+					freopen(errFile.c_str(), "a", stderr);
+					setbuf(stdout, NULL);
 					SBid sbid;
 					sbid.prepare(codes);
 					time_t rawtime;
@@ -65,41 +77,82 @@ int main(int argc, char** argv)
 					info = localtime(&rawtime);
 					strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", info);
 					cout << "[" << codes[0] << "] - " << "Start at " << buffer << endl;
-					clock_t begin = clock();
+					clock_t begin = GetTickCount();
 					sbid.bid();
 					sbid.verify();
-					clock_t end = clock();
+					clock_t end = GetTickCount();
 					double cTime = (end - begin) / (double)CLOCKS_PER_SEC * 1000;
 					time(&rawtime);
 					info = localtime(&rawtime);
 					strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", info);
 					cout << "[" << codes[0] << "] - " << "End at " << buffer << endl;
-					cout << "[" << codes[0] << "] - " << "Total time " << cTime << " ms" << endl;
+					cout << "[" << codes[0] << "] - " << "Total time " << cTime << " ms\n" << endl;
+					fclose(stdout);
+					fclose(stderr);
 					break;
 				}
 				case 'v': {
 					//Verify
+					array<int, 6> codes;
 					codes[0] = atoi(optarg);
 					codes[1] = atoi(argv[optind]);
 					codes[2] = atoi(argv[optind + 1]);
+					string outFile = optarg;
+					outFile += "_verify.log";
+					freopen(outFile.c_str(), "a", stdout);
+					setbuf(stdout, NULL);
 					vMode = true;
 					SBid sbid;
 					sbid.prepare(codes);
 					sbid.verify();
+					fclose(stdout);
 					break;
 				}
-				case 'g': {
+				case 'g': {//parameters gen
+					string outFile = "parameters.log";
+					freopen(outFile.c_str(), "a", stdout);
+					setbuf(stdout, NULL);
 					SBid sbid;
 					sbid.parametersGen();
 					break;
 				}
+				case 'r': {
+					SBid sbid;
+					string outFile = optarg;
+					outFile += "_out.log";
+					freopen(outFile.c_str(), "a", stdout);
+					setbuf(stdout, NULL);
+					sbid.registration(optarg);
+					fclose(stdout);
+					break;
+				}
+				case 't': {//for test
+					/*Server server;
+					server.start();*/
+					int port = 18000;
+					Network network;
+					network.start(port);
+					network.acceptConnect();
+					string connent;
+					//string fileName = "proveCompare2-R1.txt";
+					//network.fReceive(fileName);
+					string fileName = "/home/qqy/projects/sBid/demo/bin/1/files_1/proveCompare2-R1.txt";
+					network.fSend(fileName);
+					cout << connent << endl;
+					break;
+				}
 				case 'd': {
 					array<string, 3> paras;
-					paras[0] = optarg;
-					paras[1] = argv[optind];
-					paras[2] = argv[optind + 1];
+					paras[0] = optarg;//index
+					paras[1] = argv[optind];//ciphrtext file name
+					paras[2] = argv[optind + 1];//plaintext file name
+					string outFile = optarg;
+					outFile += "_out.log";
+					freopen(outFile.c_str(), "a", stdout);
+					setbuf(stdout, NULL);
 					SBid sbid;
 					sbid.decrypt(paras);
+					fclose(stdout);
 					break;
 				}
 				case '?': {

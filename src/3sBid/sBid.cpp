@@ -5,26 +5,48 @@ void SBid::parametersGen() {
 	ParaGen paraGen;
 	paraGen.parametersGen(pBits, qBits);
 }
+//生成密钥及密文用于链上注册
+void SBid::registration(string code) {
+	codes[0] = code;
+	int port = 18000;
+	port += stoi(codes[0]) * 100;
+	cout << "[" << codes[0] << "] - port: " << port << endl;
+	net.start(port);
+	net.acceptConnect();
+	readParameters();
+	string fileName = filesPath + "plaintext_int" + codes[0] + ".txt";
+	net.fReceive(fileName);
+	creatElGamal();
+	CipherGen cipherGen(codes);
+	cipherGen.chainPrepare();//用个人公钥加密的密文( h^r , m×y_1^r )
+}
 //竞拍准备操作
-void SBid::prepare(array<int, 3> codes_in) {
+void SBid::prepare(array<int, 6> codes_in) {
 	codes[0] = to_string(codes_in[0]);//自己的编号
 	codes[1] = to_string(codes_in[1]);//对方的编号
 	round = to_string(codes_in[2]);//轮数
 	codeBig = (stoi(codes[0]) > stoi(codes[1])) ? codes[0] : codes[1];
 	codeSmall = (stoi(codes[0]) < stoi(codes[1])) ? codes[0] : codes[1];
 	bigMe = codes_in[0] > codes_in[1];
-	readParameters();
-	cout << "\n[" << codes[0] << "] - No." << codes[0] << " vs No." << codes[1] << " - Round: " << round << endl;
-	int port = 20202;
+	lastFinishRoundMe = to_string(codes_in[3]);
+	lastFinishRoundOp = to_string(codes_in[4]);
+	strategyFlag = codes_in[5];
+	cout << "[" << codes[0] << "] - No." << codes[0] << " vs No." << codes[1] << " - Round: " << round << endl;
+
+	int port = 18000;
 	if (bigMe)
 		port += stoi(codes[0]) * 100 + stoi(round);
 	else
-		port += stoi(codes[1]) * 100 + stoi(round);
-	net.init(codes[0], bigMe, port);
+		port += stoi(codes[0]) * 100 + stoi(round);
+	cout << "[" << codes[0] << "] - port: " << port << endl;
+	net.start(port);
+	net.acceptConnect();
+	readParameters();
 }
 //开始竞标
 void SBid::bid() {
-	creatElGamal();
+	//creatElGamal();
+	readElGamal();
 	pkExchange();
 	ciphertextOp();
 	compareOp();
@@ -33,19 +55,30 @@ void SBid::bid() {
 }
 //验证
 void SBid::verify() {
-	cout << "[" << codes[0] << "] - " << "===============Verify===============" << endl;
+	cout << "[" << codes[0] << "] - " << "===========Verify===========" << endl;
 	bool flag = true;
 	flag &= ciphertextVerify();
 	flag &= compareVerify();
 	flag &= shuffleVerify();
 	flag &= decryptVerify();
 	cout << "[" << codes[0] << "] - " << "Verify results: " << ans[flag] << endl;
-	cout << "[" << codes[0] << "] - " << "================OVER================" << endl;
+	cout << "[" << codes[0] << "] - " << "============OVER============" << endl;
 }
 //读取群的参数并生成群
 void SBid::readParameters() {
-	string fileName = "parameters.txt";
+	filesPath = "./files_" + codes[0] + "/";
+	if (access(filesPath.c_str(), 0))
+		mkdir(filesPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+	string logPath = "./log";
+	if (access(logPath.c_str(), 0))
+		mkdir(logPath.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+	string fileName = filesPath + "parameters.txt";
 	ist.open(fileName, ios::in);
+	if (!ist) {
+		net.fReceive(fileName);
+		ist.open(fileName, ios::in);
+	}
+	//waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
@@ -61,94 +94,117 @@ void SBid::readParameters() {
 	H.set_g(gen_g);
 	G.set_g(gen_g);
 }
-//设置初始化ElGamal
+//生成ElGamal公私钥
 int SBid::creatElGamal() {
 	El.set_group(H);
-	string fileName = "pk" + codes[0] + ".txt";
+	string fileName = filesPath + "pk" + codes[0] + ".txt";
 	ist.open(fileName, ios::in);
-	if (!ist)
-	{//生成公私钥
-		cout << "[" << codes[0] << "] - The key does not exist, a new key will be generated randomly" << endl;
-		ZZ x = RandomBnd(H.get_ord());//随机生成私钥
-		El.set_sk(x);//生成公钥
-		//输出公私钥
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		ost << El.get_pk_1() << endl;
-		ost.close();
-		fileName = "sk" + codes[0] + ".txt";
-		ost.open(fileName, ios::out);
-		if (!ost)
-		{
-			cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
-			exit(1);
-		}
-		ost << El.get_sk() << endl;
-		ost.close();
-	}
-	else
-	{//读取公私钥
-		string sk_str, pk_str;
-		getline(ist, pk_str);
-		conv(pk, pk_str.c_str());
+	if (ist)
+	{//公钥存在
+		net.fSend(fileName);
+		ZZ pk, sk;
+		ist >> pk;
 		ist.close();
-		fileName = "sk" + codes[0] + ".txt";
+		fileName = filesPath + "sk" + codes[0] + ".txt";
 		ist.open(fileName, ios::in);
-		if (!ist)
-		{
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
+		if (ist)
+		{//私钥存在
+			ist >> sk;
+			cout << "[" << codes[0] << "] - " << "The key already exists " << fileName << endl;
+			ist.close();
+			El.set_key(sk, pk);
+			return 1;
 		}
-		getline(ist, sk_str);
-		conv(sk, sk_str.c_str());
-		El.set_key(sk, pk);
-		ist.close();
-		return 1;
 	}
-	return 0;
-}
-//将生成的公钥传递给对方
-void SBid::pkExchange() {
-	string pk_1, pk_2;
-	stringstream ss;
-	ss << El.get_pk_1();
-	ss >> pk_1;
-	if (bigMe) {
-		net.mSend(pk_1);
-		net.mReceive(pk_2);
-	}
-	else {
-		net.mReceive(pk_2);
-		net.mSend(pk_1);
-	}
-	string fileName = "pk" + codes[1] + ".txt";
+	ist.close();
+	//生成公私钥
+	cout << "[" << codes[0] << "] - A new key will be generated randomly" << endl;
+	ZZ x = RandomBnd(H.get_ord());//随机生成私钥
+	El.set_sk(x);//生成公钥
+	//输出公私钥
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
 		exit(1);
 	}
-	ost << pk_2 << endl;
+	ost << El.get_pk_1() << endl;
 	ost.close();
+	net.fSend(fileName);
+	fileName = filesPath + "sk" + codes[0] + ".txt";
+	ost.open(fileName, ios::out);
+	if (!ost)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
+		exit(1);
+	}
+	ost << El.get_sk() << endl;
+	ost.close();
+
+	return 0;
+}
+//读取ElGamal公私钥
+int SBid::readElGamal() {
+	//读取公私钥
+	El.set_group(H);
+	string fileName = filesPath + "pk" + codes[0] + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	string sk_str, pk_str;
+	getline(ist, pk_str);
+	conv(pk, pk_str.c_str());
+	ist.close();
+	fileName = filesPath + "sk" + codes[0] + ".txt";
+	ist.open(fileName, ios::in);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
+	getline(ist, sk_str);
+	conv(sk, sk_str.c_str());
+	El.set_key(sk, pk);
+	ist.close();
+	return 0;
+}
+//将生成的公钥传递给对方
+void SBid::pkExchange() {
+	string fileName = filesPath + "pk" + codes[0] + ".txt";
+	string fileName1 = filesPath + "pk" + codes[1] + ".txt";
+
+	net.fReceive(fileName1);
+
+	ist.open(fileName1, ios::in);
+	waitFile(fileName1, ist);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName1 << endl;
+		exit(1);
+	}
+	string pk_2;
+	ist >> pk_2;
+	ist.close();
+
+	//cout << "pk_1: " << El.get_pk_1() << " | pk_2: " << pk_2 << endl;
 	//生成主公钥
 	El.keyGen(pk_2);
 }
 //加密并生成证明
 void SBid::ciphertextOp() {
 	CipherGen cipherGen(codes, round, bigMe);
-	if (round == "1")
-		cipherGen.chainPrepare();
 	cipherGen.gen(ciphertext, plaintext, ranZero, ran_1);//生成密文( h^r , g^m × y^r )
 	cipherGen.prove();//生成密文证明
+	cipherGen.proveConsistency(lastFinishRoundMe, lastFinishRoundOp);
 }
 //验证加密
 bool SBid::ciphertextVerify() {
 	CipherGen cipherVerify(codes, round, bigMe);
 	bool flag = cipherVerify.verify();
+	flag &= cipherVerify.verifyConsistency(lastFinishRoundOp);
 	return flag;
 }
 //比较并生成证明
@@ -185,20 +241,59 @@ void SBid::decryptOp() {
 	Decrypt decrypt(codes, round, codeBig, codeSmall, bigMe);
 	int ans = decrypt.decrypt();
 	decrypt.prove();
-	switch (ans)
+	string fileName = filesPath + "ans" + codes[0] + "-R" + round + ".txt";
+	ost.open(fileName, ios::out);
+	if (!ost)
 	{
-		case 0:
-			cout << "[" << codes[0] << "] - Winner No." << codeSmall << endl;
-			break;
-		case 1:
-			cout << "[" << codes[0] << "] - - Winner DRAW" << endl;
-			break;
-		case 2:
-			cout << "[" << codes[0] << "] - Winner No." << codeBig << endl;
-			break;
-		default:
-			break;
+		cout << "Can't create " << fileName << endl;
+		exit(1);
 	}
+	/*cout << "ans: " << ans << endl;
+	cout << "strategy: " << strategyFlag << endl;
+	cout << "codeBig: " << codeBig << endl;
+	cout << "codeSmall: " << codeSmall << endl;*/
+	ost << "No." << codes[0] << "_vs_No." << codes[1] << "_Round_" << round << endl;
+	if (strategyFlag == 1) {//大的赢
+		switch (ans)
+		{
+			case 0://小号大于大号
+				cout << "[" << codes[0] << "] - Winner No." << codeSmall << endl;
+				ost << (bigMe ? "LOSE" : "WIN") << endl;
+				break;
+			case 1:
+				cout << "[" << codes[0] << "] - - Winner DRAW" << endl;
+				ost << "DRAW" << endl;
+				break;
+			case 2://小号小于大号
+				cout << "[" << codes[0] << "] - Winner No." << codeBig << endl;
+				ost << (bigMe ? "WIN" : "LOSE") << endl;
+				break;
+			default:
+				break;
+		}
+	}
+	else {//小的赢
+		switch (ans)
+		{	
+			case 0://大号小于小号
+				cout << "[" << codes[0] << "] - Winner No." << codeBig << endl;
+				ost << (bigMe ? "WIN" : "LOSE") << endl;
+				break;
+			case 1:
+				cout << "[" << codes[0] << "] - - Winner DRAW" << endl;
+				ost << "DRAW" << endl;
+				break;
+			case 2://大号大于小号
+				cout << "[" << codes[0] << "] - Winner No." << codeSmall << endl;
+				ost << (bigMe ? "LOSE" : "WIN") << endl;
+				break;
+			default:
+				break;
+		}
+	}
+
+	ost.close();
+	net.fSend(fileName);
 }
 //验证解密
 bool SBid::decryptVerify() {
@@ -211,9 +306,10 @@ void SBid::decrypt(array<string, 3> paras) {
 	codes[0] = paras[0];//自己的编号
 	readParameters();
 
-	if (creatElGamal()) {
+	if (!readElGamal()) {
 		string fileName = paras[1];
 		ist.open(fileName, ios::in);
+		waitFile(fileName, ist);
 		if (!ist)
 		{
 			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;

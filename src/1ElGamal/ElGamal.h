@@ -12,6 +12,7 @@ private:
 	Mod_p pk_1; //public key self
 	Mod_p pk; //public key
 public:
+	ZZ sk_main_debug;
 	//Constructor & destructor
 	ElGamal();
 	ElGamal(long s, Mod_p p, G_q H);

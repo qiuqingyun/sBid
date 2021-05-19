@@ -1,17 +1,22 @@
 #include "network.h"
 
 //网络初始化
-void Network::init(string codeName, bool bigMe, int port)
-{
-	//cout << "Network preparing " << flush;
-	this->codeName = codeName;
-	this->bigMe = bigMe;
+bool Network::start(int port) {//作为服务端
 	this->port = port;
+
+	time(&rawtime);
+	info = localtime(&rawtime);
+	strftime(buffer, 80, "%Y%m%d%H%M%S", info);
+	logFileName.append(buffer);
+	logFileName.append(to_string(port));
+	logFileName.append(".log");
+	logger.open(logFileName, ios::out);
+
 	//创建socket
 	if ((this->sockSer = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
-		printf("[%s] - Socket error : %s\n", codeName.c_str(), strerror(errno));
-		exit(1);
+		logger << "ERROR - Socket: " << strerror(errno) << endl;
+		return false;
 	}
 	//填充套接字地址结构，包括地址族，ip和端口号
 	bzero(&this->addrSer, sizeof(struct sockaddr_in));
@@ -21,81 +26,77 @@ void Network::init(string codeName, bool bigMe, int port)
 	int opt = SO_REUSEADDR;
 	setsockopt(this->sockSer, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	// 接收缓冲区
-	int nRecvBuf = 8 * 1024; //设置为8K
+	int nRecvBuf = 1024; //设置为1K
 	setsockopt(this->sockSer, SOL_SOCKET, SO_RCVBUF, (const char*)&nRecvBuf, sizeof(int));
 	// 发送缓冲区
-	int nSendBuf = 8 * 1024; //设置为8K
+	int nSendBuf = 1024; //设置为1K
 	setsockopt(this->sockSer, SOL_SOCKET, SO_SNDBUF, (const char*)&nSendBuf, sizeof(int));
-	if (bigMe)
+	//绑定
+	if (bind(sockSer, (struct sockaddr*)(&this->addrSer), sizeof(struct sockaddr)) == -1)
 	{
-		//绑定
-		if (bind(sockSer, (struct sockaddr*)(&this->addrSer), sizeof(struct sockaddr)) == -1)
-		{
-			printf("[%s] - Bind error : %s\n", codeName.c_str(), strerror(errno));
-			exit(1);
-		}
-		// 监听
-		if (listen(sockSer, 1) == -1)
-		{
-			printf("[%s] - Listen error : %s\n", codeName.c_str(), strerror(errno));
-			exit(1);
-		}
-		cout << "[" << codeName << "] - Waiting for connection" << endl;
-		//接受
-		socklen_t naddr = sizeof(struct sockaddr_in);
-		if ((this->sockCli = accept(this->sockSer, (struct sockaddr*)(&this->addrCli), &naddr)) == -1)
-		{
-			printf("[%s] - Accept error%s\n", codeName.c_str(), strerror(errno));
-			exit(1);
-		}
-		cout << "[" << codeName << "] - Connected" << endl;
+		logger << "ERROR - Bind: " << strerror(errno) << endl;
+		return false;
 	}
-	else
+	// 监听
+	if (listen(sockSer, 1) == -1)
 	{
-		//连接
-		int times = 1;
-		cout << "[" << codeName << "] - Waiting for connection" << endl;
-		while (connect(sockSer, (struct sockaddr*)&this->addrSer, sizeof(struct sockaddr)) == -1)
-		{
-			sleep(times++);
-			if (times > 11)
-			{
-				printf("[%s] - Connect error : %s\n", codeName.c_str(), strerror(errno));
-				exit(1);
-			}
-		}
-		cout << "[" << codeName << "] - Connected" << endl;
+		logger << "ERROR - Listen: " << strerror(errno) << endl;
+		return false;
 	}
-	//cout << "\rNetwork OK        " << endl;
+	logTime();
+	logger << "+---- Waiting for connection" << endl;
+	return true;
+}
+
+//接收连接
+bool Network::acceptConnect() {
+	socklen_t naddr = sizeof(struct sockaddr_in);
+	if ((this->sockCli = accept(this->sockSer, (struct sockaddr*)(&this->addrCli), &naddr)) == -1)
+	{
+		//if (errno == EINTR) {
+		//	printf("Client leave\n");
+		//	continue;//必须加上这一句，当一个客户端断开时会引发中断异常，也就是这里的EINTR，通过这句话来重新accept，不然就会直接退出
+		//}
+		logger << "ERROR - Accept: " << strerror(errno) << endl;
+		return false;
+	}
+	if (getpeername(this->sockCli, (struct sockaddr*)(&this->addrCli), &naddr) == -1)
+	{
+		logger << "ERROR - Get Peer: " << strerror(errno) << endl;
+		return false;
+	}
+	logger << "+---- Accept connection from " << inet_ntoa(this->addrCli.sin_addr) << ":" << ntohs(this->addrCli.sin_port) << endl;
+
+	return true;
 }
 
 //发送一个string
 bool Network::mSend(int fd, string send_string)
 {
-	char* cstr = new char[send_string.size() + 1];
-	strcpy(cstr, send_string.c_str());
-	size_t send_size = send_string.size() + 1; //需要发送的数据大小
-	string send_size_string = to_string(send_size);
-	char* c_send_size_str = new char[send_size_string.size() + 1];
-	strcpy(c_send_size_str, send_size_string.c_str());
-	if (send(fd, c_send_size_str, send_size_string.size() + 1, 0) == -1)
-	{ //告知对方需要准备的缓冲区大小
-		printf("[%s] - Prewrite error : %s\n", codeName.c_str(), strerror(errno));
+	size_t size = send_string.size();
+	string size_str = to_string(size);//需要发送的数据大小
+	size_str = "SIZE" + size_str + "SIZE";
+
+	char* head = new char[HEAD_SIZE];
+	memset(head, '\0', HEAD_SIZE);
+	strcpy(head, size_str.c_str());
+	logger << "|head [";
+	for (int i = 0; i < HEAD_SIZE; i++) {
+		logger << head[i] << ", ";
+	}
+	logger << "]\n";
+	if (send(fd, head, HEAD_SIZE, 0) == -1)
+	{ //告知对方数据量
+		logger << "ERROR - Head: " << strerror(errno) << endl;
 		exit(1);
 	}
-	if (recv(fd, this->checkBuf, BUF_SIZE, 0) == -1 && !(strcmp(this->checkBuf, c_send_size_str)))
-	{ //接收确认信息
-		printf("[%s] - Check error : %s\n", codeName.c_str(), strerror(errno));
-		exit(1);
-	}
-	clock_t startS = clock();
-	if ((send(fd, cstr, send_size, 0)) == -1)
+	logger << "|size " << size << endl;
+	if ((send(fd, send_string.c_str(), size, 0)) == -1)
 	{ //发送数据
-		printf("[%s] - Write error : %s\n", codeName.c_str(), strerror(errno));
+		logger << "ERROR - Send: " << strerror(errno) << endl;
 		exit(1);
 	}
-	delete[] cstr;
-	delete[] c_send_size_str;
+	delete[] head;
 	return true;
 }
 
@@ -103,60 +104,44 @@ bool Network::mSend(int fd, string send_string)
 bool Network::mReceive(int fd, string& recv_string)
 {
 	recv_string.clear();
-	if (recv(fd, this->recvSizeBuf, BUF_SIZE, 0) == -1)
+	if (recv(fd, this->headBuf, HEAD_SIZE, 0) == -1)
 	{ //接收缓冲区尺寸
-		printf("[%s] - Preread error : %s\n", codeName.c_str(), strerror(errno));
+		logger << "ERROR - Head: " << strerror(errno) << endl;
 		exit(1);
 	}
-	if (send(fd, this->recvSizeBuf, BUF_SIZE, 0) == -1)
-	{ //发送确认信息
-		printf("[%s] - Check error : %s\n", codeName.c_str(), strerror(errno));
-		exit(1);
+	logger << "|head [";
+	for (int i = 0; i < HEAD_SIZE; i++) {
+		logger << this->headBuf[i] << ", ";
 	}
-	size_t recv_size = stol(this->recvSizeBuf); //接收缓冲区尺寸
-	char* cstr = new char[recv_size];           //接收缓冲区
-	memset(cstr, '\0', recv_size);
-	ssize_t recv_num, remain_num = recv_size;
-	clock_t startR = clock();
-	while (remain_num > 1)
-	{
-		if ((recv_num = recv(fd, cstr, recv_size, 0)) == -1 || recv_num == 0)
+	logger << "]\n";
+	string str(this->headBuf);
+	int start = str.find_first_of("SIZE");
+	int end = str.find("SIZE", start + 1);
+	str = str.substr(start + 4, end - (start + 4));
+	logger << "|size " << str << endl;
+
+	int file_size = stoi(str.c_str()), recv_num; //信息大小
+	char* cstr = new char[BUF_SIZE];           //接收缓冲区
+	int buffSize = BUF_SIZE;
+	memset(cstr, '\0', buffSize);
+	while (file_size > 1) {
+		if (file_size < BUF_SIZE) {
+			delete[] cstr;
+			cstr = new char[file_size];
+			buffSize = file_size;
+		}
+		if ((recv_num = recv(fd, cstr, buffSize, 0)) == -1)
 		{ //接收数据
-			printf("[%s] - Read error : %s\n", codeName.c_str(), strerror(errno));
+			logger << "ERROR - Read: " << strerror(errno) << endl;
 			exit(1);
 		}
-		remain_num -= strlen(cstr);
-		recv_string += cstr;
-		memset(cstr, '\0', recv_size);
+		recv_string.append(cstr, recv_num);
+		file_size -= recv_num;
+		logger << "|read " << recv_num << " remain: " << file_size << endl;
+		memset(cstr, '\0', buffSize);
 	}
 	delete[] cstr;
 	return true;
-}
-
-//发送一个string
-bool Network::mSend(string send_string)
-{
-	int fd = (bigMe) ? this->sockCli : sockSer;
-	this->mSend(fd, send_string);
-	return true;
-}
-
-//接收一个string
-bool Network::mReceive(string& recv_string)
-{
-	int fd = (bigMe) ? this->sockCli : sockSer;
-	this->mReceive(fd, recv_string);
-	return true;
-}
-
-//反序列化
-void Network::deserialization(string str, vector<string>& strs) {
-	size_t pos_start = 0, pos_end = 0;
-	while ((pos_end = str.find(delimiter, pos_end)) != string::npos) {
-		//pos_end = str.find(delimiter, pos_end);
-		strs.push_back(str.substr(pos_start, pos_end - pos_start));
-		pos_start = ++pos_end;
-	}
 }
 
 //发送一个文件
@@ -165,7 +150,7 @@ void Network::fSend(string fileName) {
 	ist.open(fileName, ios::in);
 	if (!ist)
 	{
-		cout << "[" << codeName << "] - " << "Can't open " << fileName << endl;
+		logger << "ERROR - File open: " << strerror(errno) << endl;
 		exit(1);
 	}
 	string temp, container;
@@ -173,10 +158,13 @@ void Network::fSend(string fileName) {
 		container += (temp + "\n");
 	}
 	ist.close();
-	//cout << "[" << codeName << "] - " << "Start sending " << fileName << endl;
-	mSend(container);
-	if (debug)
-		cout << "[" << codeName << "] - " << "sent     " << fileName << endl;
+
+	logger << "\n";
+	logTime();
+	logger << "+---- Sending " << fileName << endl;
+	mSend(this->sockCli,container);
+	logger << "+---- Sent " << fileName << endl;
+	logTime();
 }
 
 //接收一个文件
@@ -185,16 +173,18 @@ void Network::fReceive(string fileName) {
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
-		cout << "[" << codeName << "] - " << "Can't creat " << fileName << endl;
+		logger << "ERROR - File create: " << strerror(errno) << endl;
 		exit(1);
 	}
-	//cout << "[" << codeName << "] - " << "Start receiving " << fileName << endl;
+	logger << "\n";
+	logTime();
+	logger << "+---- Receiving " << fileName << endl;
 	string  container;
-	mReceive(container);
+	mReceive(this->sockCli, container);
 	ost << container;
 	ost.close();
-	if (debug)
-		cout << "[" << codeName << "] - " << "received " << fileName << endl;
+	logger << "+---- Received " << fileName << endl;
+	logTime();
 }
 //关闭套接字
 Network::~Network()
@@ -203,4 +193,5 @@ Network::~Network()
 		close(sockSer);
 	if (sockCli)
 		close(sockCli);
+	logger.close();
 }

@@ -7,3 +7,4 @@ Pedersen Ped = Pedersen();        // Object which calculates the commitments
 Network net = Network();
 bool vMode = false;
 bool debug = false;
+string filesPath;

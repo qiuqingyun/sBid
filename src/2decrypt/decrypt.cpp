@@ -17,20 +17,23 @@ int Decrypt::decrypt() {
 }
 //读取经过两轮混淆的密文
 void Decrypt::readCipherShuffled() {
-	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
+	string fileName = filesPath + "cipherSR" + codeBig + "-R" + round + ".txt";
+	ist.close();
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist) {
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
 	}
 	for (int i = 0; i < cipherNum; i++) {
 		ist >> ciphertext[i];
+		//cout << "ciphertext[i]: " << ciphertext[i] << endl;
 	}
 	ist.close();
 }
 //创建解密份额
 void Decrypt::createDk() {
-	string fileName = "dk" + codes[0] + "-R" + round + ".txt";
+	string fileName = filesPath + "dk" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost) {
 		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
@@ -39,6 +42,8 @@ void Decrypt::createDk() {
 	stringstream ss;
 	for (int i = 0; i < cipherNum; i++) {
 		c2[i] = ciphertext[i].get_u();
+
+
 		dk_1[i] = PowerMod(c2[i], sk, mod);
 		ost << dk_1[i] << endl;
 		ss << dk_1[i] << ";";
@@ -47,32 +52,23 @@ void Decrypt::createDk() {
 
 	string cipher_1, cipher_2;
 	ss >> cipher_1;
+	//NOTE: 和java交互，先发送后接收
+	string fileName1 = filesPath + "dk" + codes[1] + "-R" + round + ".txt";
+
 	if (bigMe) {//大号先接收再发送
-		net.mReceive(cipher_2);
-		net.mSend(cipher_1);
+		net.fSend(fileName);
+		net.fReceive(fileName1);
 	}
 	else {//小号先发送再接收
-		net.mSend(cipher_1);
-		net.mReceive(cipher_2);
+		net.fReceive(fileName1);
+		net.fSend(fileName);
 	}
-	vector<string> ciphertext_2_str;
-	net.deserialization(cipher_2, ciphertext_2_str);
-	//保存
-	fileName = "dk" + codes[1] + "-R" + round + ".txt";
-	ost.open(fileName, ios::out);
-	if (!ost)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't create " << fileName << endl;
-		exit(1);
-	}
-	for (int i = 0; i < cipherNum; i++)
-		ost << ciphertext_2_str[i] << endl;
-	ost.close();
 }
 //读取对方的解密份额
 void Decrypt::readDk() {
-	string fileName = "dk" + codes[1] + "-R" + round + ".txt";
+	string fileName = filesPath + "dk" + codes[1] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist) {
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
@@ -84,35 +80,40 @@ void Decrypt::readDk() {
 }
 //输出结果
 int Decrypt::outputAns() {
-	int result = 0, flag = 0;
+	int result = 0, flag = 0, zeroFlag = 0;
 	for (int i = 0; i < cipherNum; i++)
 	{
 		ZZ dk = MulMod(dk_1[i], dk_2[i], mod);//加法同态
 		ZZ dk_inv = InvMod(dk, mod);//取逆
 		ZZ ans = El.get_m(MulMod(ciphertext[i].get_v(), dk_inv, mod));//解密
+		//cout << ans << " ";
 		if (ans == 0)
-		{//大号胜
-
-			return 0;
+		{
+			zeroFlag++;
 		}
 		else if (ans == 1)
 		{//平局
 			flag++;
 		}
 	}
+	//cout << endl;
+	if (zeroFlag)
+		return 0;//大号小于小号
 	if (flag == cipherNum)
-
-		return 1;
+		return 1;//全为1则平
+	//大号大于小号
 	return 2;
 
 }
+//证明
 void Decrypt::prove() {
 	//生成证明
-	string fileName = "proveDecrypt" + codes[0] + "-R" + round + ".txt";
+	string fileName = filesPath + "proveDecrypt" + codes[0] + "-R" + round + ".txt";
 	Commitment com(codes, round, c2, dk_1, bigMe, fileName);
 	com.decryptCommit();
 	//交换证明
-	string fileName1 = "proveDecrypt" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = filesPath + "proveDecrypt" + codes[1] + "-R" + round + ".txt";
+	//NOTE: 和java交互，先发送后接收
 	if (bigMe) {
 		net.fSend(fileName);
 		net.fReceive(fileName1);
@@ -128,8 +129,9 @@ bool Decrypt::verify() {
 		index = 1;
 	bool flag = true;
 	//读入密文，得到c2
-	string fileName = "cipherSR" + codeBig + "-R" + round + ".txt";
+	string fileName = filesPath + "cipherSR" + codeBig + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist) {
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
@@ -139,8 +141,9 @@ bool Decrypt::verify() {
 	}
 	ist.close();
 	//读入dk
-	fileName = "dk" + codes[index] + "-R" + round + ".txt";
+	fileName = filesPath + "dk" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist) {
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
@@ -150,8 +153,9 @@ bool Decrypt::verify() {
 	}
 	ist.close();
 	//读入pk
-	fileName = "pk" + codes[index] + ".txt";
+	fileName = filesPath + "pk" + codes[index] + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist) {
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
 		exit(1);
@@ -161,8 +165,9 @@ bool Decrypt::verify() {
 	pk.toModP(container, mod);
 	ist.close();
 	//读入证明
-	fileName = "proveDecrypt" + codes[index] + "-R" + round + ".txt";
+	fileName = filesPath + "proveDecrypt" + codes[index] + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;

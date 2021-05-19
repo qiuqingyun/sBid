@@ -15,7 +15,7 @@ int ParaGen::parametersGen(int lp, int lq) {
 			return(1);
 		}
 	}
-	string fileName = "parameters.txt";
+	string fileName = filesPath + "parameters.txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{

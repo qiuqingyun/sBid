@@ -11,34 +11,31 @@ void Shuffle::creatProver(bool bigMe) {
 	cipher_out = new vector<vector<Cipher_elg>*>(m);  //输出的密文
 	string fileName;
 	if (bigMe) {//大号用小号的shuffle结果作为输入
-		string shuffleResult;
-		net.mReceive(shuffleResult);
-		vector<string> shuffleResult_str;
-		net.deserialization(shuffleResult, shuffleResult_str);
-		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
-		ost.open(fileName, ios::out);
-		if (!ist)
-		{
-			cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-			exit(1);
-		}
-		for (int i = 0; i < 32; i++) {
-			ost << shuffleResult_str[i] << endl;
-		}
-		ost.close();
+		//string shuffleResult;
+		//NOTE: 和java交互，先发送后接收
+		//net.mReceive(shuffleResult);
+		//vector<string> shuffleResult_str;
+		//net.deserialization(shuffleResult, shuffleResult_str);
+		fileName = filesPath + "cipherSR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
+		net.fReceive(fileName);
+		//ost.open(fileName, ios::out);
+		//waitFile(fileName, ist);
+		//if (!ist)
+		//{
+		//	cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		//	exit(1);
+		//}
+		//for (int i = 0; i < 32; i++) {
+		//	ost << shuffleResult_str[i] << endl;
+		//}
+		//ost.close();
 	}
 	else {//小号用大号的比较结果作为输入
-		fileName = "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
+		fileName = filesPath + "cipherCR" + codes[1] + "-R" + round + ".txt";//比较结果的密文
 	}
+	
 	//读入密文
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{//作为第二轮shuffle者
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	readCipher(cipher_in);
-	ist.close();
+	readCipher(fileName, cipher_in);
 
 }
 //创建Verifier角色
@@ -54,83 +51,80 @@ void Shuffle::creatVerifier(bool bigMe) {
 	string fileName;
 	if (!vMode) {
 		if (bigMe) {//大号读取比较结果
-			fileName = "cipherCR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
+			fileName = filesPath + "cipherCR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
 		}
 		else {//小号读取混淆结果
-			fileName = "cipherSR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
+			fileName = filesPath + "cipherSR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
 		}
 	}
 	else
 	{
 		if (bigMe) {//大号读取混淆结果
-			fileName = "cipherSR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
+			fileName = filesPath + "cipherSR" + codes[index] + "-R" + round + ".txt";//shuffe过一轮的密文
 		}
 		else {//小号读取比较结果
-			fileName = "cipherCR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
+			fileName = filesPath + "cipherCR" + codes[index] + "-R" + round + ".txt";//比较结果的密文
 		}
 	}
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	readCipher(cipher_in);
-	ist.close();
+	readCipher(fileName, cipher_in);
 	//读取shuffle过的密文
-	fileName = "cipherSR" + codes[!index] + "-R" + round + ".txt";
-	ist.open(fileName, ios::in);
-	if (!ist)
-	{
-		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
-		exit(1);
-	}
-	readCipher(cipher_out);
-	ist.close();
+	fileName = filesPath + "cipherSR" + codes[!index] + "-R" + round + ".txt";
+	readCipher(fileName, cipher_out);
+
 }
 //生成承诺
-void Shuffle::prove() {//prove内容有问题
-	clock_t tstart = clock();
+void Shuffle::prove() {
+	clock_t tstart = GetTickCount();
 	//生成证明
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
 	Prover_toom* P = new Prover_toom(cipher_out, R, pi, num, codes[0]);
-	string fileName = "proveShuffle" + codes[0] + "-R" + round + ".txt";
+	string fileName = filesPath + "proveShuffle" + codes[0] + "-R" + round + ".txt";
 	P->prove(codes, fileName);
 	delete P;
 	//计时
-	clock_t tstop = clock();
+	clock_t tstop = GetTickCount();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove shuffle " << ttime << " ms" << endl;
 	//交换证明
-	string fileName1 = "proveShuffle" + codes[1] + "-R" + round + ".txt";
+	string fileName1 = filesPath + "proveShuffle" + codes[1] + "-R" + round + ".txt";
+	//NOTE: 和java交互，先发送后接收
+
 	if (bigMe) {
-		net.fSend(fileName);
 		net.fReceive(fileName1);
+		net.fSend(fileName);
 	}
 	else {
-		net.fReceive(fileName1);
 		net.fSend(fileName);
+		net.fReceive(fileName1);
 	}
 }
 //正确性验证
 bool Shuffle::verify() {
-	clock_t tstart = clock();
+	clock_t tstart = GetTickCount();
 	int index = 0;
 	if (!vMode)
 		index = 1;
 	vector<int> num = { m, n, omega_mulex, omega_sw, omega_LL, mu, m_r, mu_h };
-	string fileName = "proveShuffle" + codes[index] + "-R" + round + ".txt";
+	string fileName = filesPath + "proveShuffle" + codes[index] + "-R" + round + ".txt";
 	Verifier_toom* V = new Verifier_toom(num);
 	ans = V->verify(codes, fileName, cipher_in, cipher_out);
 	delete V;
 
-	clock_t tstop = clock();
+	clock_t tstop = GetTickCount();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify shuffle " << ttime << " ms" << endl;
 	return ans;
 }
 //读取文件中的密文，保存为16×2的矩阵形式
-void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
+void Shuffle::readCipher(string fileName, vector<vector<Cipher_elg>*>* Cipher) {
+	ist.close();
+	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
+	if (!ist)
+	{
+		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
+		exit(1);
+	}
 	string in_temp, u_str, v_str;
 	size_t pos_start, pos_mid, pos_end;
 	for (int row = 0; row < m; row++) {
@@ -143,6 +137,7 @@ void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 			u_str = in_temp.substr(pos_start + 1, pos_mid - 1);
 			v_str = in_temp.substr(pos_mid + 1, pos_end - pos_mid - 1);
 			ZZ u, v;
+			//cout << in_temp << " | (" << u_str << "," << v_str << ")\n";
 			conv(u, u_str.c_str());
 			conv(v, v_str.c_str());
 			Cipher_elg Cipher_temp = Cipher_elg(u, v, H.get_mod());
@@ -150,17 +145,18 @@ void Shuffle::readCipher(vector<vector<Cipher_elg>*>* Cipher) {
 		}
 		Cipher->at(row) = r;
 	}
+	ist.close();
 }
 //进行shuffle操作
 void Shuffle::shuffle() {
-	//clock_t tstart = clock();
+	//clock_t tstart = GetTickCount();
 	R = new vector<vector<ZZ>*>(m);
 	pi = new vector<vector<vector<int>*>*>(m);
 	perm_matrix(pi);//生成用于shuffle的向量pi，内容为32个整数
 	randomEl(R);//生成用于重加密的随机数矩阵R，内容为32个随机数
-	
+
 	//使用pi和R对密文cipher_in进行重新加密，生成32个(u,v)密文组，并输出
-	string fileName = "cipherSR" + codes[0] + "-R" + round + ".txt";
+	string fileName = filesPath + "cipherSR" + codes[0] + "-R" + round + ".txt";
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -172,21 +168,26 @@ void Shuffle::shuffle() {
 	ost.close();
 	/*Functions::decryptCipher(c, num, 0);
 	Functions::decryptCipher(C, num, 1);*/
-	/*clock_t  tstop = clock();
+	/*clock_t  tstop = GetTickCount();
 	double ttime = (tstop - tstart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "shuffle " << ttime << " ms" << endl;*/
 
 	string cipher_1, cipher_2;
 	ss >> cipher_1;
 	if (bigMe) {//大号将结果发送给小号
-		net.mSend(cipher_1);
+		//NOTE: 和java交互，先发送后接收
+		//net.mSend(cipher_1);
+		net.fSend(fileName);
 	}
 	else {//小号将结果发送给大号，并接收大号的结果
-		net.mSend(cipher_1);
+		//NOTE: 和java交互，先发送后接收
+		net.fSend(fileName);
+		fileName = filesPath + "cipherSR" + codes[1] + "-R" + round + ".txt";
+		net.fReceive(fileName);
+		/*net.mSend(cipher_1);
 		net.mReceive(cipher_2);
 		vector<string> ciphertext_2_str;
 		net.deserialization(cipher_2, ciphertext_2_str);
-		fileName = "cipherSR" + codes[1] + "-R" + round + ".txt";
 		ost.open(fileName, ios::out);
 		if (!ost)
 		{
@@ -195,7 +196,7 @@ void Shuffle::shuffle() {
 		}
 		for (int i = 0; i < 32; i++)
 			ost << ciphertext_2_str[i] << endl;
-		ost.close();
+		ost.close();*/
 	}
 }
 //生成随机替换序列

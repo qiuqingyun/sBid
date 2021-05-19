@@ -55,22 +55,22 @@ void Commitment::cipherCommit() {
 	ost << h << endl;
 	ost << y << endl;
 
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 
 	sigma();
 
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove sigma " << cTime << " ms" << endl;
 
-	cStart = clock();
+	cStart = GetTickCount();
 
 	indicates();//表示证明
 	discreteLogarithm(2);//离散对数证明
 	linearEquation(1);//线性等式证明
 	ost.close();
 
-	cEnd = clock();
+	cEnd = GetTickCount();
 	cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove ciphertext " << cTime << " ms" << endl;
 
@@ -80,6 +80,7 @@ bool Commitment::cipherCheck() {
 	
 	bool ans = true;
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
@@ -95,22 +96,22 @@ bool Commitment::cipherCheck() {
 	ist >> container;
 	y.toModP(container, mod);
 
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 
 	ans &= checkSigma();
 
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify sigma " << cTime << " ms" << endl;
 
-	cStart = clock();
+	cStart = GetTickCount();
 
 	ans &= indicatesCheck();
 	ans &= discreteLogarithmCheck(2);
 	ans &= linearEquationCheck(1);
 	ist.close();
 	
-	cEnd = clock();
+	cEnd = GetTickCount();
 	cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify ciphertext " << cTime << " ms" << endl;
 
@@ -119,7 +120,7 @@ bool Commitment::cipherCheck() {
 
 //密文一致性证明
 void Commitment::ciphertextConsistencyCommit() {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -168,15 +169,16 @@ void Commitment::ciphertextConsistencyCommit() {
 	for (int i = 0; i < cipherNum; i++)
 		ost << s4[i] << endl;
 	ost.close();
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove consistency " << cTime << " ms" << endl;
 }
 //密文一致性证明验证
 bool Commitment::ciphertextConsistencyCheck() {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	bool ans = true;
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
@@ -223,7 +225,7 @@ bool Commitment::ciphertextConsistencyCheck() {
 		ans &= (s1[i] == s2[i]);
 		ans &= (c[i] == hashValue);
 	}
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify consistency " << cTime << " ms" << endl;
 	return ans;
@@ -231,7 +233,7 @@ bool Commitment::ciphertextConsistencyCheck() {
 
 //比较正确性证明
 void Commitment::compareCommit() {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -249,16 +251,17 @@ void Commitment::compareCommit() {
 	compareCommit3();
 	compareCommit4();
 	compareCommit5();
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove compare " << cTime << " ms" << endl;
 	ost.close();
 }
 //比较正确性证明验证
 bool Commitment::compareCheck(Cipher_elg cipherZero) {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	bool ans = true;
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
@@ -280,7 +283,7 @@ bool Commitment::compareCheck(Cipher_elg cipherZero) {
 	ans &= compareCommitCheck4();
 	ans &= compareCommitCheck5();
 	ost.close();
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify compare " << cTime << " ms" << endl;
 	return ans;
@@ -288,7 +291,7 @@ bool Commitment::compareCheck(Cipher_elg cipherZero) {
 
 //解密正确性证明
 void Commitment::decryptCommit() {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	ost.open(fileName, ios::out);
 	if (!ost)
 	{
@@ -308,15 +311,16 @@ void Commitment::decryptCommit() {
 	}
 	equation();
 	ost.close();
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "prove decrypt " << cTime << " ms" << endl;
 }
 //解密正确性证明验证
 bool Commitment::decryptCheck() {
-	clock_t cStart = clock();
+	clock_t cStart = GetTickCount();
 	bool ans = true;
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;
@@ -337,7 +341,7 @@ bool Commitment::decryptCheck() {
 	}
 	ans &= equationCheck();
 	ist.close();
-	clock_t cEnd = clock();
+	clock_t cEnd = GetTickCount();
 	double cTime = (cEnd - cStart) / (double)CLOCKS_PER_SEC * 1000;
 	cout << "[" << codes[0] << "] - " << "verify decrypt " << cTime << " ms" << endl;
 	return ans;

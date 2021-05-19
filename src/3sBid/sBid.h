@@ -31,11 +31,14 @@ private:
 	int cipherNum = 32;
 	int pBits = 100;
 	int qBits = 90;
+	string lastFinishRoundMe;//上一次参与竞标的轮数
+	string lastFinishRoundOp;
+	int strategyFlag = -1;
 
 	//读取群的参数并生成群
 	void readParameters();
-	//设置初始化ElGamal
-	int creatElGamal();
+	//读取ElGamal公私钥
+	int readElGamal();
 	//将生成的公钥传递给对方
 	void pkExchange();
 	//加密并生成证明
@@ -54,12 +57,18 @@ private:
 	void decryptOp();
 	//验证解密
 	bool decryptVerify();
+	/*void consistencyOp();
+	bool consistencyVerify();*/
 
 public:
 	//生成参数
 	void parametersGen();
+	//生成密钥及密文用于链上注册
+	void registration(string code);
+	//生成ElGamal公私钥
+	int creatElGamal();
 	//竞拍准备操作
-	void prepare(array<int, 3> codes_in);
+	void prepare(array<int, 6> codes_in);
 	//开始竞标
 	void bid();
 	//验证

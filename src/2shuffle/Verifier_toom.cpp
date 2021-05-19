@@ -96,6 +96,7 @@ int Verifier_toom::verify(array<string, 2> codes, string fileName, vector<vector
 	string container1 = "\0", container2;
 	//string fileName = "proveShuffle" + codeName + "-R" + round + ".txt";
 	ist.open(fileName, ios::in);
+	waitFile(fileName, ist);
 	if (!ist)
 	{
 		cout << "[" << codes[0] << "] - " << "Can't open " << fileName << endl;

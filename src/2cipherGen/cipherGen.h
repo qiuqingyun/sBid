@@ -38,12 +38,15 @@ private:
 
 public:
 	CipherGen(array<string, 2> codes, string round, bool bigMe);
+	CipherGen(array<string, 2> codes);
 	//读取明文并用私有公钥加密，保存密文
 	void chainPrepare();
 	//生成密文( h^r , g^m × y^r )
 	void gen(array<Cipher_elg, 32>& Ciphertext, array<ZZ, 32>& Plaintext, ZZ& RanZero, array<ZZ, 32>& Ran);
 	//生成证明
 	void prove();
+	void proveConsistency(string lastFinishRoundMe, string lastFinishRoundOp);
 	//验证证明
 	bool verify();
+	bool verifyConsistency(string lastFinishRoundOp);
 };
