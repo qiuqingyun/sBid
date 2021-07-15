@@ -1,4 +1,4 @@
-# 基于区块链上的隐私竞拍系统
+# 隐私竞拍系统
 
 ## 项目详细描述
 多个竞拍者参与投标，保证投标金额隐私，经过比较选出最大或最小竞价，允许泄露各方投标的大小关系；每个竞拍者均可作为验证方，验证竞拍过程
@@ -23,27 +23,17 @@
 ## 必要文件
 * 参数生成：无
 * 竞拍功能：
-    * 第一轮
-        * 加密参数文件`parameters.txt`
-        * 十进制明文金额数文件`plaintext_int${code}.txt`或二进制明文金额数文件`plaintext${code}.txt`
-        * 注：
-            1. `${code}`为竞拍参与者的唯一编号
-            2. 程序优先读取二进制明文金额数文件，不存在二进制明文金额数文件时才会读取十进制明文金额数文件中的金额，且会生成二进制明文金额数文件
-    * 第二轮及之后轮次
-        * 加密参数文件`parameters.txt`
-        * 十进制明文金额数文件`plaintext_int${code}.txt`或二进制明文金额数文件`plaintext${code}.txt`
-        * 公钥文件`pk${code}.txt`
-        * 私钥文件`sk${code}.txt`
-        * 上一轮的加密密文文件`ciphertext${code}.txt`
-        * 上一轮的加密随机数文件`ran${code}.txt`
+    * 加密参数文件`parameters.txt`
+    * 十进制明文金额数文件`plaintext_int${code}.txt`
+        > `${code}`为竞拍参与者的唯一编号
 * 验证功能：
-        * 参数文件`parameters.txt`
-        * 公钥文件`pk*.txt`
-        * 部分解密文件`dk*-R*.txt`
-        * 加密密文文件`ciphertext*-R*.txt`
-        * 比较结果文件`cipherCR*-R*.txt`
-        * 混淆结果文件`cipherSR*-R*.txt`
-        * 加密正确性证明文件`proveCipher*-R*.txt`
-        * 比较正确性证明文件`proveCompare*-R*.txt`
-        * 混淆正确性证明文件`proveShuffle*-R*.txt`
-        * 解密正确性证明文件`proveDecrypt*-R*.txt`
+    * 参数文件`parameters.txt`
+    * 公钥文件`pk*.txt`
+    * 部分解密文件`dk*-R*.txt`
+    * 加密密文文件`ciphertext*-R*.txt`
+    * 比较结果文件`cipherCR*-R*.txt`
+    * 混淆结果文件`cipherSR*-R*.txt`
+    * 加密正确性证明文件`proveCipher*-R*.txt`
+    * 比较正确性证明文件`proveCompare*-R*.txt`
+    * 混淆正确性证明文件`proveShuffle*-R*.txt`
+    * 解密正确性证明文件`proveDecrypt*-R*.txt`
